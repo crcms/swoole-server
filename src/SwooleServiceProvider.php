@@ -9,13 +9,17 @@
 
 namespace CrCms\Server;
 
+use CrCms\Microservice\Server\Events\ServiceHandled;
+use CrCms\Server\Listeners\RequestHandledListener;
+use CrCms\Server\Listeners\ServiceHandledListener;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Foundation\Http\Events\RequestHandled;
 
 /**
  * Class ServerServiceProvider
  * @package CrCms\Server
  */
-class ServerServiceProvider extends ServiceProvider
+class SwooleServiceProvider extends ServiceProvider
 {
     /**
      * @var string
@@ -25,7 +29,7 @@ class ServerServiceProvider extends ServiceProvider
     /**
      * @var string
      */
-    protected $name = 'server';
+    protected $name = 'swoole';
 
     /**
      * @return void
@@ -35,6 +39,8 @@ class ServerServiceProvider extends ServiceProvider
         $this->publishes([
             $this->packagePath . 'config' => config_path($this->name . '.php'),
         ]);
+
+        $this->registerEventListener();
     }
 
     /**
@@ -45,5 +51,18 @@ class ServerServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             $this->packagePath . "config/config.php", $this->name
         );
+    }
+
+    /**
+     * @return void
+     */
+    protected function registerEventListener(): void
+    {
+        if (class_exists(ServiceHandled::class)) {
+            $this->app['events']->listen(ServiceHandled::class, ServiceHandledListener::class);
+        }
+        if (class_exists(RequestHandled::class)) {
+            $this->app['events']->listen(ServiceHandled::class, RequestHandledListener::class);
+        }
     }
 }

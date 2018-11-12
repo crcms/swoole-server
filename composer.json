@@ -48,7 +48,7 @@
   "extra": {
     "laravel": {
       "providers": [
-        "CrCms\\Server\\ServerServiceProvider"
+        "CrCms\\Server\\SwooleServiceProvider"
       ],
       "aliases": {
       }
