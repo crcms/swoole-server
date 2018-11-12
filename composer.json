@@ -1,0 +1,48 @@
+{
+  "name": "crcms/swoole-server",
+  "description": "The CrCms Swoole Server.",
+  "keywords": [
+    "swoole",
+    "http",
+    "tcp",
+    "crcms",
+    "laravel"
+  ],
+  "homepage": "http://blog.crcms.cn",
+  "support": {
+    "issues": "https://github.com/crcms/swoole-server/issues",
+    "source": "https://github.com/crcms/swoole-server"
+  },
+  "authors": [
+    {
+      "name": "simon",
+      "email": "simon@crcms.cn"
+    }
+  ],
+  "license": "MIT",
+  "type": "library",
+  "require": {
+    "php": "^7.2.4"
+  },
+  "require-dev": {
+  },
+  "autoload": {
+    "classmap": [
+    ],
+    "psr-4": {
+      "CrCms\\Server\\": "src/"
+    },
+    "files": [
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "CrCms\\Server\\Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
