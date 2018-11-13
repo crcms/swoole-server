@@ -62,7 +62,7 @@ class SwooleServiceProvider extends ServiceProvider
             $this->app['events']->listen(ServiceHandled::class, ServiceHandledListener::class);
         }
         if (class_exists(RequestHandled::class)) {
-            $this->app['events']->listen(ServiceHandled::class, RequestHandledListener::class);
+            $this->app['events']->listen(RequestHandled::class, RequestHandledListener::class);
         }
     }
 }
