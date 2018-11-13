@@ -37,7 +37,7 @@ class SwooleServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes([
-            $this->packagePath . 'config' => config_path($this->name . '.php'),
+            $this->packagePath . 'config/config.php' => config_path($this->name . '.php'),
         ]);
 
         $this->registerEventListener();
