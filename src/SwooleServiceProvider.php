@@ -11,9 +11,10 @@ namespace CrCms\Server;
 
 use CrCms\Microservice\Server\Events\ServiceHandled;
 use CrCms\Server\Listeners\RequestHandledListener;
-use CrCms\Server\Listeners\ServiceHandledListener;
+use CrCms\Server\Listeners\CrCmsRequestHandledListener;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Foundation\Http\Events\RequestHandled;
+use CrCms\Microservice\Server\Events\RequestHandled as CrCmsRequestHandled;
 
 /**
  * Class ServerServiceProvider
@@ -58,8 +59,8 @@ class SwooleServiceProvider extends ServiceProvider
      */
     protected function registerEventListener(): void
     {
-        if (class_exists(ServiceHandled::class)) {
-            $this->app['events']->listen(ServiceHandled::class, ServiceHandledListener::class);
+        if (class_exists(CrCmsRequestHandled::class)) {
+            $this->app['events']->listen(CrCmsRequestHandled::class, CrCmsRequestHandledListener::class);
         }
         if (class_exists(RequestHandled::class)) {
             $this->app['events']->listen(RequestHandled::class, RequestHandledListener::class);

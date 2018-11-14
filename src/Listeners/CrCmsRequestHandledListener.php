@@ -9,14 +9,14 @@
 
 namespace CrCms\Server\Listeners;
 
-use CrCms\Microservice\Server\Events\ServiceHandled;
+use CrCms\Microservice\Server\Events\RequestHandled;
 use CrCms\Server\ReloadProvider;
 
 /**
  * Class ServiceHandledListener
  * @package CrCms\Server\Listeners
  */
-class ServiceHandledListener
+class CrCmsRequestHandledListener
 {
     /**
      * @var ReloadProvider
@@ -24,7 +24,7 @@ class ServiceHandledListener
     protected $reloadProvider;
 
     /**
-     * RequestHandledListener constructor.
+     * CrCmsRequestHandledListener constructor.
      * @param ReloadProvider $reloadProvider
      */
     public function __construct(ReloadProvider $reloadProvider)
@@ -35,7 +35,7 @@ class ServiceHandledListener
     /**
      * @param $event
      */
-    public function handle(ServiceHandled $event)
+    public function handle(RequestHandled $event)
     {
         $this->reloadProvider->handle();
     }
