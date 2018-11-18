@@ -12,6 +12,9 @@ namespace CrCms\Server;
 use CrCms\Microservice\Server\Events\ServiceHandled;
 use CrCms\Server\Listeners\RequestHandledListener;
 use CrCms\Server\Listeners\CrCmsRequestHandledListener;
+use CrCms\Server\Server\AbstractServer;
+use CrCms\Server\Server\Contracts\ServerActionContract;
+use CrCms\Server\Server\Contracts\ServerContract;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Foundation\Http\Events\RequestHandled;
 use CrCms\Microservice\Server\Events\RequestHandled as CrCmsRequestHandled;
@@ -52,6 +55,22 @@ class SwooleServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             $this->packagePath . "config/config.php", $this->name
         );
+
+        $this->registerServerAlias();
+    }
+
+    /**
+     * @return void
+     */
+    protected function registerServerAlias(): void
+    {
+        foreach ([
+                     AbstractServer::class,
+                     ServerActionContract::class,
+                     ServerContract::class,
+                 ] as $alias) {
+            $this->app->alias('server', $alias);
+        }
     }
 
     /**
