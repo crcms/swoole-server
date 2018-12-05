@@ -95,13 +95,30 @@ abstract class AbstractServer implements ServerActionContract, ServerContract
         $this->app = $app;
         $this->config = $config;
         $this->name = $name;
-        $this->bindToApplication();
     }
 
     /**
      * @return void
      */
     abstract public function bootstrap(): void;
+
+    /**
+     * @param Process $process
+     * @return AbstractServer
+     */
+//    public function setProcess(Process $process): AbstractServer
+//    {
+//        $this->process = $process;
+//        return $this;
+//    }
+//
+//    /**
+//     * @return Process
+//     */
+//    public function getProcess(): Process
+//    {
+//        return $this->process;
+//    }
 
     /**
      * @param string $name
@@ -253,15 +270,6 @@ abstract class AbstractServer implements ServerActionContract, ServerContract
     protected function eventHandle(string $name): void
     {
         $this->server->{$name}->handle($this);
-    }
-
-    /**
-     * @return void
-     */
-    protected function bindToApplication(): void
-    {
-        $this->app->alias('server', ServerContract::class);
-        $this->app->instance('server', $this);
     }
 
     /**
