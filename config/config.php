@@ -12,21 +12,24 @@ return [
     */
 
     'servers' => [
-        'micro-service' => [
+        'websocket' => [
+            'driver' => CrCms\Server\WebSocket\Server::class,
             'host' => '0.0.0.0',
-            'port' => 2222,
+            'port' => 28082,
             'mode' => defined('SWOOLE_PROCESS') ? SWOOLE_PROCESS : 3,
             'type' => defined('SWOOLE_SOCK_TCP') ? SWOOLE_SOCK_TCP : 1,
             'settings' => [
                 'user' => env('SWOOLE_USER'),
                 'group' => env('SWOOLE_GROUP'),
                 'log_level' => 4,
-                'log_file' => storage_path('logs/micro-service.log'),
+                'log_file' => storage_path('logs/websocket.log'),
             ]
         ],
+
         'http' => [
+            'driver' => CrCms\Server\Http\Server::class,
             'host' => '0.0.0.0',
-            'port' => 22,
+            'port' => 80,
             'mode' => defined('SWOOLE_PROCESS') ? SWOOLE_PROCESS : 3,
             'type' => defined('SWOOLE_SOCK_TCP') ? SWOOLE_SOCK_TCP : 1,
             'settings' => [
@@ -35,7 +38,7 @@ return [
                 'log_level' => 4,
                 'log_file' => storage_path('logs/http.log'),
             ]
-        ]
+        ],
     ],
 
     /*
@@ -72,4 +75,6 @@ return [
     */
 
     'process_prefix' => 'swoole',
+
+    'enable_websocket' => true,
 ];

@@ -2,7 +2,6 @@
 
 namespace CrCms\Server\Server\Events;
 
-use CrCms\Server\Concerns\ProcessNameConcern;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Contracts\EventContract;
 
@@ -12,8 +11,6 @@ use CrCms\Server\Server\Contracts\EventContract;
  */
 abstract class AbstractEvent implements EventContract
 {
-    use ProcessNameConcern;
-
     /**
      * @var AbstractServer
      */
@@ -45,5 +42,18 @@ abstract class AbstractEvent implements EventContract
         $processName = ($processPrefix ? $processPrefix . '_' : $processPrefix) . $processName;
 
         static::setProcessName($processName);
+    }
+
+    /**
+     * @param string $name
+     * @return bool|void
+     */
+    protected static function setProcessName(string $name)
+    {
+        if (function_exists('cli_set_process_title')) {
+            return cli_set_process_title($name);
+        } elseif (function_exists('swoole_set_process_name')) {
+            return swoole_set_process_name($name);
+        }
     }
 }

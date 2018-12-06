@@ -10,6 +10,7 @@
 namespace CrCms\Server;
 
 use CrCms\Microservice\Server\Events\ServiceHandled;
+use CrCms\Server\Commands\ServerCommand;
 use CrCms\Server\Listeners\RequestHandledListener;
 use CrCms\Server\Listeners\CrCmsRequestHandledListener;
 use CrCms\Server\Server\AbstractServer;
@@ -42,6 +43,7 @@ class SwooleServiceProvider extends ServiceProvider
     {
         $this->publishes([
             $this->packagePath . 'config/config.php' => config_path($this->name . '.php'),
+            $this->packagePath . 'routes/websocket.php' => public_path('routes/websocket.php'),
         ]);
 
         $this->registerEventListener();
@@ -57,6 +59,21 @@ class SwooleServiceProvider extends ServiceProvider
         );
 
         $this->registerServerAlias();
+
+        $this->registerCommands();
+
+        if ($this->app['config']->get('swoole.enable_websocket', false)) {
+            $this->app->register(WebSocketServiceProvider::class);
+        }
+    }
+
+    /**
+     * @return void
+     */
+    protected function registerCommands(): void
+    {
+        //require swoole-server
+        $this->commands(ServerCommand::class);
     }
 
     /**
