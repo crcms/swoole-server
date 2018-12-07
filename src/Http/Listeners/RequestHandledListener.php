@@ -7,7 +7,7 @@
  * @copyright Copyright &copy; 2018 Rights Reserved CRCMS
  */
 
-namespace CrCms\Server\Listeners;
+namespace CrCms\Server\Http\Listeners;
 
 use CrCms\Server\ReloadProvider;
 
