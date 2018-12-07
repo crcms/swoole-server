@@ -43,7 +43,7 @@ class SwooleServiceProvider extends ServiceProvider
     {
         $this->publishes([
             $this->packagePath . 'config/config.php' => config_path($this->name . '.php'),
-            $this->packagePath . 'routes/websocket.php' => public_path('routes/websocket.php'),
+            $this->packagePath . 'routes/websocket.php' => base_path('routes/websocket.php'),
         ]);
 
         $this->registerEventListener();
