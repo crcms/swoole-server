@@ -19,6 +19,11 @@ use Illuminate\Support\ServiceProvider;
 class WebSocketServiceProvider extends ServiceProvider
 {
     /**
+     * @var bool
+     */
+    protected $defer = true;
+
+    /**
      * @var string
      */
     protected $packagePath = __DIR__ . '/../';
@@ -98,5 +103,17 @@ class WebSocketServiceProvider extends ServiceProvider
         IO::on('connection', IOListener::class . '@connection');
         IO::on('disconnection', IOListener::class . '@disconnection');
         IO::on('message', IOListener::class . '@message');
+    }
+
+    /**
+     * @return array
+     */
+    public function provides()
+    {
+        return [
+            'websocket.io',
+            'websocket.room',
+            'websocket.parser',
+        ];
     }
 }

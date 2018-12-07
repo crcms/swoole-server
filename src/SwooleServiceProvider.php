@@ -23,6 +23,11 @@ use Illuminate\Support\ServiceProvider;
 class SwooleServiceProvider extends ServiceProvider
 {
     /**
+     * @var bool
+     */
+    protected $defer = true;
+
+    /**
      * @var string
      */
     protected $packagePath = __DIR__ . '/../';
@@ -94,5 +99,16 @@ class SwooleServiceProvider extends ServiceProvider
         foreach ($this->app['config']->get('swoole.reload_provider_events', []) as $event) {
             $this->app['events']->listen($event, RequestHandledListener::class);
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function provides()
+    {
+        return [
+            'server',
+            ServerCommand::class,
+        ];
     }
 }
