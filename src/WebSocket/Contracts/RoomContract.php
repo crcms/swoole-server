@@ -11,15 +11,16 @@ use CrCms\Server\WebSocket\Socket;
 interface RoomContract
 {
     /**
-     * @param Socket $socket
-     * @param $rooms
-     */
-    public function add(Socket $socket, $room): void;
-
-    /**
+     * @param int $fd
      * @param $room
      */
-    public function remove($room): void;
+    public function add(int $fd, $room): void;
+
+    /**
+     * @param string|array $room
+     * @return array
+     */
+    public function get($room): array;
 
     /**
      * @return array
@@ -27,8 +28,8 @@ interface RoomContract
     public function all(): array;
 
     /**
-     * @param $room
+     * @param int $fd
      * @return array
      */
-    public function get($room): array;
+    public function remove(int $fd): void;
 }
