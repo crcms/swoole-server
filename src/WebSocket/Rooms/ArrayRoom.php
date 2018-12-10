@@ -3,8 +3,6 @@
 namespace CrCms\Server\WebSocket\Rooms;
 
 use CrCms\Server\WebSocket\Contracts\RoomContract;
-use CrCms\Server\WebSocket\Socket;
-use Illuminate\Support\Arr;
 
 /**
  * Class ArrayRoom

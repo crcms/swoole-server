@@ -95,4 +95,19 @@ return [
     |
     */
     'enable_websocket' => true,
+
+    'rooms' => [
+
+        'default' => 'redis',
+
+        'connections' => [
+            'redis' => [
+                'connection' => 'websocket',
+            ]
+        ]
+    ],
+
+    'websocket_middleware' => [
+        \CrCms\Server\WebSocket\Middleware\TestMiddleware::class,
+    ]
 ];

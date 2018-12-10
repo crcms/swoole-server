@@ -3,8 +3,7 @@
 namespace CrCms\Server\WebSocket;
 
 use CrCms\Server\WebSocket\Concerns\EventConcern;
-use Illuminate\Contracts\Foundation\Application;
-use Swoole\Http\Request;
+use Illuminate\Contracts\Container\Container;
 use OutOfRangeException;
 
 /**
@@ -31,27 +30,34 @@ class IO
     protected $currentChannel;
 
     /**
-     * @var Application
+     * @var Container
      */
     protected $app;
 
     /**
      * IO constructor.
-     * @param Application $app
+     * @param Container $app
      */
-    public function __construct(Application $app)
+    public function __construct(Container $app)
     {
         $this->app = $app;
     }
 
     /**
+     * @return Container
+     */
+    public function getApplication(): Container
+    {
+        return $this->app;
+    }
+
+    /**
      * @param Channel $channel
-     * @param string $name
      * @return IO
      */
-    public function join(Channel $channel, string $name): self
+    public function join(Channel $channel): self
     {
-        $this->channels[$name] = $channel;
+        $this->channels[$channel->getName()] = $channel;
 
         return $this;
     }

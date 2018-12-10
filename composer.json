@@ -23,9 +23,12 @@
   "type": "library",
   "require": {
     "php": "^7.2.4",
-    "illuminate/redis": "^5.7"
+    "illuminate/container": "^5.7",
+    "illuminate/redis": "^5.7",
+    "illuminate/pipeline": "^5.7"
   },
   "require-dev": {
+    "mockery/mockery": "^1.0",
     "phpunit/phpunit": "^7.0"
   },
   "autoload": {

@@ -8,7 +8,7 @@ use CrCms\Server\WebSocket\Contracts\RoomContract;
 use CrCms\Server\WebSocket\IO;
 use CrCms\Server\WebSocket\Listeners\IOListener;
 use CrCms\Server\WebSocket\Parsers\DefaultParser;
-use CrCms\Server\WebSocket\Rooms\ArrayRoom;
+use CrCms\Server\WebSocket\Rooms\RedisRoom;
 use CrCms\Server\WebSocket\Socket;
 use Illuminate\Support\ServiceProvider;
 
@@ -68,8 +68,8 @@ class WebSocketServiceProvider extends ServiceProvider
      */
     protected function registerServices(): void
     {
-        $this->app->singleton('websocket.room', function () {
-            return new ArrayRoom;
+        $this->app->singleton('websocket.room', function ($app) {
+            return new RedisRoom($app['redis']->connection('websocket'));
         });
 
         $this->app->singleton('websocket.io', function ($app) {

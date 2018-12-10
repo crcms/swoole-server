@@ -5,8 +5,8 @@ namespace CrCms\Server\WebSocket\Listeners;
 use CrCms\Server\WebSocket\Channel;
 use CrCms\Server\WebSocket\IO;
 use CrCms\Server\WebSocket\Socket;
+use Illuminate\Pipeline\Pipeline;
 use Swoole\Http\Request;
-use Swoole\WebSocket\Frame;
 
 /**
  * Class IOListener
@@ -16,38 +16,41 @@ class IOListener
 {
     /**
      * @param IO $io
-     * @param array $data
+     * @param array $data ['request' => Swoole\Http\Request, 'app' => Application]
      */
     public function connection(IO $io, array $data)
     {
-        dump(111111111111111111);
-        $currentChannel = $this->findOrCreateChannel($io, $data['request']);
-
-        $currentChannel->join(
-            new Socket($data['app'], $currentChannel, $data['fd'])
+        $io->setCurrentChannel(
+            $this->findOrCreateChannel($io, $data['request'])
         );
-        echo $data['fd'];
-        echo '======================';
-        $io->setCurrentChannel($currentChannel);
     }
 
-    public function message(IO $io,array $data)
-    {        dump(2222222222222222);
-        $frame = $data['frame'];
-        /* @var Socket $socket */
-        $socket = $io->getCurrentChannel()->get($frame->fd)[0];
-        echo "fd:".strval($socket->getFd());
+    /**
+     * @param IO $io
+     * @param array $data ['app' => Application,'request' => Swoole\Http\Request, 'frame' => Swoole\WebSocket\Frame]
+     */
+    public function message(IO $io, array $data)
+    {
+        //解析数据
+        $frame = $data['app']->make('websocket.parser')->unpack($data['frame']);
 
-//        echo $socket->getFd();
-//        echo '====================';
+        //
+        $socket = new Socket(
+            $data['app'],
+            $data['request'],
+            $io->getCurrentChannel(),
+            $data['frame'],
+            $frame['data']
+        );
 
-        $socket->setFrame($frame);
-
-        //解析数据触发事件
-        $data = app('websocket.parser')->unpack($frame);
-var_dump($data);
-        // 调用 event dispatch 来触发事件
-        $socket->dispatch($data['event'], $data['data']);
+        //中间件调度
+        (new Pipeline($data['app']))
+            ->send($socket)
+            ->through(config('swoole.websocket_middleware'))
+            ->then(function () use ($socket, $frame) {
+                // 调用 event dispatch 来触发事件
+                $socket->dispatch($frame['event'], $frame['data']);
+            });
     }
 
     /**
@@ -65,15 +68,14 @@ var_dump($data);
      */
     protected function findOrCreateChannel(IO $io, Request $request): Channel
     {
-        print_r($request->server);
         $channelName = $request->server['request_uri'] ?? '/';
 
         if ($io->channelExists($channelName)) {
             return $io->getChannel($channelName);
         }
 
-        $channel = new Channel($io, app('websocket.room'));
-        $io->join($channel,$channelName);
+        $channel = new Channel($channelName, $io, $io->getApplication()->make('websocket.room'));
+        $io->join($channel);
 
         return $channel;
     }

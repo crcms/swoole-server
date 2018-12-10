@@ -4,7 +4,6 @@ namespace CrCms\Server\WebSocket;
 
 use CrCms\Server\WebSocket\Concerns\EventConcern;
 use CrCms\Server\WebSocket\Contracts\RoomContract;
-use CrCms\Server\WebSocket\Rooms\ArrayRoom;
 
 /**
  * Class Channel
@@ -35,32 +34,47 @@ class Channel
     protected $to = [];
 
     /**
+     * @var string
+     */
+    protected $name;
+
+    /**
      * Channel constructor.
+     * @param string $name
      * @param IO $io
      * @param RoomContract $room
      */
-    public function __construct(IO $io, RoomContract $room)
+    public function __construct(string $name, IO $io, RoomContract $room)
     {
+        $this->name = $name;
         $this->io = $io;
         $this->room = $room;
     }
 
     /**
      * @param Socket $socket
-     * @param $room _hall 就每个channel里面的默认room
+     * @param $room
      * @return Channel
      */
-    public function join(Socket $socket, $room = '_hall'): self
+    public function join(int $fd, $room): self
     {
-        $this->room->add($socket, $this->fullRoomName($room));
+        $this->room->add($fd, $this->getRooms($room));
 
         return $this;
     }
 
     /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
      * @return IO
      */
-    public function getIo()
+    public function getIo(): IO
     {
         return $this->io;
     }
@@ -68,9 +82,9 @@ class Channel
     /**
      * @param string $room
      */
-    public function to($room)//到哪个房间
+    public function to($room): self
     {
-        $this->to = $this->get($room);
+        $this->to = array_merge($this->getRooms($room), $this->getFds($room));
         return $this;
     }
 
@@ -95,20 +109,11 @@ class Channel
     }
 
     /**
-     * @param $room
-     * @return array
+     * @param int $fd
      */
-    public function get($room): array
+    public function remove(int $fd): void
     {
-        return $this->room->get($this->fullRoomName($room));
-    }
-
-    /**
-     * @param $room
-     */
-    public function remove($room): void
-    {
-        $this->room->remove($this->fullRoomName($room));
+        $this->room->remove($fd);
     }
 
     /**
@@ -121,16 +126,27 @@ class Channel
 
     /**
      * @param $room
-     * @return array|string
+     * @return array
      */
-    protected function fullRoomName($room)
+    protected function getFds($room): array
     {
-        $prefix = spl_object_hash($this);
+        return array_filter((array)$room, function ($value) {
+            return is_integer($value);
+        });
+    }
 
-        return is_array($room) ?
-            array_map(function ($room) use ($prefix) {
-                return is_integer($room) ? $room : $prefix . '_' . $room;
-            }, $room) :
-            is_integer($room) ? $room : $prefix . '_' . $room;
+    /**
+     * @param $room
+     * @return array
+     */
+    protected function getRooms($room): array
+    {
+        $prefix = $this->name . '_';
+
+        return array_map(function ($room) use ($prefix) {
+            return $prefix . $room;
+        }, array_filter((array)$room, function ($value) {
+            return !is_integer($value);
+        }));
     }
 }
