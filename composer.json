@@ -23,6 +23,7 @@
   "type": "library",
   "require": {
     "php": "^7.2.4",
+    "illuminate/support": "^5.7",
     "illuminate/container": "^5.7",
     "illuminate/redis": "^5.7",
     "illuminate/pipeline": "^5.7"

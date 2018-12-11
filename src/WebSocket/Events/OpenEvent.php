@@ -34,7 +34,7 @@ class OpenEvent extends AbstractEvent
     {
         parent::handle($server);
 
-        IO::dispatch('connection', ['app' => $this->server->getApplication(), 'request' => $this->request]);
+        IO::dispatch('connection', ['app' => $this->server->getApplication(), 'request' => $this->getRequest()]);
     }
 
     /**

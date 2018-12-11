@@ -69,7 +69,6 @@ class IOListener
      */
     protected function findOrCreateChannel(IO $io, Request $request): Channel
     {
-
         $channelName = $request->server['request_uri'] ?? '/';
 
         if ($io->channelExists($channelName)) {

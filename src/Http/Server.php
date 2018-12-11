@@ -9,7 +9,6 @@
 
 namespace CrCms\Server\Http;
 
-use CrCms\Server\Http\Events\MessageEvent;
 use CrCms\Server\Http\Events\RequestEvent;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Contracts\ServerContract;

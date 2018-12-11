@@ -35,6 +35,8 @@ class MessageEvent extends AbstractEvent implements EventContract
     {
         parent::handle($server);
 
-        IO::dispatch('message', ['app' => $server->getApplication(), 'frame' => $this->frame, 'request' => $server->request]);
+        IO::dispatch('message', ['app' => $server->getApplication(),
+            'frame' => $this->frame, 'request' => $server->open->getRequest()
+        ]);
     }
 }

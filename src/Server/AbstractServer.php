@@ -5,6 +5,7 @@ namespace CrCms\Server\Server;
 use CrCms\Server\Server\Contracts\ServerActionContract;
 use CrCms\Server\Server\Contracts\ServerContract;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Swoole\Process;
@@ -57,6 +58,11 @@ abstract class AbstractServer implements ServerActionContract, ServerContract
     /**
      * @var array
      */
+    protected $eventObjects = [];
+
+    /**
+     * @var array
+     */
     protected $defaultSettings = [
         'package_max_length' => 1024 * 1024 * 10,
         'daemonize' => true,
@@ -95,7 +101,7 @@ abstract class AbstractServer implements ServerActionContract, ServerContract
         $this->app = $app;
         $this->config = $config;
         $this->name = $name;
-        $this->bindInstatnceToApplication();
+        $this->bindInstanceToApplication();
     }
 
     /**
@@ -204,7 +210,7 @@ abstract class AbstractServer implements ServerActionContract, ServerContract
      */
     protected function eventDispatcher(array $events): void
     {
-        collect(array_merge($this->defaultEvents, $this->events, $events))->filter(function (string $event) {
+        Collection::make(array_merge($this->defaultEvents, $this->events, $events))->filter(function (string $event) {
             return class_exists($event);
         })->each(function (string $event, string $name) {
             $this->eventsCallback(Str::camel($name), $event);
@@ -219,8 +225,8 @@ abstract class AbstractServer implements ServerActionContract, ServerContract
     protected function eventsCallback(string $name, string $event): void
     {
         $this->server->on($name, function () use ($name, $event) {
-            $this->setServerEventAttribute($name, $event, $this->filterServer(func_get_args()));
-            $this->eventHandle($name);
+            $this->eventObjects[$name] = new $event(...$this->filterServer(func_get_args()));
+            $this->eventObjects[$name]->handle($this);
         });
     }
 
@@ -230,35 +236,15 @@ abstract class AbstractServer implements ServerActionContract, ServerContract
      */
     protected function filterServer(array $args): array
     {
-        return collect($args)->filter(function ($item) {
+        return Collection::make($args)->filter(function ($item) {
             return !($item instanceof \Swoole\Server);
         })->toArray();
     }
 
     /**
-     * @param string $name
-     * @param string $event
-     * @param array $args
      * @return void
      */
-    protected function setServerEventAttribute(string $name, string $event, array $args): void
-    {
-        $this->server->{$name} = new $event(...$args);
-    }
-
-    /**
-     * @param string $name
-     * @return void
-     */
-    protected function eventHandle(string $name): void
-    {
-        $this->server->{$name}->handle($this);
-    }
-
-    /**
-     * @return void
-     */
-    protected function bindInstatnceToApplication(): void
+    protected function bindInstanceToApplication(): void
     {
         $this->app->instance('server', $this);
     }
@@ -269,11 +255,15 @@ abstract class AbstractServer implements ServerActionContract, ServerContract
      */
     public function __get(string $name)
     {
+        if (array_key_exists($name, $this->eventObjects)) {
+            return $this->eventObjects[$name];
+        }
+
         if (isset($this->server->{$name})) {
             return $this->server->{$name};
         }
 
-        throw new InvalidArgumentException('The attributes is not exists');
+        throw new InvalidArgumentException("The attributes[{$name}] is not exists");
     }
 
     /**
