@@ -14,6 +14,7 @@ use CrCms\Server\Http\Listeners\RequestHandledListener;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Contracts\ServerActionContract;
 use CrCms\Server\Server\Contracts\ServerContract;
+use CrCms\Server\Server\Tasks\Dispatcher;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -63,6 +64,8 @@ class SwooleServiceProvider extends ServiceProvider
 
         $this->registerCommands();
 
+        $this->registerServices();
+
         if ($this->app['config']->get('swoole.enable_websocket', false)) {
             $this->app->register(WebSocketServiceProvider::class);
         }
@@ -89,6 +92,18 @@ class SwooleServiceProvider extends ServiceProvider
                  ] as $alias) {
             $this->app->alias('server', $alias);
         }
+
+        $this->app->alias('server.task.dispatcher', Dispatcher::class);
+    }
+
+    /**
+     * @return void
+     */
+    protected function registerServices(): void
+    {
+        $this->app->singleton('server.task.dispatcher', function ($app) {
+            return new Dispatcher($app['server']->getServer());
+        });
     }
 
     /**
@@ -108,6 +123,7 @@ class SwooleServiceProvider extends ServiceProvider
     {
         return [
             'server',
+            'server.task.dispatcher',
             ServerCommand::class,
         ];
     }
