@@ -40,15 +40,16 @@ class IOListener
             $data['request'],
             $io->getCurrentChannel(),
             $data['frame'],
-            $frame['data']
+            $frame
         );
 
         //中间件调度
         (new Pipeline($data['app']))
             ->send($socket)
             ->through(config('swoole.websocket_middleware'))
-            ->then(function () use ($socket, $frame) {
-                // 调用 event dispatch 来触发事件
+            ->then(function (Socket $socket) {
+                //event dispatch 触发事件
+                $frame = $socket->getFrame();
                 $socket->dispatch($frame['event'], $frame['data']);
             });
     }
@@ -68,6 +69,7 @@ class IOListener
      */
     protected function findOrCreateChannel(IO $io, Request $request): Channel
     {
+
         $channelName = $request->server['request_uri'] ?? '/';
 
         if ($io->channelExists($channelName)) {

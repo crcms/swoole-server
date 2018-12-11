@@ -3,6 +3,7 @@
 namespace CrCms\Server\WebSocket;
 
 use CrCms\Server\WebSocket\Concerns\EventConcern;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Foundation\Application;
 use Swoole\Http\Request;
 use Swoole\WebSocket\Frame;
@@ -21,19 +22,19 @@ class Socket
 
     protected $app;
 
-    protected $frame;
+    protected $originalFrame;
 
     protected $request;
 
-    protected $data;
+    protected $frame;
 
-    public function __construct(Application $app, Request $request, Channel $channel, Frame $frame, array $data = [])
+    public function __construct(Container $app, Request $request, Channel $channel, Frame $originalFrame, array $frame = [])
     {
         $this->app = $app;
         $this->request = $request;
         $this->channel = $channel;
+        $this->originalFrame = $originalFrame;
         $this->frame = $frame;
-        $this->data = $data;
     }
 
     public function setData(array $data)
@@ -42,30 +43,26 @@ class Socket
         return $this;
     }
 
-    public function getData(): array
-    {
-        return $this->data;
-    }
-
-    public function setFrame(object $frame): self
-    {
-        $this->frame = $frame;
-        return $this;
-    }
-
-    public function join($room)
-    {
-        $this->channel->join($this->frame->fd,$room);
-    }
-
-    public function getFrame(): object
+    public function getFrame(): array
     {
         return $this->frame;
     }
 
+//    public function setFrame(object $frame): self
+//    {
+//        $this->frame = $frame;
+//        return $this;
+//    }
+
+    public function join($room)
+    {
+        $this->channel->join($this->originalFrame->fd,$room);
+    }
+
+
     public function getFd(): int
     {
-        return $this->fd;
+        return $this->originalFrame->fd;
     }
 
     public function broadcast()
