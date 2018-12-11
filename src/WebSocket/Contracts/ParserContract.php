@@ -10,7 +10,15 @@ use Swoole\WebSocket\Frame;
  */
 interface ParserContract
 {
-    public function pack();
+    /**
+     * @param array $data
+     * @return string
+     */
+    public function pack(array $data): string;
 
+    /**
+     * @param Frame $frame
+     * @return mixed
+     */
     public function unpack(Frame $frame);
 }

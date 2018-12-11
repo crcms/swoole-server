@@ -12,10 +12,19 @@ use UnexpectedValueException;
  */
 class DefaultParser implements ParserContract
 {
-    public function pack()
+    /**
+     * @param array $data
+     * @return string
+     */
+    public function pack(array $data): string
     {
+        return json_encode($data);
     }
 
+    /**
+     * @param Frame $frame
+     * @return array
+     */
     public function unpack(Frame $frame): array
     {
         if ($frame->finish !== true) {
