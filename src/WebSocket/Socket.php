@@ -2,11 +2,13 @@
 
 namespace CrCms\Server\WebSocket;
 
+use CrCms\Server\Server\Facades\Dispatcher;
 use CrCms\Server\WebSocket\Concerns\EventConcern;
+use CrCms\Server\WebSocket\Tasks\PushTask;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Foundation\Application;
 use Swoole\Http\Request;
 use Swoole\WebSocket\Frame;
+use BadMethodCallException;
 
 /**
  * Class Socket
@@ -16,18 +18,44 @@ class Socket
 {
     use EventConcern;
 
+    /**
+     * @var string
+     */
     protected static $eventPrefix = 'socket';
 
-    public $channel;
-
+    /**
+     * @var Container
+     */
     protected $app;
 
+    /**
+     * @var Channel
+     */
+    public $channel;
+
+    /**
+     * @var Frame
+     */
     protected $originalFrame;
 
+    /**
+     * @var Request
+     */
     protected $request;
 
+    /**
+     * @var array
+     */
     protected $frame;
 
+    /**
+     * Socket constructor.
+     * @param Container $app
+     * @param Request $request
+     * @param Channel $channel
+     * @param Frame $originalFrame
+     * @param array $frame
+     */
     public function __construct(Container $app, Request $request, Channel $channel, Frame $originalFrame, array $frame = [])
     {
         $this->app = $app;
@@ -37,56 +65,80 @@ class Socket
         $this->frame = $frame;
     }
 
-    public function setData(array $data)
+    /**
+     * @param array $data
+     * @return Socket
+     */
+    public function setData(array $data): self
     {
         $this->data = $data;
         return $this;
     }
 
+    /**
+     * @return array
+     */
     public function getFrame(): array
     {
         return $this->frame;
     }
 
-//    public function setFrame(object $frame): self
-//    {
-//        $this->frame = $frame;
-//        return $this;
-//    }
-
-    public function join($room)
+    /**
+     * @param $room
+     * @return Socket
+     */
+    public function join($room): self
     {
-        $this->channel->join($this->originalFrame->fd,$room);
+        $this->channel->join($this->originalFrame->fd, $room);
+        return $this;
     }
 
-
+    /**
+     * @return int
+     */
     public function getFd(): int
     {
         return $this->originalFrame->fd;
     }
 
-    public function broadcast()
+    /**
+     * @return Channel
+     */
+    public function broadcast(): Channel
     {
         return $this->channel;
     }
 
-    public function getChannel()
+    /**
+     * @return Channel
+     */
+    public function getChannel(): Channel
     {
         return $this->channel;
     }
 
-    public function emit(string $event, array $data = [])
+    /**
+     * @param string $event
+     * @param array $data
+     */
+    public function emit(string $event, array $data = []): void
     {
         //调用一个task，或者直接push message
+        Dispatcher::dispatch(new PushTask, [$this->getFd(), $event, $data]);
     }
 
-    public function __call($name, $arguments)
+    /**
+     * @param $name
+     * @param $arguments
+     * @return mixed
+     */
+    public function __call(string $name, array $arguments)
     {
         if (method_exists($this->channel, $name)) {
             array_unshift($arguments, $this);
             return $this->channel->$name(...$arguments);
         }
 
-        throw new \BadMethodCallException("The method[{$name}] not found");
+        throw new BadMethodCallException("The method[{$name}] not found");
     }
 }
