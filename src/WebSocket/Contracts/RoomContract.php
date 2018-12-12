@@ -29,7 +29,7 @@ interface RoomContract
 
     /**
      * @param int $fd
-     * @return array
+     * @param array|string $room
      */
-    public function remove(int $fd): void;
+    public function remove(int $fd, $room = []): void;
 }

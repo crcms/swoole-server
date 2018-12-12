@@ -42,13 +42,16 @@ class RedisRoom implements RoomContract
 
     /**
      * @param int $fd
+     * @param array $room
      */
-    public function remove(int $fd): void
+    public function remove(int $fd, $room = []): void
     {
-        $this->redis->pipeline(function ($pipe) use ($fd) {
-            $rooms = $this->redis->keys('*');
-            foreach ($rooms as $room) {
-                $pipe->srem($room, $fd);
+        $this->redis->pipeline(function ($pipe) use ($fd, $room) {
+            $rooms = empty($room) ?
+                $this->redis->keys('*') : (array)$room;
+
+            foreach ($rooms as $valueRoom) {
+                $pipe->srem($valueRoom, $fd);
             }
         });
     }

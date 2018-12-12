@@ -55,11 +55,14 @@ class ArrayRoom implements RoomContract
 
     /**
      * @param int $fd
+     * @param array $room
      */
-    public function remove(int $fd): void
+    public function remove(int $fd, $room = []): void
     {
-        foreach ($this->rooms as $key => $room) {
-            $this->rooms[$key] = array_diff($room, [$fd]);
+        $rooms = $room ? (array)$room : array_keys($this->rooms);
+
+        foreach ($rooms as $roomKey) {
+            $this->rooms[$roomKey] = array_diff($this->rooms[$roomKey], [$fd]);
         }
     }
 }

@@ -111,9 +111,9 @@ class Channel
     /**
      * @param int $fd
      */
-    public function remove(int $fd): void
+    public function remove(int $fd, $room = []): void
     {
-        $this->room->remove($fd);
+        $this->room->remove($fd, $room);
     }
 
     /**

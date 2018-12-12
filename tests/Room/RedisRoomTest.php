@@ -86,9 +86,9 @@ class RedisRoomTest extends TestCase
 
     public function testRemove()
     {
-        $this->room->add(1,'zroom1');
-        $this->room->add(2,'zroom1');
-        $this->room->add(1,'zroom2');
+        $this->room->add(1, 'zroom1');
+        $this->room->add(2, 'zroom2');
+        $this->room->add(3, ['zroom2', 'zoom3']);
 
         $this->room->remove(1);
         $this->room->remove(2);
@@ -97,7 +97,16 @@ class RedisRoomTest extends TestCase
         $this->assertEquals(0,count($result));
 
         $result = $this->redis->smembers('zroom2');
-        $this->assertEquals(0,count($result));
+        $this->assertEquals(1,count($result));
+
+
+        $this->room->remove(3,'zoom3');
+        $result = $this->redis->smembers('zoom3');
+        $this->assertEquals(0, count($result));
+
+        $this->room->remove(3,'zroom2');
+        $result = $this->redis->smembers('zroom2');
+        $this->assertEquals(0, count($result));
     }
 
     public function tearDown()
