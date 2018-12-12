@@ -23,7 +23,7 @@ final class PushTask implements TaskContract
         /* @var int $fd */
         $fd = array_shift($params);
 
-        $packData = $server->getApplication()->make('websocket.parser')->pack($params);
+        $packData = $server->getApplication()->make('websocket.parser')->pack(array_combine(['event', 'data'], $params));
 
         $server->getServer()->push($fd, $packData);
     }
