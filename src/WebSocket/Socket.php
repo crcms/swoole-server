@@ -128,6 +128,14 @@ class Socket
     }
 
     /**
+     * @param array $room
+     */
+    public function leave($room = []): void
+    {
+        $this->channel->remove($this->getFd(), $room);
+    }
+
+    /**
      * @param $name
      * @param $arguments
      * @return mixed
