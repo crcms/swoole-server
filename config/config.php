@@ -19,6 +19,7 @@ return [
             'mode' => defined('SWOOLE_PROCESS') ? SWOOLE_PROCESS : 3,
             'type' => defined('SWOOLE_SOCK_TCP') ? SWOOLE_SOCK_TCP : 1,
             'settings' => [
+                'task_worker_num' => 2,
                 'user' => env('SWOOLE_USER'),
                 'group' => env('SWOOLE_GROUP'),
                 'log_level' => 4,
