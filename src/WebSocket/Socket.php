@@ -2,9 +2,7 @@
 
 namespace CrCms\Server\WebSocket;
 
-use CrCms\Server\Server\Facades\Dispatcher;
 use CrCms\Server\WebSocket\Concerns\EventConcern;
-use CrCms\Server\WebSocket\Tasks\PushTask;
 use Illuminate\Contracts\Container\Container;
 use Swoole\Http\Request;
 use Swoole\WebSocket\Frame;
@@ -123,8 +121,7 @@ class Socket
      */
     public function emit(string $event, array $data = []): void
     {
-        //调用一个task，或者直接push message
-        Dispatcher::dispatch(new PushTask, [$this->getFd(), $event, $data]);
+        $this->channel->to($this->getFd())->emit($event, $data);
     }
 
     /**

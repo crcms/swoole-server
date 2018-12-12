@@ -2,8 +2,10 @@
 
 namespace CrCms\Server\WebSocket;
 
+use CrCms\Server\Server\Facades\Dispatcher;
 use CrCms\Server\WebSocket\Concerns\EventConcern;
 use CrCms\Server\WebSocket\Contracts\RoomContract;
+use CrCms\Server\WebSocket\Tasks\PushTask;
 
 /**
  * Class Channel
@@ -84,7 +86,7 @@ class Channel
      */
     public function to($room): self
     {
-        $this->to = array_merge($this->getRooms($room), $this->getFds($room));
+        $this->to = array_merge($this->room->get($this->getRooms($room)), $this->getFds($room));
         return $this;
     }
 
@@ -95,14 +97,7 @@ class Channel
     public function emit($event, array $data = [])
     {
         foreach ($this->to as $to) {
-            /* @var Socket $socket */
-            if (is_array($to)) {
-                foreach ($to as $socket) {
-                    $socket->emit($event, $data);
-                }
-            } else {
-                $to->emit($event, $data);
-            }
+            $this->push(intval($to), $event, $data);
         }
 
         $this->reset();
@@ -114,6 +109,17 @@ class Channel
     public function remove(int $fd, $room = []): void
     {
         $this->room->remove($fd, $room);
+    }
+
+    /**
+     * @param int $fd
+     * @param string $event
+     * @param array $data
+     */
+    protected function push(int $fd, string $event, array $data = []): void
+    {
+        //调用一个task，或者直接push message
+        Dispatcher::dispatch(new PushTask, [$fd, $event, $data]);
     }
 
     /**
