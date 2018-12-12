@@ -55,12 +55,13 @@ class IOListener
                 try {
                     $socket->dispatch($frame['event'], $frame['data']);
                 } catch (\Exception $e) {
+                    $io->getApplication()->make(ExceptionHandler::class)->report($e);
                     $io->getApplication()->make(ExceptionHandler::class)->render($socket, $e);
+                    throw $e;
                 } catch (\Throwable $e) {
                     $e = new FatalThrowableError($e);
-                    $io->getApplication()->make(ExceptionHandler::class)->render($socket, $e);
-                } finally {
                     $io->getApplication()->make(ExceptionHandler::class)->report($e);
+                    $io->getApplication()->make(ExceptionHandler::class)->render($socket, $e);
                     throw $e;
                 }
             });
