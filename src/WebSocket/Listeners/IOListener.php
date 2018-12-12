@@ -45,23 +45,28 @@ class IOListener
             $frame
         );
 
+        $app = $io->getApplication();
+
+        //bind instance
+        $app->instance('socket', $socket);
+
         //中间件调度
         (new Pipeline($data['app']))
             ->send($socket)
             ->through(config('swoole.websocket_middleware'))
-            ->then(function (Socket $socket) use ($io) {
+            ->then(function (Socket $socket) use ($app) {
                 //event dispatch 触发事件
                 $frame = $socket->getFrame();
                 try {
                     $socket->dispatch($frame['event'], $frame['data']);
                 } catch (\Exception $e) {
-                    $io->getApplication()->make(ExceptionHandler::class)->report($e);
-                    $io->getApplication()->make(ExceptionHandler::class)->render($socket, $e);
+                    $app->make(ExceptionHandler::class)->report($e);
+                    $app->make(ExceptionHandler::class)->render($socket, $e);
                     throw $e;
                 } catch (\Throwable $e) {
                     $e = new FatalThrowableError($e);
-                    $io->getApplication()->make(ExceptionHandler::class)->report($e);
-                    $io->getApplication()->make(ExceptionHandler::class)->render($socket, $e);
+                    $app->make(ExceptionHandler::class)->report($e);
+                    $app->make(ExceptionHandler::class)->render($socket, $e);
                     throw $e;
                 }
             });

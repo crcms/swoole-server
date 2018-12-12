@@ -90,6 +90,7 @@ class WebSocketServiceProvider extends ServiceProvider
      */
     protected function registerAlias(): void
     {
+        $this->app->alias('socket', Socket::class);
         $this->app->alias('websocket.io', IO::class);
         $this->app->alias('websocket.room', RoomContract::class);
         $this->app->alias('websocket.parser', ParserContract::class);
@@ -115,6 +116,7 @@ class WebSocketServiceProvider extends ServiceProvider
     public function provides()
     {
         return [
+            'socket',
             'websocket.io',
             'websocket.room',
             'websocket.parser',
