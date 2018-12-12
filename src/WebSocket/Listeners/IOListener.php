@@ -5,8 +5,10 @@ namespace CrCms\Server\WebSocket\Listeners;
 use CrCms\Server\WebSocket\Channel;
 use CrCms\Server\WebSocket\IO;
 use CrCms\Server\WebSocket\Socket;
+use CrCms\Server\WebSocket\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Pipeline\Pipeline;
 use Swoole\Http\Request;
+use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 /**
  * Class IOListener
@@ -47,10 +49,20 @@ class IOListener
         (new Pipeline($data['app']))
             ->send($socket)
             ->through(config('swoole.websocket_middleware'))
-            ->then(function (Socket $socket) {
+            ->then(function (Socket $socket) use ($io) {
                 //event dispatch 触发事件
                 $frame = $socket->getFrame();
-                $socket->dispatch($frame['event'], $frame['data']);
+                try {
+                    $socket->dispatch($frame['event'], $frame['data']);
+                } catch (\Exception $e) {
+                    $io->getApplication()->make(ExceptionHandler::class)->render($socket, $e);
+                } catch (\Throwable $e) {
+                    $e = new FatalThrowableError($e);
+                    $io->getApplication()->make(ExceptionHandler::class)->render($socket, $e);
+                } finally {
+                    $io->getApplication()->make(ExceptionHandler::class)->report($e);
+                    throw $e;
+                }
             });
     }
 
