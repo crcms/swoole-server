@@ -100,6 +100,8 @@ class Channel
             $this->to = $this->room->all();
         }
 
+        $this->to = array_unique($this->to);
+
         foreach ($this->to as $to) {
             $this->push(intval($to), $event, $data);
         }
