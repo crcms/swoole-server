@@ -122,7 +122,6 @@ class Channel
      */
     protected function push(int $fd, string $event, array $data = []): void
     {
-        //调用一个task，或者直接push message
         Dispatcher::dispatch(new PushTask, [$fd, $event, $data]);
     }
 

@@ -97,7 +97,7 @@ return [
     */
     'enable_websocket' => true,
 
-    'rooms' => [
+    'websocket_rooms' => [
 
         'default' => 'redis',
 
@@ -108,7 +108,10 @@ return [
         ]
     ],
 
+    'websocket_parser' => CrCms\Server\WebSocket\Parsers\DefaultParser::class,
+
+    'websocket_data_converter' => CrCms\Server\WebSocket\Converters\DefaultConverter::class,
+
     'websocket_middleware' => [
-        \CrCms\Server\WebSocket\Middleware\TestMiddleware::class,
     ]
 ];

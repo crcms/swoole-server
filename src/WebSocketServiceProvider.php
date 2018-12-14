@@ -3,6 +3,7 @@
 namespace CrCms\Server;
 
 use CrCms\Server\WebSocket\Channel;
+use CrCms\Server\WebSocket\Contracts\ConverterContract;
 use CrCms\Server\WebSocket\Contracts\ParserContract;
 use CrCms\Server\WebSocket\Contracts\RoomContract;
 use CrCms\Server\WebSocket\Exceptions\Handler;
@@ -79,7 +80,11 @@ class WebSocketServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton('websocket.parser', function ($app) {
-            return new DefaultParser();
+            return new $app['config']->get('swoole.websocket_parser');
+        });
+
+        $this->app->singleton('websocket.data_converter', function ($app) {
+            return new $app['config']->get('swoole.websocket_data_converter');
         });
 
         //$this->app->singleton(ExceptionHandler::class, Handler::class);
@@ -94,6 +99,7 @@ class WebSocketServiceProvider extends ServiceProvider
         $this->app->alias('websocket.io', IO::class);
         $this->app->alias('websocket.room', RoomContract::class);
         $this->app->alias('websocket.parser', ParserContract::class);
+        $this->app->alias('websocket.data_converter', ConverterContract::class);
     }
 
     /**
@@ -120,6 +126,7 @@ class WebSocketServiceProvider extends ServiceProvider
             'websocket.io',
             'websocket.room',
             'websocket.parser',
+            'websocket.data_converter',
         ];
     }
 }
