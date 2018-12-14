@@ -80,11 +80,13 @@ class WebSocketServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton('websocket.parser', function ($app) {
-            return new $app['config']->get('swoole.websocket_parser');
+            $parser = $app['config']->get('swoole.websocket_parser');
+            return new $parser($app);
         });
 
         $this->app->singleton('websocket.data_converter', function ($app) {
-            return new $app['config']->get('swoole.websocket_data_converter');
+            $converter = $app['config']->get('swoole.websocket_data_converter');
+            return new $converter($app);
         });
 
         //$this->app->singleton(ExceptionHandler::class, Handler::class);
