@@ -86,7 +86,7 @@ class Channel
      */
     public function to($room): self
     {
-        $this->to = array_merge($this->room->get($this->getRooms($room)), $this->getFds($room));
+        $this->to = array_merge($this->to, $this->room->get($this->getRooms($room)), $this->getFds($room));
         return $this;
     }
 
@@ -96,6 +96,10 @@ class Channel
      */
     public function emit($event, array $data = [])
     {
+        if (empty($this->to)) {
+            $this->to = $this->room->all();
+        }
+
         foreach ($this->to as $to) {
             $this->push(intval($to), $event, $data);
         }
