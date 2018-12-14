@@ -24,6 +24,7 @@
   "require": {
     "php": "^7.2.4",
     "ext-swoole": "^4.2",
+    "illuminate/http": "^5.7",
     "illuminate/support": "^5.7",
     "illuminate/container": "^5.7",
     "illuminate/redis": "^5.7",

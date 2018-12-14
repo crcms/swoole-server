@@ -3,6 +3,7 @@
 namespace CrCms\Server\Http\Events;
 
 use Carbon\Carbon;
+use CrCms\Server\Http\Request;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Contracts\EventContract;
 use CrCms\Server\Server\Events\AbstractEvent;
@@ -11,9 +12,7 @@ use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
 use Illuminate\Http\Request as IlluminateRequest;
 use Illuminate\Contracts\Http\Kernel;
-use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 /**
  * Class RequestEvent
@@ -65,7 +64,7 @@ class RequestEvent extends AbstractEvent implements EventContract
         parent::handle($server);
 
         $this->kernel = $server->getApplication()->make(Kernel::class);
-        $this->illuminateRequest = $this->createIlluminateRequest();
+        $this->illuminateRequest = new Request($this->request);
         $this->illuminateResponse = $this->createIlluminateResponse();
 
         //$this->requestLog();
@@ -109,86 +108,6 @@ class RequestEvent extends AbstractEvent implements EventContract
     protected function createIlluminateResponse(): Response
     {
         return $this->kernel->handle($this->illuminateRequest);
-    }
-
-    /**
-     * @return array
-     */
-    protected function mergePostData(): array
-    {
-        $data = [];
-
-        if (strtoupper($this->request->server['request_method']) === 'POST') {
-            $data = empty($this->request->post) ? [] : $this->request->post;
-
-            if (isset($this->request->header['content-type']) && stripos($this->request->header['content-type'], 'application/json') !== false) {
-                $data = array_merge($data, json_decode($this->request->rawContent(), true));
-            }
-        }
-
-        return $data;
-    }
-
-    /**
-     * @return SymfonyRequest
-     */
-    protected function createFromGlobals(): SymfonyRequest
-    {
-        $request = new SymfonyRequest(
-            $this->request->get ?? [],
-            $this->mergePostData(),
-            [],
-            $this->request->cookie ?? [],
-            $this->request->files ?? [],
-            $this->mergeServerInfo()
-            , $this->request->rawContent()
-        );
-
-        if (0 === strpos($request->headers->get('CONTENT_TYPE'), 'application/x-www-form-urlencoded')
-            && in_array(strtoupper($request->server->get('REQUEST_METHOD', 'GET')), array('PUT', 'DELETE', 'PATCH'))
-        ) {
-            parse_str($request->getContent(), $data);
-            $request->request = new ParameterBag($data);
-        }
-
-        return $request;
-    }
-
-    /**
-     * @return IlluminateRequest
-     */
-    protected function createIlluminateRequest(): IlluminateRequest
-    {
-        IlluminateRequest::enableHttpMethodParameterOverride();
-
-        return IlluminateRequest::createFromBase($this->createFromGlobals());
-    }
-
-    /**
-     * @return array
-     */
-    protected function mergeServerInfo(): array
-    {
-        $server = $_SERVER;
-        if ('cli-server' === PHP_SAPI) {
-            if (array_key_exists('HTTP_CONTENT_LENGTH', $_SERVER)) {
-                $server['CONTENT_LENGTH'] = $_SERVER['HTTP_CONTENT_LENGTH'];
-            }
-            if (array_key_exists('HTTP_CONTENT_TYPE', $_SERVER)) {
-                $server['CONTENT_TYPE'] = $_SERVER['HTTP_CONTENT_TYPE'];
-            }
-        }
-
-        $requestHeader = collect($this->request->header)->mapWithKeys(function ($item, $key) {
-            $key = str_replace('-', '_', $key);
-            return in_array(strtolower($key), ['x_real_ip'], true) ?
-                [$key => $item] :
-                ['http_' . $key => $item];
-        })->toArray();
-
-        $server = array_merge($server, $this->request->server, $requestHeader);
-
-        return array_change_key_case($server, CASE_UPPER);
     }
 
     /**
