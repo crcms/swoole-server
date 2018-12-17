@@ -7,6 +7,8 @@ use CrCms\Server\WebSocket\Socket;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Contracts\EventContract;
 use CrCms\Server\Server\Events\AbstractEvent;
+use CrCms\Server\WebSocket\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 /**
  * Class MessageEvent
@@ -35,8 +37,58 @@ class MessageEvent extends AbstractEvent implements EventContract
     {
         parent::handle($server);
 
-        IO::dispatch('message', ['app' => $server->getApplication(),
-            'frame' => $this->frame, 'request' => $server->open->getRequest()
-        ]);
+        $app = $server->getApplication();
+
+        //解析数据
+        $frame = $app->make('websocket.parser')->unpack($this->frame);
+
+        $socket = (new Socket($app, IO::getChannel($this->channelName())))->setData($frame['data'] ?? [])->setFrame($this->frame)->setFd($this->frame->fd);
+
+        $app->instance('websocket', $socket);
+
+        try {
+            $socket->dispatch($frame['event'], $frame['data']);
+        } catch (\Exception $e) {
+            $app->make(ExceptionHandler::class)->report($e);
+            $app->make(ExceptionHandler::class)->render($socket, $e);
+            throw $e;
+        } catch (\Throwable $e) {
+            $e = new FatalThrowableError($e);
+            $app->make(ExceptionHandler::class)->report($e);
+            $app->make(ExceptionHandler::class)->render($socket, $e);
+            throw $e;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    protected function channelName(): string
+    {
+        $channels = IO::getChannels();
+
+        $currentRoom = '';
+
+        foreach ($channels as $channel) {
+            $rooms = $channel->rooms($this->frame->fd);
+            if ($rooms) {
+                foreach ($rooms as $room) {
+                    if (stripos($room, '_global_channel_')) {
+                        $currentRoom = $room;
+                        break;
+                    }
+                }
+            }
+
+            if ($currentRoom) {
+                break;
+            }
+        }
+
+        if (empty($currentRoom)) {
+            throw new \RangeException("The channel not found");
+        }
+
+        return strrchr($currentRoom, '/');
     }
 }

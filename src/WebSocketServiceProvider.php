@@ -76,7 +76,13 @@ class WebSocketServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton('websocket.io', function ($app) {
-            return new IO($app);
+            $io = new IO($app, $app['websocket.room']);
+            $channels = $app['config']->get('swoole.websocket_channels', ['/']);
+            foreach ($channels as $channel) {
+                $io->addChannel(new Channel($io, $channel));
+            }
+
+            return $io;
         });
 
         $this->app->singleton('websocket.parser', function ($app) {
@@ -97,7 +103,7 @@ class WebSocketServiceProvider extends ServiceProvider
      */
     protected function registerAlias(): void
     {
-        $this->app->alias('socket', Socket::class);
+        $this->app->alias('websocket', Socket::class);
         $this->app->alias('websocket.io', IO::class);
         $this->app->alias('websocket.room', RoomContract::class);
         $this->app->alias('websocket.parser', ParserContract::class);
@@ -109,13 +115,6 @@ class WebSocketServiceProvider extends ServiceProvider
      */
     protected function registerEventListener(): void
     {
-        IO::setDispatcher($this->app['events']);
-        Channel::setDispatcher($this->app['events']);
-        Socket::setDispatcher($this->app['events']);
-
-        IO::on('connection', IOListener::class . '@connection');
-        IO::on('disconnection', IOListener::class . '@disconnection');
-        IO::on('message', IOListener::class . '@message');
     }
 
     /**
@@ -124,7 +123,7 @@ class WebSocketServiceProvider extends ServiceProvider
     public function provides()
     {
         return [
-            'socket',
+            'websocket',
             'websocket.io',
             'websocket.room',
             'websocket.parser',

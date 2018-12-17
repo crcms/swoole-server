@@ -2,7 +2,7 @@
 
 namespace CrCms\Server\WebSocket;
 
-use CrCms\Server\WebSocket\Concerns\EventConcern;
+use CrCms\Server\WebSocket\Contracts\RoomContract;
 use Illuminate\Contracts\Container\Container;
 use OutOfRangeException;
 
@@ -12,22 +12,10 @@ use OutOfRangeException;
  */
 class IO
 {
-    use EventConcern;
-
-    /**
-     * @var string
-     */
-    protected static $eventPrefix = 'io';
-
     /**
      * @var array
      */
     protected $channels = [];
-
-    /**
-     * @var Channel
-     */
-    protected $currentChannel;
 
     /**
      * @var Container
@@ -35,12 +23,19 @@ class IO
     protected $app;
 
     /**
+     * @var RoomContract
+     */
+    protected $room;
+
+    /**
      * IO constructor.
      * @param Container $app
+     * @param RoomContract $room
      */
-    public function __construct(Container $app)
+    public function __construct(Container $app, RoomContract $room)
     {
         $this->app = $app;
+        $this->room = $room;
     }
 
     /**
@@ -52,14 +47,46 @@ class IO
     }
 
     /**
+     * @return RoomContract
+     */
+    public function getRoom(): RoomContract
+    {
+        return $this->room;
+    }
+
+    /**
      * @param Channel $channel
      * @return IO
      */
-    public function join(Channel $channel): self
+    public function addChannel(Channel $channel): self
+    {
+        $channelName = $channel->getName();
+
+        if (!isset($this->channels[$channelName])) {
+            $this->channels[$channelName] = $channel;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Channel $channel
+     * @return $this
+     */
+    public function setChannel(Channel $channel)
     {
         $this->channels[$channel->getName()] = $channel;
 
         return $this;
+    }
+
+    /**
+     * @param string $channel
+     * @return Channel
+     */
+    public function of(string $channel): Channel
+    {
+        return $this->getChannel($channel);
     }
 
     /**
@@ -76,13 +103,11 @@ class IO
     }
 
     /**
-     * @param Channel $channel
-     * @return $this
+     * @return array
      */
-    public function setCurrentChannel(Channel $channel)
+    public function getChannels(): array
     {
-        $this->currentChannel = $channel;
-        return $this;
+        return $this->channels;
     }
 
     /**
@@ -92,13 +117,5 @@ class IO
     public function channelExists(string $channel): bool
     {
         return isset($this->channels[$channel]);
-    }
-
-    /**
-     * @return Channel
-     */
-    public function getCurrentChannel(): Channel
-    {
-        return $this->currentChannel;
     }
 }

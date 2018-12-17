@@ -41,16 +41,21 @@ class Channel
     protected $name;
 
     /**
-     * Channel constructor.
-     * @param string $name
-     * @param IO $io
-     * @param RoomContract $room
+     * @var \Illuminate\Contracts\Container\Container
      */
-    public function __construct(string $name, IO $io, RoomContract $room)
+    protected $app;
+
+    /**
+     * Channel constructor.
+     * @param IO $io
+     * @param string $name
+     */
+    public function __construct(IO $io, string $name)
     {
-        $this->name = $name;
         $this->io = $io;
-        $this->room = $room;
+        $this->name = $name;
+        $this->app = $io->getApplication();
+        $this->room = $io->getRoom();
     }
 
     /**
@@ -60,7 +65,7 @@ class Channel
      */
     public function join(int $fd, $room): self
     {
-        $this->room->add($fd, $this->getRooms($room));
+        $this->room->add($fd, $this->filterGetRooms($room));
 
         return $this;
     }
@@ -82,12 +87,21 @@ class Channel
     }
 
     /**
-     * @param string $room
+     * @param string|array $room
      */
     public function to($room): self
     {
-        $this->to = array_merge($this->to, $this->room->get($this->getRooms($room)), $this->getFds($room));
+        $this->to = array_unique(array_merge($this->to, $this->room->get($this->filterGetRooms($room)), $this->filterGetFds($room)));
+
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getTo(): array
+    {
+        return $this->to;
     }
 
     /**
@@ -96,11 +110,9 @@ class Channel
      */
     public function emit($event, array $data = [])
     {
-        if (empty($this->to)) {
+        /*if (empty($this->to)) {
             $this->to = $this->room->all();
-        }
-
-        $this->to = array_unique($this->to);
+        }*/
 
         foreach ($this->to as $to) {
             $this->push(intval($to), $event, $data);
@@ -114,7 +126,16 @@ class Channel
      */
     public function remove(int $fd, $room = []): void
     {
-        $this->room->remove($fd, $room);
+        $this->room->remove($fd, $this->filterGetRooms($room));
+    }
+
+    /**
+     * @param int $fd
+     * @return array
+     */
+    public function rooms(int $fd): array
+    {
+        return $this->room->keys($fd);
     }
 
     /**
@@ -130,7 +151,7 @@ class Channel
     /**
      * @return void
      */
-    protected function reset(): void
+    public function reset(): void
     {
         $this->to = [];
     }
@@ -139,7 +160,7 @@ class Channel
      * @param $room
      * @return array
      */
-    protected function getFds($room): array
+    protected function filterGetFds($room): array
     {
         return array_filter((array)$room, function ($value) {
             return is_integer($value);
@@ -150,9 +171,9 @@ class Channel
      * @param $room
      * @return array
      */
-    protected function getRooms($room): array
+    protected function filterGetRooms($room): array
     {
-        $prefix = $this->name . '_';
+        $prefix = 'channel.' . $this->name . '_';
 
         return array_map(function ($room) use ($prefix) {
             return $prefix . $room;

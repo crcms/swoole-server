@@ -4,9 +4,7 @@ namespace CrCms\Server\WebSocket;
 
 use CrCms\Server\WebSocket\Concerns\EventConcern;
 use Illuminate\Contracts\Container\Container;
-use Swoole\Http\Request;
 use Swoole\WebSocket\Frame;
-use BadMethodCallException;
 
 /**
  * Class Socket
@@ -34,33 +32,27 @@ class Socket
     /**
      * @var Frame
      */
-    protected $originalFrame;
+    protected $frame;
 
     /**
-     * @var Request
+     * @var int
      */
-    protected $request;
+    protected $fd;
 
     /**
      * @var array
      */
-    protected $frame;
+    protected $data = [];
 
     /**
      * Socket constructor.
      * @param Container $app
-     * @param Request $request
      * @param Channel $channel
-     * @param Frame $originalFrame
-     * @param array $frame
      */
-    public function __construct(Container $app, Request $request, Channel $channel, Frame $originalFrame, array $frame = [])
+    public function __construct(Container $app, Channel $channel)
     {
         $this->app = $app;
-        $this->request = $request;
         $this->channel = $channel;
-        $this->originalFrame = $originalFrame;
-        $this->frame = $frame;
     }
 
     /**
@@ -70,13 +62,50 @@ class Socket
     public function setData(array $data): self
     {
         $this->data = $data;
+
         return $this;
     }
 
     /**
      * @return array
      */
-    public function getFrame(): array
+    public function getData(): array
+    {
+        return $this->data;
+    }
+
+    /**
+     * @param int $fd
+     * @return $this
+     */
+    public function setFd(int $fd)
+    {
+        $this->fd = $fd;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFd(): int
+    {
+        return $this->fd;
+    }
+
+    /**
+     * @param Frame $frame
+     * @return Socket
+     */
+    public function setFrame(Frame $frame): self
+    {
+        $this->frame = $frame;
+        return $this;
+    }
+
+    /**
+     * @return Frame
+     */
+    public function getFrame(): Frame
     {
         return $this->frame;
     }
@@ -87,16 +116,9 @@ class Socket
      */
     public function join($room): self
     {
-        $this->channel->join($this->originalFrame->fd, $room);
-        return $this;
-    }
+        $this->channel->join($this->getFd(), $room);
 
-    /**
-     * @return int
-     */
-    public function getFd(): int
-    {
-        return $this->originalFrame->fd;
+        return $this;
     }
 
     /**
@@ -130,20 +152,5 @@ class Socket
     public function leave($room = []): void
     {
         $this->channel->remove($this->getFd(), $room);
-    }
-
-    /**
-     * @param $name
-     * @param $arguments
-     * @return mixed
-     */
-    public function __call(string $name, array $arguments)
-    {
-        if (method_exists($this->channel, $name)) {
-            array_unshift($arguments, $this);
-            return $this->channel->$name(...$arguments);
-        }
-
-        throw new BadMethodCallException("The method[{$name}] not found");
     }
 }

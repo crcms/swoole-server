@@ -2,7 +2,7 @@
 
 namespace CrCms\Server\WebSocket\Concerns;
 
-use Illuminate\Contracts\Events\Dispatcher;
+use OutOfRangeException;
 
 /**
  * Trait EventConcern
@@ -11,16 +11,25 @@ use Illuminate\Contracts\Events\Dispatcher;
 trait EventConcern
 {
     /**
-     * @var Dispatcher
+     * @var array
      */
-    protected static $dispatcher;
+    protected static $events = [];
 
     /**
-     * @param Dispatcher $dispatcher
+     * @return array
      */
-    public static function setDispatcher(Dispatcher $dispatcher)
+    public static function events(): array
     {
-        static::$dispatcher = $dispatcher;
+        return static::$events;
+    }
+
+    /**
+     * @param string $event
+     * @return bool
+     */
+    public static function eventExists(string $event): bool
+    {
+        return isset(static::$events[static::eventPrefix() . $event]);
     }
 
     /**
@@ -30,7 +39,7 @@ trait EventConcern
      */
     public static function on($event, $listener): void
     {
-        static::$dispatcher->listen(static::eventPrefix() . $event, $listener);
+        static::$events[static::eventPrefix() . $event] = $listener;
     }
 
     /**
@@ -38,7 +47,11 @@ trait EventConcern
      */
     public function dispatch($event, array $data = []): void
     {
-        static::$dispatcher->dispatch(static::eventPrefix() . $event, [$this, $data]);
+        if (!static::eventExists($event)) {
+            throw new OutOfRangeException("The event[{$event}] not found");
+        }
+
+        $this->app->call(static::$events[static::eventPrefix() . $event], $data, null);
     }
 
     /**
