@@ -52,6 +52,9 @@ class RedisRoom implements RoomContract
 
             foreach ($rooms as $valueRoom) {
                 $pipe->srem($valueRoom, $fd);
+                if ($pipe->scard($valueRoom) === 0) {
+                    $pipe->del($valueRoom);
+                }
             }
         });
     }
