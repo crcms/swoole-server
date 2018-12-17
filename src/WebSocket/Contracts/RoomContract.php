@@ -29,7 +29,18 @@ interface RoomContract
 
     /**
      * @param int $fd
+     * @return array
+     */
+    public function keys(int $fd): array;
+
+    /**
+     * @param int $fd
      * @param array|string $room
      */
     public function remove(int $fd, $room = []): void;
+
+    /**
+     * @return void
+     */
+    public function reset(): void;
 }
