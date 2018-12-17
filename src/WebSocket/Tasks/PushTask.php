@@ -4,6 +4,7 @@ namespace CrCms\Server\WebSocket\Tasks;
 
 use CrCms\Server\Server\Contracts\TaskContract;
 use CrCms\Server\WebSocket\Server;
+use Illuminate\Contracts\Container\Container;
 
 /**
  * Class PushTask
@@ -19,12 +20,13 @@ final class PushTask implements TaskContract
     {
         /* @var Server $server */
         $server = array_shift($params);
-
         /* @var int $fd */
         $fd = array_shift($params);
+        /* @var Container $app */
+        $app = $server->getApplication();
 
-        $packData = $server->getApplication()->make('websocket.parser')->pack(
-            $server->getApplication()->make('websocket.data_converter')->conversion($params)
+        $packData = $app->make('websocket.parser')->pack(
+            $app->make('websocket.data_converter')->conversion($params)
         );
 
         $server->getServer()->push($fd, $packData);

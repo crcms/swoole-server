@@ -101,7 +101,7 @@ class ArrayRoomTest extends TestCase
         $this->room->add(2, 'x4');
 
         $result = $this->room->keys(1);
-        
+
         $this->assertEquals(3, count($result));
         foreach ($result as $value) {
             $this->assertEquals(true, in_array($value, ['x1', 'x2', 'x3']));
