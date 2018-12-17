@@ -93,6 +93,21 @@ class ArrayRoomTest extends TestCase
         $this->assertEquals(0, count($result));
     }
 
+    public function testKeys()
+    {
+        $this->room->add(1, 'x1');
+        $this->room->add(1, 'x2');
+        $this->room->add(1, 'x3');
+        $this->room->add(2, 'x4');
+
+        $result = $this->room->keys(1);
+        
+        $this->assertEquals(3, count($result));
+        foreach ($result as $value) {
+            $this->assertEquals(true, in_array($value, ['x1', 'x2', 'x3']));
+        }
+    }
+
     public function tearDown()
     {
         parent::tearDown();

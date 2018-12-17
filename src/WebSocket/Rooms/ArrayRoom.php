@@ -65,4 +65,32 @@ class ArrayRoom implements RoomContract
             $this->rooms[$roomKey] = array_diff($this->rooms[$roomKey], [$fd]);
         }
     }
+
+    /**
+     * @param int $fd
+     * @return array
+     */
+    public function keys(int $fd): array
+    {
+        $existsKeys = [];
+
+        foreach ($this->rooms as $room => $values) {
+            foreach ($values as $value) {
+                if ($value === $fd) {
+                    $existsKeys[] = $room;
+                    break;
+                }
+            }
+        }
+
+        return $existsKeys;
+    }
+
+    /**
+     * @return void
+     */
+    public function reset(): void
+    {
+        $this->rooms = [];
+    }
 }

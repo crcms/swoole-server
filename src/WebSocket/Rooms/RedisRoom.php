@@ -77,4 +77,30 @@ class RedisRoom implements RoomContract
             return array_merge($result, $this->redis->smembers($value));
         }, []);
     }
+
+    /**
+     * @param int $fd
+     * @return array
+     */
+    public function keys(int $fd): array
+    {
+        $existsKeys = [];
+
+        $keys = $this->redis->keys('*');
+        foreach ($keys as $key) {
+            if ($this->redis->sismember($key, $fd)) {
+                $existsKeys[] = $key;
+            }
+        }
+
+        return $existsKeys;
+    }
+
+    /**
+     * @return void
+     */
+    public function reset(): void
+    {
+        $this->redis->flushdb();
+    }
 }
