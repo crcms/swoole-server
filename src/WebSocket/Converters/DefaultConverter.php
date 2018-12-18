@@ -16,6 +16,8 @@ class DefaultConverter implements ConverterContract
      */
     public function conversion(array $data): array
     {
-        return array_combine(['event', 'data'], $data);
+        /* @var $data[0] event */
+        /* @var $data[1] data */
+        return array_merge(['event'=>$data[0]], (array)$data[1]);
     }
 }

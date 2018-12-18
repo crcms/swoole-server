@@ -106,9 +106,9 @@ class Channel
 
     /**
      * @param $event
-     * @param array $data
+     * @param mixed $data
      */
-    public function emit($event, array $data = [])
+    public function emit($event, $data = [])
     {
         /*if (empty($this->to)) {
             $this->to = $this->room->all();
@@ -141,9 +141,9 @@ class Channel
     /**
      * @param int $fd
      * @param string $event
-     * @param array $data
+     * @param mixed $data
      */
-    protected function push(int $fd, string $event, array $data = []): void
+    protected function push(int $fd, string $event, $data = []): void
     {
         Dispatcher::dispatch(new PushTask, [$fd, $event, $data]);
     }

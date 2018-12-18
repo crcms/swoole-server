@@ -139,9 +139,9 @@ class Socket
 
     /**
      * @param string $event
-     * @param array $data
+     * @param mixed $data
      */
-    public function emit(string $event, array $data = []): void
+    public function emit(string $event, $data = []): void
     {
         $this->channel->to($this->getFd())->emit($event, $data);
     }
