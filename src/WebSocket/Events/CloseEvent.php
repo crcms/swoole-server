@@ -38,6 +38,8 @@ class CloseEvent extends AbstractEvent
         $socket = $server->getApplication()->make('websocket');
         $socket->leave();
 
+        $server->getApplication()->instance('websocket', null);
+
         if (Socket::eventExists('disconnection')) {
             $server->getApplication()->make('websocket')->dispatch('disconnection');
         }
