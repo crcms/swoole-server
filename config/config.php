@@ -109,13 +109,13 @@ return [
     ],
 
     'websocket_channels' => [
-        '/'
+        '/',
     ],
 
     'websocket_parser' => CrCms\Server\WebSocket\Parsers\DefaultParser::class,
 
     'websocket_data_converter' => CrCms\Server\WebSocket\Converters\DefaultConverter::class,
 
-    'websocket_request_middleware' => [
+    'websocket_middleware' => [
     ]
 ];
