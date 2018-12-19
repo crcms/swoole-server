@@ -51,12 +51,10 @@ class MessageEvent extends AbstractEvent implements EventContract
         } catch (\Exception $e) {
             $app->make(ExceptionHandler::class)->report($e);
             $app->make(ExceptionHandler::class)->render($socket, $e);
-            throw $e;
         } catch (\Throwable $e) {
             $e = new FatalThrowableError($e);
             $app->make(ExceptionHandler::class)->report($e);
             $app->make(ExceptionHandler::class)->render($socket, $e);
-            throw $e;
         }
     }
 
