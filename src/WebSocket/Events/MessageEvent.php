@@ -9,6 +9,7 @@ use CrCms\Server\Server\Contracts\EventContract;
 use CrCms\Server\Server\Events\AbstractEvent;
 use CrCms\Server\WebSocket\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
+use OutOfBoundsException;
 
 /**
  * Class MessageEvent
@@ -47,7 +48,11 @@ class MessageEvent extends AbstractEvent implements EventContract
         $app->instance('websocket', $socket);
 
         try {
-            $socket->dispatch($frame['event'], $frame['data']);
+            if ($socket::eventExists($frame['event'])) {
+                $socket->dispatch($frame['event'], $frame['data']);
+            } else {
+                throw new OutOfBoundsException("The event[{$frame['event']}] not found");
+            }
         } catch (\Exception $e) {
             $app->make(ExceptionHandler::class)->report($e);
             $app->make(ExceptionHandler::class)->render($socket, $e);

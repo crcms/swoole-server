@@ -57,8 +57,8 @@ class OpenEvent extends AbstractEvent
 
         // bind websocket instance
         $app->instance('websocket', (new Socket($app, $channel))->setFd($this->request->fd));
-        try {
 
+        try {
             // middleware
             (new Pipeline($app))
                 ->send($this->illuminateRequest)
@@ -68,10 +68,12 @@ class OpenEvent extends AbstractEvent
                 });
 
             // dispatch
-            IO::getChannel($channelName)->dispatch('connection', [
-                'app' => $app,
-                'request' => $this->illuminateRequest
-            ]);
+            if ($channel::eventExists('connection')) {
+                $channel->dispatch('connection', [
+                    'app' => $app,
+                    'request' => $this->illuminateRequest
+                ]);
+            }
         } catch (\Exception $e) {
             $app->make(ExceptionHandler::class)->report($e);
             $app->make(ExceptionHandler::class)->render($app->make('websocket'), $e);
