@@ -8,8 +8,6 @@ use CrCms\Server\WebSocket\Contracts\ParserContract;
 use CrCms\Server\WebSocket\Contracts\RoomContract;
 use CrCms\Server\WebSocket\Exceptions\Handler;
 use CrCms\Server\WebSocket\IO;
-use CrCms\Server\WebSocket\Listeners\IOListener;
-use CrCms\Server\WebSocket\Parsers\DefaultParser;
 use CrCms\Server\WebSocket\Rooms\RedisRoom;
 use CrCms\Server\WebSocket\Socket;
 use Illuminate\Contracts\Debug\ExceptionHandler;
