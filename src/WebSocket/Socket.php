@@ -153,4 +153,12 @@ class Socket
     {
         $this->channel->remove($this->getFd(), $room);
     }
+
+    /**
+     * @return array
+     */
+    public function rooms(): array
+    {
+        return $this->channel->rooms($this->getFd());
+    }
 }
