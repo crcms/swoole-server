@@ -5,6 +5,7 @@ namespace CrCms\Server\WebSocket\Tasks;
 use CrCms\Server\Server\Contracts\TaskContract;
 use CrCms\Server\WebSocket\Server;
 use Illuminate\Contracts\Container\Container;
+use OutOfBoundsException;
 
 /**
  * Class PushTask
@@ -29,7 +30,12 @@ final class PushTask implements TaskContract
             $app->make('websocket.data_converter')->conversion($params)
         );
 
-        $server->getServer()->push($fd, $packData);
+        $info = $server->getServer()->getClientInfo($fd);
+        if (is_array($info) && isset($info['websocket_status'])) {
+            $server->getServer()->push($fd, $packData);
+        } else {
+            throw new OutOfBoundsException("The fd:[{$fd}] not websocket or websocket close");
+        }
     }
 
     /**
