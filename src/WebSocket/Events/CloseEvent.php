@@ -2,10 +2,10 @@
 
 namespace CrCms\Server\WebSocket\Events;
 
-use CrCms\Server\WebSocket\Facades\IO;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Events\AbstractEvent;
 use CrCms\Server\WebSocket\Socket;
+use Illuminate\Contracts\Container\Container;
 
 /**
  * Class CloseEvent
@@ -33,15 +33,14 @@ class CloseEvent extends AbstractEvent
     public function handle(AbstractServer $server): void
     {
         parent::handle($server);
-
-        /* @var $socket Socket */
-        $socket = $server->getApplication()->make('websocket');
+        /* @var Container $app */
+        $app = $server->getApplication();
+        /* @var Socket $socket */
+        $socket = $app->make('websocket');
         $socket->leave();
 
-        $server->getApplication()->instance('websocket', null);
-
         if (Socket::eventExists('disconnection')) {
-            $server->getApplication()->make('websocket')->dispatch('disconnection');
+            $app->make('websocket')->dispatch('disconnection');
         }
     }
 }
