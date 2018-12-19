@@ -35,12 +35,13 @@ class CloseEvent extends AbstractEvent
         parent::handle($server);
         /* @var Container $app */
         $app = $server->getApplication();
-        /* @var Socket $socket */
-        $socket = $app->make('websocket');
-        $socket->leave();
 
         if (Socket::eventExists('disconnection')) {
             $app->make('websocket')->dispatch('disconnection');
         }
+
+        /* @var Socket $socket */
+        $socket = $app->make('websocket');
+        $socket->leave();
     }
 }
