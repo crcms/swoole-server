@@ -43,11 +43,16 @@ class MessageEvent extends AbstractEvent implements EventContract
         //解析数据
         $frame = $app->make('websocket.parser')->unpack($this->frame);
 
-        $socket = (new Socket($app, IO::getChannel($this->channelName())))->setData($frame['data'] ?? [])->setFrame($this->frame)->setFd($this->frame->fd);
+        $channel = IO::getChannel($this->channelName());
+        $socket = (new Socket($app, $channel))->setData($frame['data'] ?? [])->setFrame($this->frame)->setFd($this->frame->fd);
 
         $app->instance('websocket', $socket);
 
         try {
+            if ($channel::eventExists('message')) {
+                $channel->dispatch('message');
+            }
+
             if ($socket::eventExists($frame['event'])) {
                 $socket->dispatch($frame['event'], $frame['data']);
             } else {
