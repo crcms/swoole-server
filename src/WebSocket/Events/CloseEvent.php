@@ -4,6 +4,8 @@ namespace CrCms\Server\WebSocket\Events;
 
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Events\AbstractEvent;
+use CrCms\Server\WebSocket\Channel;
+use CrCms\Server\WebSocket\Facades\IO;
 use CrCms\Server\WebSocket\Socket;
 use Illuminate\Contracts\Container\Container;
 
@@ -33,16 +35,52 @@ class CloseEvent extends AbstractEvent
     public function handle(AbstractServer $server): void
     {
         parent::handle($server);
-        
+
         /* @var Container $app */
         $app = $server->getApplication();
-        /* @var Socket $websocket */
-        $websocket = $app->make('websocket');
+        /* @var Channel $channel */
+        $channel = IO::getChannel($this->channelName());
+        $websocket = (new Socket($app, $channel))->setFd($this->fd);
 
-        if ($websocket->getChannel()->eventExists('disconnection')) {
-            $websocket->dispatch('disconnection');
+        $app->instance('websocket', $websocket);
+
+        if ($channel->eventExists('disconnection')) {
+            $channel->dispatch('disconnection');
         }
 
         $websocket->leave();
+    }
+
+
+    /**
+     * @return string
+     */
+    protected function channelName(): string
+    {
+        $channels = IO::getChannels();
+
+        $currentRoom = '';
+
+        foreach ($channels as $channel) {
+            $rooms = $channel->rooms($this->fd);
+            if ($rooms) {
+                foreach ($rooms as $room) {
+                    if (stripos($room, '_global_channel_')) {
+                        $currentRoom = $room;
+                        break;
+                    }
+                }
+            }
+
+            if ($currentRoom) {
+                break;
+            }
+        }
+
+        if (empty($currentRoom)) {
+            throw new \RangeException("The channel not found");
+        }
+
+        return strrchr($currentRoom, '/');
     }
 }
