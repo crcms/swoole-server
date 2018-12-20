@@ -56,14 +56,14 @@ class TaskEvent extends AbstractEvent implements EventContract
 
         try {
             $result = $object->handle($server, ...$params);
-        } catch (Exception $exception) {
+
+            $this->server->finish($result);
+        } catch (\Throwable $exception) {
             if (method_exists($object, 'failed')) {
                 $object->failed($exception);
             }
 
             throw $exception;
         }
-
-        $this->server->finish($result);
     }
 }

@@ -39,13 +39,12 @@ class MessageEvent extends AbstractEvent implements EventContract
         parent::handle($server);
 
         $app = $server->getApplication();
+        $channel = IO::getChannel($this->channelName());
 
         //解析数据
         $frame = $app->make('websocket.parser')->unpack($this->frame);
 
-        $channel = IO::getChannel($this->channelName());
         $socket = (new Socket($app, $channel))->setData($frame['data'] ?? [])->setFrame($this->frame)->setFd($this->frame->fd);
-
         $app->instance('websocket', $socket);
 
         try {
@@ -59,12 +58,12 @@ class MessageEvent extends AbstractEvent implements EventContract
                 throw new OutOfBoundsException("The event[{$frame['event']}] not found");
             }
         } catch (\Exception $e) {
-            $app->make(ExceptionHandler::class)->report($e);
             $app->make(ExceptionHandler::class)->render($socket, $e);
+            throw $e;
         } catch (\Throwable $e) {
-            $e = new FatalThrowableError($e);
-            $app->make(ExceptionHandler::class)->report($e);
-            $app->make(ExceptionHandler::class)->render($socket, $e);
+            $throwable = new FatalThrowableError($e);
+            $app->make(ExceptionHandler::class)->render($socket, $throwable);
+            throw $e;
         }
     }
 

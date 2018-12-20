@@ -5,12 +5,14 @@ namespace CrCms\Server\Server;
 use CrCms\Server\Server\Contracts\ServerActionContract;
 use CrCms\Server\Server\Contracts\ServerContract;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Swoole\Process;
 use Swoole\Server as SwooleServer;
 use BadMethodCallException;
+use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 /**
  * Class AbstractServer
@@ -225,8 +227,14 @@ abstract class AbstractServer implements ServerActionContract, ServerContract
     protected function eventsCallback(string $name, string $event): void
     {
         $this->server->on($name, function () use ($name, $event) {
-            $this->eventObjects[$name] = new $event(...$this->filterServer(func_get_args()));
-            $this->eventObjects[$name]->handle($this);
+            try {
+                $this->eventObjects[$name] = new $event(...$this->filterServer(func_get_args()));
+                $this->eventObjects[$name]->handle($this);
+            } catch (\Exception $e) {
+                $this->app->make(ExceptionHandler::class)->report($e);
+            } catch (\Throwable $e) {
+                $this->app->make(ExceptionHandler::class)->report(new FatalThrowableError($e));
+            }
         });
     }
 
