@@ -44,11 +44,15 @@ class CloseEvent extends AbstractEvent
 
         $app->instance('websocket', $websocket);
 
-        if ($channel->eventExists('disconnection')) {
-            $channel->dispatch('disconnection');
+        try {
+            if ($channel->eventExists('disconnection')) {
+                $channel->dispatch('disconnection');
+            }
+        } catch (\Exception $exception) {
+            throw $exception;
+        } finally {
+            $websocket->leave();
         }
-
-        $websocket->leave();
     }
 
 
