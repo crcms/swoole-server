@@ -6,6 +6,7 @@ use CrCms\Server\Server\Facades\Dispatcher;
 use CrCms\Server\WebSocket\Concerns\EventConcern;
 use CrCms\Server\WebSocket\Contracts\RoomContract;
 use CrCms\Server\WebSocket\Tasks\PushTask;
+use OutOfRangeException;
 
 /**
  * Class Channel
@@ -13,13 +14,6 @@ use CrCms\Server\WebSocket\Tasks\PushTask;
  */
 class Channel
 {
-    use EventConcern;
-
-    /**
-     * @var string
-     */
-    protected static $eventPrefix = 'channel';
-
     /**
      * @var IO
      */
@@ -46,6 +40,11 @@ class Channel
     protected $app;
 
     /**
+     * @var array
+     */
+    protected $events = [];
+
+    /**
      * Channel constructor.
      * @param IO $io
      * @param string $name
@@ -56,6 +55,37 @@ class Channel
         $this->name = $name;
         $this->app = $io->getApplication();
         $this->room = $io->getRoom();
+    }
+
+    /**
+     * @param $event
+     * @param $listener
+     * @return EventConcern
+     */
+    public function on($event, $listener): void
+    {
+        $this->events[$event] = $listener;
+    }
+
+    /**
+     * @param $event
+     * @return bool
+     */
+    public function eventExists($event): bool
+    {
+        return isset($this->events[$event]);
+    }
+
+    /**
+     * @param $event
+     */
+    public function dispatch($event, array $data = []): void
+    {
+        if (!$this->eventExists($event)) {
+            throw new OutOfRangeException("The event[{$event}] not found");
+        }
+
+        $this->app->call($this->events[$event], $data, null);
     }
 
     /**

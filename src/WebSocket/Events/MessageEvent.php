@@ -2,12 +2,15 @@
 
 namespace CrCms\Server\WebSocket\Events;
 
+use CrCms\Server\WebSocket\Channel;
 use CrCms\Server\WebSocket\Facades\IO;
 use CrCms\Server\WebSocket\Socket;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Contracts\EventContract;
 use CrCms\Server\Server\Events\AbstractEvent;
 use CrCms\Server\WebSocket\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Contracts\Container\Container;
+use function MongoDB\BSON\toJSON;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 use OutOfBoundsException;
 
@@ -38,22 +41,25 @@ class MessageEvent extends AbstractEvent implements EventContract
     {
         parent::handle($server);
 
+        /* @var Container $app */
         $app = $server->getApplication();
-        $channel = IO::getChannel($this->channelName());
-
-        //解析数据
+        /* @var Channel $channel */
+        $channel = IO::of($this->channelName());
+        /* 解析数据 @var array $frame */
         $frame = $app->make('websocket.parser')->unpack($this->frame);
-
+        // Create socket
         $socket = (new Socket($app, $channel))->setData($frame['data'] ?? [])->setFrame($this->frame)->setFd($this->frame->fd);
+
+        //bind instance
         $app->instance('websocket', $socket);
 
         try {
-            if ($channel::eventExists('message')) {
+            if ($channel->eventExists('message')) {
                 $channel->dispatch('message');
             }
 
-            if ($socket::eventExists($frame['event'])) {
-                $socket->dispatch($frame['event'], $frame['data']);
+            if ($channel->eventExists($frame['event'])) {
+                $channel->dispatch($frame['event'], $frame['data']);
             } else {
                 throw new OutOfBoundsException("The event[{$frame['event']}] not found");
             }

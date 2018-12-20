@@ -68,7 +68,7 @@ class OpenEvent extends AbstractEvent
                 });
 
             // dispatch
-            if ($channel::eventExists('connection')) {
+            if ($channel->eventExists('connection')) {
                 $channel->dispatch('connection', [
                     'app' => $app,
                     'request' => $this->illuminateRequest

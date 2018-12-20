@@ -2,7 +2,6 @@
 
 namespace CrCms\Server\WebSocket;
 
-use CrCms\Server\WebSocket\Concerns\EventConcern;
 use Illuminate\Contracts\Container\Container;
 use Swoole\WebSocket\Frame;
 
@@ -12,13 +11,6 @@ use Swoole\WebSocket\Frame;
  */
 class Socket
 {
-    use EventConcern;
-
-    /**
-     * @var string
-     */
-    protected static $eventPrefix = 'socket';
-
     /**
      * @var Container
      */
