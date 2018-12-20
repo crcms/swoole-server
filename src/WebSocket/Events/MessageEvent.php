@@ -10,7 +10,6 @@ use CrCms\Server\Server\Contracts\EventContract;
 use CrCms\Server\Server\Events\AbstractEvent;
 use CrCms\Server\WebSocket\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Contracts\Container\Container;
-use function MongoDB\BSON\toJSON;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 use OutOfBoundsException;
 
