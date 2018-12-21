@@ -35,6 +35,15 @@ class Request
     }
 
     /**
+     * @param SwooleRequest $request
+     * @return Request
+     */
+    public static function make(SwooleRequest $request)
+    {
+        return new static($request);
+    }
+
+    /**
      * @return IlluminateRequest
      */
     public function getIlluminateRequest(): IlluminateRequest
@@ -78,7 +87,13 @@ class Request
             $data = empty($this->swooleRequest->post) ? [] : $this->swooleRequest->post;
 
             if (isset($this->swooleRequest->header['content-type']) && stripos($this->swooleRequest->header['content-type'], 'application/json') !== false) {
-                $data = array_merge($data, json_decode($this->swooleRequest->rawContent(), true));
+                $content = $this->swooleRequest->rawContent();
+                if ($content) {
+                    $content = json_decode($content, true);
+                    if (json_last_error() === 0) {
+                        $data = array_merge($data, $content);
+                    }
+                }
             }
         }
 
