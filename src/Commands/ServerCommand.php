@@ -30,7 +30,7 @@ class ServerCommand extends AbstractServerCommand
     {
         $serverType = $this->aliasConver($this->argument('server'));
 
-        $this->cleanRunCache();
+        //$this->cleanRunCache();
 
         $server = $this->getServer($serverType);
         return new $server(
