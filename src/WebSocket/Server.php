@@ -7,6 +7,7 @@ use CrCms\Server\WebSocket\Events\CloseEvent;
 use CrCms\Server\WebSocket\Events\MessageEvent;
 use CrCms\Server\WebSocket\Events\OpenEvent;
 use Swoole\WebSocket\Server as WebSocketServer;
+use CrCms\Server\Http\Events\RequestEvent;
 
 /**
  * Class Server
@@ -18,6 +19,7 @@ class Server extends HttpServer
      * @var array
      */
     protected $events = [
+        'request' => RequestEvent::class,
         'open' => OpenEvent::class,
         'message' => MessageEvent::class,
         'close' => CloseEvent::class,
