@@ -58,7 +58,7 @@ class MessageEvent extends AbstractEvent implements EventContract
             }
 
             if ($channel->eventExists($frame['event'])) {
-                $channel->dispatch($frame['event'], $frame['data']);
+                $channel->dispatch($frame['event']);
             } else {
                 throw new OutOfBoundsException("The event[{$frame['event']}] not found");
             }
