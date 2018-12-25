@@ -31,6 +31,8 @@ class CloseEvent extends AbstractEvent
 
     /**
      * @param AbstractServer $server
+     * @throws \Exception
+     * @return void
      */
     public function handle(AbstractServer $server): void
     {
@@ -38,6 +40,21 @@ class CloseEvent extends AbstractEvent
 
         /* @var Container $app */
         $app = $server->getApplication();
+
+        //close websocket
+        $info = $server->getServer()->getClientInfo($this->fd);
+        if (is_array($info) && isset($info['websocket_status'])) {
+            $this->closeWebSocket($app);
+        }
+    }
+
+    /**
+     * @param Container $app
+     * @throws \Exception
+     * @return void
+     */
+    protected function closeWebSocket(Container $app): void
+    {
         /* @var Channel $channel */
         $channel = IO::getChannel($this->channelName());
         $websocket = (new Socket($app, $channel))->setFd($this->fd);
@@ -54,7 +71,6 @@ class CloseEvent extends AbstractEvent
             $websocket->leave();
         }
     }
-
 
     /**
      * @return string
