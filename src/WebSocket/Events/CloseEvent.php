@@ -56,7 +56,16 @@ class CloseEvent extends AbstractEvent
     protected function closeWebSocket(Container $app): void
     {
         /* @var Channel $channel */
-        $channel = IO::getChannel($this->channelName());
+        try {
+            $channel = IO::getChannel($this->channelName());
+        } catch (\Exception $exception) {
+            $channel = null;
+        }
+
+        if (is_null($channel)) {
+            return;
+        }
+
         $websocket = (new Socket($app, $channel))->setFd($this->fd);
 
         $app->instance('websocket', $websocket);
