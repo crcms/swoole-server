@@ -50,13 +50,19 @@ class OpenEvent extends AbstractEvent
 
         /* @var Container $app */
         $app = $this->server->getApplication();
-        /* @var string $channelName */
-        $channelName = $this->channelName();
-        /* @var Channel $channel */
-        $channel = IO::getChannel($channelName)->join($this->request->fd, '_global_channel_' . $channelName);
 
-        // bind websocket instance
-        $app->instance('websocket', (new Socket($app, $channel))->setFd($this->request->fd));
+        try {
+            /* @var string $channelName */
+            $channelName = $this->channelName();
+            /* @var Channel $channel */
+            $channel = IO::getChannel($channelName)->join($this->request->fd, '_global_channel_' . $channelName);
+
+            // bind websocket instance
+            $app->instance('websocket', (new Socket($app, $channel))->setFd($this->request->fd));
+        } catch (\Throwable $e) {
+            $server->getServer()->close($this->request->fd);
+            throw $e;
+        }
 
         try {
             // middleware

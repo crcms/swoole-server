@@ -42,12 +42,18 @@ class MessageEvent extends AbstractEvent implements EventContract
 
         /* @var Container $app */
         $app = $server->getApplication();
-        /* @var Channel $channel */
-        $channel = IO::of($this->channelName());
-        /* 解析数据 @var array $frame */
-        $frame = $app->make('websocket.parser')->unpack($this->frame);
-        // Create socket
-        $socket = (new Socket($app, $channel))->setData($frame['data'] ?? [])->setFrame($this->frame)->setFd($this->frame->fd);
+
+        try {
+            /* @var Channel $channel */
+            $channel = IO::of($this->channelName());
+            /* 解析数据 @var array $frame */
+            $frame = $app->make('websocket.parser')->unpack($this->frame);
+            // Create socket
+            $socket = (new Socket($app, $channel))->setData($frame['data'] ?? [])->setFrame($this->frame)->setFd($this->frame->fd);
+        } catch (\Throwable $e) {
+            $server->getServer()->close($this->frame->fd);
+            throw $e;
+        }
 
         //bind instance
         $app->instance('websocket', $socket);
