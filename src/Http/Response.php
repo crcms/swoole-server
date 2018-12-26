@@ -3,8 +3,8 @@
 namespace CrCms\Server\Http;
 
 use Swoole\Http\Response as SwooleResponse;
-use Illuminate\Http\Response as IlluminateResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Response as BaseResponse;
 
 /**
  * Class Response
@@ -18,16 +18,16 @@ class Response
     protected $swooleResponse;
 
     /**
-     * @var IlluminateResponse
+     * @var BaseResponse
      */
     protected $illuminateResponse;
 
     /**
      * Response constructor.
      * @param SwooleResponse $response
-     * @param IlluminateResponse $illuminateResponse
+     * @param BaseResponse $illuminateResponse
      */
-    public function __construct(SwooleResponse $response, IlluminateResponse $illuminateResponse)
+    public function __construct(SwooleResponse $response, BaseResponse $illuminateResponse)
     {
         $this->swooleResponse = $response;
         $this->illuminateResponse = $illuminateResponse;
@@ -35,10 +35,10 @@ class Response
 
     /**
      * @param SwooleResponse $response
-     * @param IlluminateResponse $illuminateResponse
+     * @param BaseResponse $illuminateResponse
      * @return Response
      */
-    public static function make(SwooleResponse $response, IlluminateResponse $illuminateResponse)
+    public static function make(SwooleResponse $response, BaseResponse $illuminateResponse)
     {
         return new static($response, $illuminateResponse);
     }
