@@ -10,6 +10,7 @@ use CrCms\Server\Server\Events\AbstractEvent;
 use CrCms\Server\WebSocket\Socket;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Pipeline\Pipeline;
+use CrCms\Server\WebSocket\ConnectionHandled;
 use Swoole\Http\Request as SwooleRequest;
 use Illuminate\Http\Request as IlluminateRequest;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
@@ -80,6 +81,11 @@ class OpenEvent extends AbstractEvent
                     'request' => $this->illuminateRequest
                 ]);
             }
+
+            // dispatch an event
+            $app->make('events')->dispatch(
+                new ConnectionHandled($this->illuminateRequest)
+            );
         } catch (\Exception $e) {
             $app->make(ExceptionHandler::class)->render($app->make('websocket'), $e);
             throw $e;
