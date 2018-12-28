@@ -51,7 +51,7 @@ class MessageEvent extends AbstractEvent implements EventContract
             // Create socket
             $socket = (new Socket($app, $channel))->setData($frame['data'] ?? [])->setFrame($this->frame)->setFd($this->frame->fd);
         } catch (\Throwable $e) {
-            $server->getServer()->close($this->frame->fd);
+            $server->getServer()->disconnect($this->request->fd, 1003, 'unsupported.');
             throw $e;
         }
 

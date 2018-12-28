@@ -61,7 +61,7 @@ class OpenEvent extends AbstractEvent
             // bind websocket instance
             $app->instance('websocket', (new Socket($app, $channel))->setFd($this->request->fd));
         } catch (\Throwable $e) {
-            $server->getServer()->close($this->request->fd);
+            $server->getServer()->disconnect($this->request->fd, 1003, 'unsupported.');
             throw $e;
         }
 
