@@ -30,12 +30,12 @@ final class PushTask implements TaskContract
             $app->make('websocket.data_converter')->conversion($params)
         );
 
-        $info = $server->getServer()->getClientInfo($fd);
-        if (is_array($info) && isset($info['websocket_status'])) {
+        if ($server->getServer()->isEstablished($fd)) {
             $server->getServer()->push($fd, $packData);
-        } else {
-            throw new OutOfBoundsException("The fd:[{$fd}] not websocket or websocket close");
+            return ;
         }
+
+        throw new OutOfBoundsException("The fd:[{$fd}] not websocket or websocket close");
     }
 
     /**
