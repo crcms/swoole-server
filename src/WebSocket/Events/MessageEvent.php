@@ -3,6 +3,8 @@
 namespace CrCms\Server\WebSocket\Events;
 
 use CrCms\Server\WebSocket\Channel;
+use CrCms\Server\WebSocket\Events\Internal\MessageHandledEvent;
+use CrCms\Server\WebSocket\Events\Internal\MessageHandleEvent;
 use CrCms\Server\WebSocket\Facades\IO;
 use CrCms\Server\WebSocket\Socket;
 use CrCms\Server\Server\AbstractServer;
@@ -46,28 +48,34 @@ class MessageEvent extends AbstractEvent implements EventContract
         try {
             /* @var Channel $channel */
             $channel = IO::of($this->channelName());
-            /* 解析数据 @var array $frame */
-            $frame = $app->make('websocket.parser')->unpack($this->frame);
-            // Create socket
-            $socket = (new Socket($app, $channel))->setData($frame['data'] ?? [])->setFrame($this->frame)->setFd($this->frame->fd);
+            /* 解析数据 @var array $payload */
+            $payload = $app->make('websocket.parser')->unpack($this->frame);
         } catch (\Throwable $e) {
             $server->getServer()->disconnect($this->request->fd, 1003, 'unsupported.');
             throw $e;
         }
 
+        // Create socket
+        $socket = (new Socket($app, $channel))->setData($payload['data'] ?? [])->setFrame($this->frame)->setFd($this->frame->fd);
+
         //bind instance
         $app->instance('websocket', $socket);
 
         try {
+            $app->make('events')->dispatch(
+                new MessageHandleEvent($socket)
+            );
+
             if ($channel->eventExists('message')) {
                 $channel->dispatch('message');
             }
 
-            if ($channel->eventExists($frame['event'])) {
-                $channel->dispatch($frame['event']);
+            if ($channel->eventExists($payload['event'])) {
+                $channel->dispatch($payload['event']);
             } else {
-                throw new OutOfBoundsException("The event[{$frame['event']}] not found");
+                throw new OutOfBoundsException("The event[{$payload['event']}] not found");
             }
+
         } catch (\Exception $e) {
             $app->make(ExceptionHandler::class)->render($socket, $e);
             throw $e;
@@ -75,6 +83,10 @@ class MessageEvent extends AbstractEvent implements EventContract
             $throwable = new FatalThrowableError($e);
             $app->make(ExceptionHandler::class)->render($socket, $throwable);
             throw $e;
+        } finally {
+            $app->make('events')->dispatch(
+                new MessageHandledEvent($socket)
+            );
         }
     }
 

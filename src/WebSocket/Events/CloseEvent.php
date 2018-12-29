@@ -5,6 +5,7 @@ namespace CrCms\Server\WebSocket\Events;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Events\AbstractEvent;
 use CrCms\Server\WebSocket\Channel;
+use CrCms\Server\WebSocket\Events\Internal\CloseHandledEvent;
 use CrCms\Server\WebSocket\Facades\IO;
 use CrCms\Server\WebSocket\Socket;
 use Illuminate\Contracts\Container\Container;
@@ -46,6 +47,10 @@ class CloseEvent extends AbstractEvent
         if (is_array($info) && isset($info['websocket_status'])) {
             $this->closeWebSocket($app);
         }
+
+        $app->make('events')->dispatch(
+            new CloseHandledEvent($this->fd)
+        );
     }
 
     /**
