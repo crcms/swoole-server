@@ -93,4 +93,12 @@ class ArrayRoom implements RoomContract
     {
         $this->rooms = [];
     }
+
+    /**
+     * @return null
+     */
+    public function connection()
+    {
+        return null;
+    }
 }

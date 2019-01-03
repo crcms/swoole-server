@@ -43,4 +43,9 @@ interface RoomContract
      * @return void
      */
     public function reset(): void;
+
+    /**
+     * @return mixed
+     */
+    public function connection();
 }

@@ -103,4 +103,12 @@ class RedisRoom implements RoomContract
     {
         $this->redis->flushdb();
     }
+
+    /**
+     * @return Connection
+     */
+    public function connection(): Connection
+    {
+        return $this->redis;
+    }
 }
