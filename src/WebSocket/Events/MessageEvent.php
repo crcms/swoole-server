@@ -51,7 +51,7 @@ class MessageEvent extends AbstractEvent implements EventContract
             /* 解析数据 @var array $payload */
             $payload = $app->make('websocket.parser')->unpack($this->frame);
         } catch (\Throwable $e) {
-            $server->getServer()->disconnect($this->request->fd, 1003, 'unsupported.');
+            $server->getServer()->disconnect($this->frame->fd, 1003, 'unsupported.');
             throw $e;
         }
 
