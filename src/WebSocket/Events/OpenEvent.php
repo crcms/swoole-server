@@ -81,11 +81,6 @@ class OpenEvent extends AbstractEvent
                     'request' => $this->illuminateRequest
                 ]);
             }
-
-            // dispatch an event
-            $app->make('events')->dispatch(
-                new ConnectionHandled($this->illuminateRequest)
-            );
         } catch (\Exception $e) {
             $app->make(ExceptionHandler::class)->render($app->make('websocket'), $e);
             throw $e;
@@ -93,6 +88,11 @@ class OpenEvent extends AbstractEvent
             $e = new FatalThrowableError($e);
             $app->make(ExceptionHandler::class)->render($app->make('websocket'), $e);
             throw $e;
+        } finally {
+            // dispatch an event
+            $app->make('events')->dispatch(
+                new ConnectionHandled($this->illuminateRequest)
+            );
         }
     }
 

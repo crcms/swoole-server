@@ -43,14 +43,16 @@ class CloseEvent extends AbstractEvent
         $app = $server->getApplication();
 
         //close websocket
-        $info = $server->getServer()->getClientInfo($this->fd);
-        if (is_array($info) && isset($info['websocket_status'])) {
-            $this->closeWebSocket($app);
+        try {
+            $info = $server->getServer()->getClientInfo($this->fd);
+            if (is_array($info) && isset($info['websocket_status'])) {
+                $this->closeWebSocket($app);
+            }
+        } finally {
+            $app->make('events')->dispatch(
+                new CloseHandledEvent($this->fd)
+            );
         }
-
-        $app->make('events')->dispatch(
-            new CloseHandledEvent($this->fd)
-        );
     }
 
     /**
