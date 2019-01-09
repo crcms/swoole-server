@@ -156,7 +156,7 @@ class Channel
      */
     public function remove(int $fd, $room = []): void
     {
-        $this->room->remove($fd, $this->filterGetRooms($room));
+        $this->room->remove($fd, $this->filterGetRooms($room ? $room : '*'));
     }
 
     /**
@@ -165,7 +165,13 @@ class Channel
      */
     public function rooms(int $fd): array
     {
-        return $this->room->keys($fd);
+        $rooms = $this->room->keys($fd);
+
+        $prefix = $this->channelPrefix();
+
+        return array_filter($rooms, function (string $room) use ($prefix){
+            return strpos($room, $prefix) !== false;
+        });
     }
 
     /**
@@ -203,12 +209,20 @@ class Channel
      */
     protected function filterGetRooms($room): array
     {
-        $prefix = 'channel.' . $this->name . '_';
+        $prefix = $this->channelPrefix();
 
         return array_map(function ($room) use ($prefix) {
             return $prefix . $room;
         }, array_filter((array)$room, function ($value) {
             return !is_integer($value);
         }));
+    }
+
+    /**
+     * @return string
+     */
+    protected function channelPrefix(): string
+    {
+        return 'channel.' . $this->name . '_';
     }
 }

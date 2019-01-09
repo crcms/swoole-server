@@ -50,7 +50,17 @@ class RedisRoom implements RoomContract
             $rooms = empty($room) ?
                 $this->redis->keys('*') : (array)$room;
 
-            foreach ($rooms as $valueRoom) {
+            //merge rooms
+            $allRooms = [];
+            foreach ($rooms as $ifRoom) {
+                if (strpos($ifRoom, '*') !== false) {
+                    $allRooms = array_merge($allRooms, $this->redis->keys($ifRoom));
+                } else {
+                    $allRooms[] = $ifRoom;
+                }
+            }
+
+            foreach ($allRooms as $valueRoom) {
                 $pipe->srem($valueRoom, $fd);
                 if ($pipe->scard($valueRoom) === 0) {
                     $pipe->del($valueRoom);
