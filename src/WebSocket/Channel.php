@@ -223,6 +223,6 @@ class Channel
      */
     protected function channelPrefix(): string
     {
-        return 'channel.' . $this->name . '_';
+        return $this->name . '_';
     }
 }
