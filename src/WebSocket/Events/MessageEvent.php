@@ -6,6 +6,7 @@ use CrCms\Server\WebSocket\Channel;
 use CrCms\Server\WebSocket\Events\Internal\MessageHandledEvent;
 use CrCms\Server\WebSocket\Events\Internal\MessageHandleEvent;
 use CrCms\Server\WebSocket\Facades\IO;
+use CrCms\Server\WebSocket\FdChannelTrait;
 use CrCms\Server\WebSocket\Socket;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Contracts\EventContract;
@@ -21,6 +22,8 @@ use OutOfBoundsException;
  */
 class MessageEvent extends AbstractEvent implements EventContract
 {
+    use FdChannelTrait;
+
     /**
      * @var object
      */
@@ -47,7 +50,7 @@ class MessageEvent extends AbstractEvent implements EventContract
 
         try {
             /* @var Channel $channel */
-            $channel = IO::of($this->channelName());
+            $channel = IO::of($this->channelName($this->frame->fd));
             /* 解析数据 @var array $payload */
             $payload = $app->make('websocket.parser')->unpack($this->frame);
         } catch (\Throwable $e) {
@@ -88,37 +91,5 @@ class MessageEvent extends AbstractEvent implements EventContract
                 new MessageHandledEvent($socket)
             );
         }
-    }
-
-    /**
-     * @return string
-     */
-    protected function channelName(): string
-    {
-        $channels = IO::getChannels();
-
-        $currentRoom = '';
-
-        foreach ($channels as $channel) {
-            $rooms = $channel->rooms($this->frame->fd);
-            if ($rooms) {
-                foreach ($rooms as $room) {
-                    if (stripos($room, '_global_channel_')) {
-                        $currentRoom = $room;
-                        break;
-                    }
-                }
-            }
-
-            if ($currentRoom) {
-                break;
-            }
-        }
-
-        if (empty($currentRoom)) {
-            throw new \RangeException("The channel not found");
-        }
-
-        return strrchr($currentRoom, '/');
     }
 }

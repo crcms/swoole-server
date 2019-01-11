@@ -56,7 +56,10 @@ class OpenEvent extends AbstractEvent
             /* @var string $channelName */
             $channelName = $this->channelName();
             /* @var Channel $channel */
-            $channel = IO::getChannel($channelName)->join($this->request->fd, '_global_channel_' . $channelName);
+            $channel = IO::getChannel($channelName);
+
+            //join room
+            $channel->join($this->request->fd, strval($this->request->fd));
 
             // bind websocket instance
             $app->instance('websocket', (new Socket($app, $channel))->setFd($this->request->fd));
