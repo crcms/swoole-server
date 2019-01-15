@@ -3,7 +3,9 @@
 /**
  * @author simon <crcms@crcms.cn>
  * @datetime 2018-04-02 20:58
+ *
  * @link http://crcms.cn/
+ *
  * @copyright Copyright &copy; 2018 Rights Reserved CRCMS
  */
 
@@ -13,8 +15,7 @@ use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Contracts\EventContract;
 
 /**
- * Class ManagerStartEvent
- * @package CrCms\Server\Server\Events
+ * Class ManagerStartEvent.
  */
 class ManagerStartEvent extends AbstractEvent implements EventContract
 {

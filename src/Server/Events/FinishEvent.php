@@ -6,8 +6,7 @@ use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Contracts\EventContract;
 
 /**
- * Class FinishEvent
- * @package CrCms\Server\Server\Events
+ * Class FinishEvent.
  */
 class FinishEvent extends AbstractEvent implements EventContract
 {
@@ -23,7 +22,8 @@ class FinishEvent extends AbstractEvent implements EventContract
 
     /**
      * FinishEvent constructor.
-     * @param int $taskId
+     *
+     * @param int   $taskId
      * @param mixed $data
      */
     public function __construct(int $taskId, $data)

@@ -5,8 +5,7 @@ namespace CrCms\Server\WebSocket;
 use CrCms\Server\WebSocket\Facades\IO;
 
 /**
- * Trait FdChannelTrait
- * @package CrCms\Server\WebSocket
+ * Trait FdChannelTrait.
  */
 trait FdChannelTrait
 {
@@ -29,6 +28,6 @@ trait FdChannelTrait
             }
         }
 
-        throw new \RangeException("The channel not found");
+        throw new \RangeException('The channel not found');
     }
 }

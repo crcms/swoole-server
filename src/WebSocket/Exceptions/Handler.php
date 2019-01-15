@@ -3,19 +3,18 @@
 namespace CrCms\Server\WebSocket\Exceptions;
 
 use Exception;
+use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 use Psr\Log\LoggerInterface;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Debug\ExceptionHandler;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\Console\Application as ConsoleApplication;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 /**
- * Class Handler
- * @package CrCms\Server\WebSocket\Exceptions
+ * Class Handler.
  */
 class Handler implements ExceptionHandler
 {
@@ -43,11 +42,11 @@ class Handler implements ExceptionHandler
         ValidationException::class,
     ];
 
-
     /**
      * Create a new exception handler instance.
      *
-     * @param  \Illuminate\Contracts\Container\Container $container
+     * @param \Illuminate\Contracts\Container\Container $container
+     *
      * @return void
      */
     public function __construct(Container $container)
@@ -87,8 +86,8 @@ class Handler implements ExceptionHandler
         } elseif ($e instanceof ValidationException) {
             $data = [
                 'message' => $e->getMessage(),
-                'errors' => $e->errors(),
-                'status' => $e->status
+                'errors'  => $e->errors(),
+                'status'  => $e->status,
             ];
         } else {
             $data = $this->convertExceptionToArray($e);
@@ -100,13 +99,14 @@ class Handler implements ExceptionHandler
 
     public function renderForConsole($output, Exception $e)
     {
-        (new ConsoleApplication)->renderException($e, $output);
+        (new ConsoleApplication())->renderException($e, $output);
     }
 
     /**
      * Determine if the exception is in the "do not report" list.
      *
-     * @param  \Exception $e
+     * @param \Exception $e
+     *
      * @return bool
      */
     protected function shouldntReport(Exception $e)
@@ -121,17 +121,18 @@ class Handler implements ExceptionHandler
     /**
      * Convert the given exception to an array.
      *
-     * @param  \Exception $e
+     * @param \Exception $e
+     *
      * @return array
      */
     protected function convertExceptionToArray(Exception $e)
     {
         return config('app.debug') ? [
-            'message' => $e->getMessage(),
+            'message'   => $e->getMessage(),
             'exception' => get_class($e),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-            'trace' => collect($e->getTrace())->map(function ($trace) {
+            'file'      => $e->getFile(),
+            'line'      => $e->getLine(),
+            'trace'     => collect($e->getTrace())->map(function ($trace) {
                 return Arr::except($trace, ['args']);
             })->all(),
         ] : [
@@ -142,7 +143,8 @@ class Handler implements ExceptionHandler
     /**
      * Determine if the given exception is an HTTP exception.
      *
-     * @param  \Exception $e
+     * @param \Exception $e
+     *
      * @return bool
      */
     protected function isHttpException(Exception $e)

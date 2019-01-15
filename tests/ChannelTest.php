@@ -10,8 +10,7 @@ use Illuminate\Redis\Connectors\PredisConnector;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class ChannelTest
- * @package CrCms\Tests
+ * Class ChannelTest.
  */
 class ChannelTest extends TestCase
 {
@@ -28,9 +27,9 @@ class ChannelTest extends TestCase
 
         $redisRoom = new RedisRoom((new PredisConnection(
             (new PredisConnector())->connect([
-                'host' => 'redis',
+                'host'     => 'redis',
                 'password' => null,
-                'port' => 6379,
+                'port'     => 6379,
                 'database' => 10,
             ], [])
         )));
@@ -78,10 +77,10 @@ class ChannelTest extends TestCase
         static::$channel->join(2, 'x2');
         static::$channel->join(2, 'x3');
 
-        static::$channel->remove(2,['x1']);
+        static::$channel->remove(2, ['x1']);
 
         $result = static::$channel->rooms(2);
-        $this->assertEquals(2,count($result));
+        $this->assertEquals(2, count($result));
     }
 
 //    public function testOnAndDispatch()
@@ -93,7 +92,6 @@ class ChannelTest extends TestCase
 //        static::$channel::on('test','Mocker\Listener::class');
 //        static::$channel->dispatch('test',[]);
 //    }
-
 
     public static function tearDownAfterClass()
     {

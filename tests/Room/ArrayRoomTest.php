@@ -3,13 +3,10 @@
 namespace CrCms\Server\Tests\Room;
 
 use CrCms\Server\WebSocket\Rooms\ArrayRoom;
-use CrCms\Server\WebSocket\Rooms\RedisRoom;
-use Illuminate\Redis\Connections\PredisConnection;
-use Illuminate\Redis\Connectors\PredisConnector;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class ArrayRoomTest
+ * Class ArrayRoomTest.
  */
 class ArrayRoomTest extends TestCase
 {
@@ -38,7 +35,6 @@ class ArrayRoomTest extends TestCase
         $this->assertEquals(3, intval($result[2]));
 
         $this->room->add(20, ['room2', 'room3']);
-
 
         $result2 = $this->room->get('room2');
         $result3 = $this->room->get('room3');
@@ -84,11 +80,11 @@ class ArrayRoomTest extends TestCase
         $result = $this->room->get('zroom2');
         $this->assertEquals(1, count($result));
 
-        $this->room->remove(3,'zoom3');
+        $this->room->remove(3, 'zoom3');
         $result = $this->room->get('zroom3');
         $this->assertEquals(0, count($result));
 
-        $this->room->remove(3,'zroom2');
+        $this->room->remove(3, 'zroom2');
         $result = $this->room->get('zroom2');
         $this->assertEquals(0, count($result));
     }

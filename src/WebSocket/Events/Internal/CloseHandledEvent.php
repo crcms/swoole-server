@@ -3,8 +3,7 @@
 namespace CrCms\Server\WebSocket\Events\Internal;
 
 /**
- * Class CloseHandledEvent
- * @package CrCms\Server\WebSocket\Events\Internal
+ * Class CloseHandledEvent.
  */
 class CloseHandledEvent
 {
@@ -15,6 +14,7 @@ class CloseHandledEvent
 
     /**
      * CloseHandledEvent constructor.
+     *
      * @param int $fd
      */
     public function __construct(int $fd)

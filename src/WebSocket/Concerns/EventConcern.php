@@ -5,8 +5,7 @@ namespace CrCms\Server\WebSocket\Concerns;
 use OutOfRangeException;
 
 /**
- * Trait EventConcern
- * @package CrCms\Server\WebSocket\Concern
+ * Trait EventConcern.
  */
 trait EventConcern
 {
@@ -25,21 +24,23 @@ trait EventConcern
 
     /**
      * @param string $event
+     *
      * @return bool
      */
     public static function eventExists(string $event): bool
     {
-        return isset(static::$events[static::eventPrefix() . $event]);
+        return isset(static::$events[static::eventPrefix().$event]);
     }
 
     /**
      * @param $event
      * @param $listener
+     *
      * @return EventConcern
      */
     public static function on($event, $listener): void
     {
-        static::$events[static::eventPrefix() . $event] = $listener;
+        static::$events[static::eventPrefix().$event] = $listener;
     }
 
     /**
@@ -51,7 +52,7 @@ trait EventConcern
             throw new OutOfRangeException("The event[{$event}] not found");
         }
 
-        $this->app->call(static::$events[static::eventPrefix() . $event], $data, null);
+        $this->app->call(static::$events[static::eventPrefix().$event], $data, null);
     }
 
     /**
@@ -59,6 +60,6 @@ trait EventConcern
      */
     private static function eventPrefix(): string
     {
-        return 'websocket.' . (isset(static::$eventPrefix) ? static::$eventPrefix . '.' : '');
+        return 'websocket.'.(isset(static::$eventPrefix) ? static::$eventPrefix.'.' : '');
     }
 }

@@ -2,24 +2,23 @@
 
 namespace CrCms\Server\Server;
 
+use CrCms\Server\Process\ProcessManager;
+use CrCms\Server\Server;
 use CrCms\Server\Server\Contracts\ServerContract;
 use Illuminate\Console\Command;
-use CrCms\Server\Server;
+use RuntimeException;
 use Swoole\Process;
 use Throwable;
-use RuntimeException;
-use CrCms\Server\Process\ProcessManager;
 
 /**
- * Class ServerManager
- * @package CrCms\Server\Server
+ * Class ServerManager.
  */
 class ServerManager implements Server\Contracts\ServerStartContract, Server\Contracts\ServerActionContract
 {
     /**
      * @var array
      */
-    protected $allows = ['start', 'stop', 'restart'];//, 'reload'
+    protected $allows = ['start', 'stop', 'restart']; //, 'reload'
 
     /**
      * @var Command
@@ -37,7 +36,7 @@ class ServerManager implements Server\Contracts\ServerStartContract, Server\Cont
     protected $process;
 
     /**
-     * @param Command $command
+     * @param Command        $command
      * @param ServerContract $server
      * @param ProcessManager $process
      */
@@ -52,7 +51,9 @@ class ServerManager implements Server\Contracts\ServerStartContract, Server\Cont
         if (in_array($action, $this->allows, true)) {
             try {
                 $result = call_user_func([$this, $action]);
-                if ($action === 'start') return;
+                if ($action === 'start') {
+                    return;
+                }
                 if ($result === false) {
                     $command->getOutput()->error("{$action} failed");
                 } else {
@@ -62,7 +63,7 @@ class ServerManager implements Server\Contracts\ServerStartContract, Server\Cont
                 $command->getOutput()->error($exception->getMessage());
             }
         } else {
-            $command->getOutput()->error("Allow only " . implode($this->allows, ' ') . "options");
+            $command->getOutput()->error('Allow only '.implode($this->allows, ' ').'options');
         }
     }
 
@@ -77,7 +78,7 @@ class ServerManager implements Server\Contracts\ServerStartContract, Server\Cont
 
             // д��ǰ�棬��Ϊswoole �� start֮��Ͳ���ִ�к���Ĵ�����
             // ������쳣Ҳ���׳�����ִ�д˷���
-            $this->command->getOutput()->success("start successfully");
+            $this->command->getOutput()->success('start successfully');
 
             return $this->server->start();
         }
@@ -91,11 +92,12 @@ class ServerManager implements Server\Contracts\ServerStartContract, Server\Cont
     public function stop(): bool
     {
         if (!$this->checkProcessExists()) {
-            throw new RuntimeException("The process not exists");
+            throw new RuntimeException('The process not exists');
         }
 
         if (Process::kill($this->getPid())) {
             @unlink($this->getPidFile());
+
             return true;
         }
 
@@ -133,7 +135,7 @@ class ServerManager implements Server\Contracts\ServerStartContract, Server\Cont
             return -99999;
         }
 
-        return (int)file_get_contents($pidFile);
+        return (int) file_get_contents($pidFile);
     }
 
     /**

@@ -7,8 +7,7 @@ use Illuminate\Contracts\Container\Container;
 use OutOfRangeException;
 
 /**
- * Class IO
- * @package CrCms\Server\WebSocket
+ * Class IO.
  */
 class IO
 {
@@ -29,7 +28,8 @@ class IO
 
     /**
      * IO constructor.
-     * @param Container $app
+     *
+     * @param Container    $app
      * @param RoomContract $room
      */
     public function __construct(Container $app, RoomContract $room)
@@ -56,6 +56,7 @@ class IO
 
     /**
      * @param Channel $channel
+     *
      * @return IO
      */
     public function addChannel(Channel $channel): self
@@ -71,6 +72,7 @@ class IO
 
     /**
      * @param Channel $channel
+     *
      * @return $this
      */
     public function setChannel(Channel $channel)
@@ -82,6 +84,7 @@ class IO
 
     /**
      * @param string $channel
+     *
      * @return Channel
      */
     public function of(string $channel): Channel
@@ -91,6 +94,7 @@ class IO
 
     /**
      * @param string $channel
+     *
      * @return Channel
      */
     public function getChannel(string $channel): Channel
@@ -112,6 +116,7 @@ class IO
 
     /**
      * @param string $channel
+     *
      * @return bool
      */
     public function channelExists(string $channel): bool

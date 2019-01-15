@@ -14,7 +14,7 @@ abstract class AbstractServerCommand extends Command
      */
     public function handle(): void
     {
-        (new ServerManager)->run(
+        (new ServerManager())->run(
             $this,
             $this->server(),
             new ProcessManager(config('swoole.process_file'))

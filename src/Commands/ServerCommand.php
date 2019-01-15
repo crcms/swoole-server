@@ -4,12 +4,11 @@ namespace CrCms\Server\Commands;
 
 use CrCms\Server\AbstractServerCommand;
 use CrCms\Server\Server\Contracts\ServerContract;
-use Illuminate\Filesystem\Filesystem;
 use DomainException;
+use Illuminate\Filesystem\Filesystem;
 
 /**
- * Class ServerCommand
- * @package CrCms\Server\Commands
+ * Class ServerCommand.
  */
 class ServerCommand extends AbstractServerCommand
 {
@@ -33,10 +32,11 @@ class ServerCommand extends AbstractServerCommand
         //$this->cleanRunCache();
 
         $server = $this->getServer($serverType);
+
         return new $server(
             $this->getLaravel(),
             config("swoole.servers.{$serverType}"),
-            'crcms.' . $serverType
+            'crcms.'.$serverType
         );
     }
 
@@ -52,6 +52,7 @@ class ServerCommand extends AbstractServerCommand
 
     /**
      * @param string $server
+     *
      * @return string
      */
     protected function getServer(string $serverType): string
@@ -65,6 +66,7 @@ class ServerCommand extends AbstractServerCommand
 
     /**
      * @param string $serverType
+     *
      * @return string
      */
     protected function aliasConver(string $serverType): string

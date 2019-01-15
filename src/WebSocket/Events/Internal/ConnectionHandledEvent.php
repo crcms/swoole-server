@@ -5,8 +5,7 @@ namespace CrCms\Server\WebSocket\Events\Internal;
 use Illuminate\Http\Request;
 
 /**
- * Class ConnectionHandledEvent
- * @package CrCms\Server\WebSocket\Internal
+ * Class ConnectionHandledEvent.
  */
 class ConnectionHandledEvent
 {
@@ -17,6 +16,7 @@ class ConnectionHandledEvent
 
     /**
      * ConnectionHandled constructor.
+     *
      * @param Request $request
      */
     public function __construct(Request $request)

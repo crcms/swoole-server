@@ -3,13 +3,10 @@
 namespace CrCms\Server\Server\Tasks;
 
 use CrCms\Server\Server\Contracts\TaskContract;
-use CrCms\Server\Server\AbstractServer;
-use Illuminate\Contracts\Container\Container;
 use Swoole\Server;
 
 /**
- * Class Dispatcher
- * @package CrCms\Server\Server\Tasks
+ * Class Dispatcher.
  */
 class Dispatcher
 {
@@ -20,6 +17,7 @@ class Dispatcher
 
     /**
      * Dispatcher constructor.
+     *
      * @param Server $server
      */
     public function __construct(Server $server)
@@ -29,8 +27,9 @@ class Dispatcher
 
     /**
      * @param TaskContract $task
-     * @param array $params
-     * @param bool $async
+     * @param array        $params
+     * @param bool         $async
+     *
      * @return false|int|string
      */
     public function dispatch(TaskContract $task, array $params = [], bool $async = true)

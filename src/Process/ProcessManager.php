@@ -3,12 +3,11 @@
 namespace CrCms\Server\Process;
 
 use Illuminate\Support\Collection;
-use Swoole\Process;
 use RuntimeException;
+use Swoole\Process;
 
 /**
- * Class ProcessManager
- * @package CrCms\Server\Process
+ * Class ProcessManager.
  */
 class ProcessManager
 {
@@ -24,6 +23,7 @@ class ProcessManager
 
     /**
      * ProcessManager constructor.
+     *
      * @param string $file
      */
     public function __construct(string $file)
@@ -34,6 +34,7 @@ class ProcessManager
 
     /**
      * @param AbstractProcess $process
+     *
      * @return bool
      */
     public function start(AbstractProcess $process, string $name = ''): bool
@@ -41,10 +42,11 @@ class ProcessManager
         if ($process->start()) {
             $name = empty($name) ? $process->getName() : $name;
             if (empty($name)) {
-                throw new RuntimeException("The process name is not empty");
+                throw new RuntimeException('The process name is not empty');
             }
             $this->processes->put($name, ['pid' => $process->getPid()]);
             $this->processStoreToFile();
+
             return true;
         }
 
@@ -54,6 +56,7 @@ class ProcessManager
     /**
      * @param int $pid
      * @param int $signal
+     *
      * @return bool
      */
     public function kill(string $name, int $signal = SIGTERM): bool
@@ -63,6 +66,7 @@ class ProcessManager
             if (Process::kill($process['pid'], $signal)) {
                 $this->processes->forget($name);
                 $this->processStoreToFile();
+
                 return true;
             }
 
@@ -74,6 +78,7 @@ class ProcessManager
 
     /**
      * @param int $pid
+     *
      * @return bool
      */
     public function exists(string $name): bool
@@ -83,6 +88,7 @@ class ProcessManager
             if (Process::kill($process['pid'], 0) === false) {
                 $this->processes->forget($name);
                 $this->processStoreToFile();
+
                 return false;
             }
 
@@ -102,6 +108,7 @@ class ProcessManager
 
     /**
      * @param string $file
+     *
      * @return int
      */
     protected function processStoreToFile(): int
@@ -111,11 +118,12 @@ class ProcessManager
 
     /**
      * @param string $file
+     *
      * @return Collection
      */
     protected function resolveProcessesFromFile(): Collection
     {
-        if (!file_exists($this->file) || !(bool)$content = file_get_contents($this->file)) {
+        if (!file_exists($this->file) || !(bool) $content = file_get_contents($this->file)) {
             return new Collection([]);
         }
 

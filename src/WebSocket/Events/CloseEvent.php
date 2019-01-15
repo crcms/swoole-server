@@ -11,8 +11,7 @@ use CrCms\Server\WebSocket\Socket;
 use Illuminate\Contracts\Container\Container;
 
 /**
- * Class CloseEvent
- * @package CrCms\Server\WebSocket\Events
+ * Class CloseEvent.
  */
 class CloseEvent extends AbstractEvent
 {
@@ -25,6 +24,7 @@ class CloseEvent extends AbstractEvent
 
     /**
      * CloseEvent constructor.
+     *
      * @param $fd
      */
     public function __construct($fd)
@@ -34,7 +34,9 @@ class CloseEvent extends AbstractEvent
 
     /**
      * @param AbstractServer $server
+     *
      * @throws \Exception
+     *
      * @return void
      */
     public function handle(AbstractServer $server): void
@@ -59,7 +61,9 @@ class CloseEvent extends AbstractEvent
 
     /**
      * @param Container $app
+     *
      * @throws \Exception
+     *
      * @return void
      */
     protected function closeWebSocket(Container $app): void

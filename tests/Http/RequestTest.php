@@ -6,8 +6,7 @@ use CrCms\Server\Http\Request;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class RequestTest
- * @package CrCms\Server\Tests\Http
+ * Class RequestTest.
  */
 class RequestTest extends TestCase
 {
@@ -20,7 +19,7 @@ class RequestTest extends TestCase
     {
         $swooleRequest = \Mockery::mock('Swoole\Http\Request');
         $swooleRequest->shouldReceive('rawContent')->andReturn(json_encode(['zzz'=>'x']));
-        $swooleRequest->server = ['request_uri' => '/abc','request_method'=>'post'];
+        $swooleRequest->server = ['request_uri' => '/abc', 'request_method'=>'post'];
         $swooleRequest->header = ['content-type' => 'text/html'];
         $swooleRequest->files = [];
         $swooleRequest->cookie = [];
@@ -38,5 +37,4 @@ class RequestTest extends TestCase
         $this->assertEquals('/abc', $illuminateRequest->server->get('REQUEST_URI'));
         $this->assertEquals('text/html', $illuminateRequest->header('content-type'));
     }
-
 }

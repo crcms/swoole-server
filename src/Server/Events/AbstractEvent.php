@@ -6,8 +6,7 @@ use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Contracts\EventContract;
 
 /**
- * Class AbstractEvent
- * @package CrCms\Server\Server\Events
+ * Class AbstractEvent.
  */
 abstract class AbstractEvent implements EventContract
 {
@@ -37,15 +36,16 @@ abstract class AbstractEvent implements EventContract
      */
     protected function setEventProcessName(string $processName)
     {
-        $processPrefix = config('swoole.process_prefix', 'swoole') . ($this->server->getName() ? '_' . $this->server->getName() : '');
+        $processPrefix = config('swoole.process_prefix', 'swoole').($this->server->getName() ? '_'.$this->server->getName() : '');
 
-        $processName = ($processPrefix ? $processPrefix . '_' : $processPrefix) . $processName;
+        $processName = ($processPrefix ? $processPrefix.'_' : $processPrefix).$processName;
 
         static::setProcessName($processName);
     }
 
     /**
      * @param string $name
+     *
      * @return bool|void
      */
     protected static function setProcessName(string $name)

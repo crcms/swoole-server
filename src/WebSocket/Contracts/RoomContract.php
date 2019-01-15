@@ -2,11 +2,8 @@
 
 namespace CrCms\Server\WebSocket\Contracts;
 
-use CrCms\Server\WebSocket\Socket;
-
 /**
- * Interface RoomContract
- * @package CrCms\Server\WebSocket\Contracts
+ * Interface RoomContract.
  */
 interface RoomContract
 {
@@ -18,6 +15,7 @@ interface RoomContract
 
     /**
      * @param string|array $room
+     *
      * @return array
      */
     public function get($room): array;
@@ -29,12 +27,13 @@ interface RoomContract
 
     /**
      * @param int $fd
+     *
      * @return array
      */
     public function keys(int $fd): array;
 
     /**
-     * @param int $fd
+     * @param int          $fd
      * @param array|string $room
      */
     public function remove(int $fd, $room = []): void;

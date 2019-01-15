@@ -6,8 +6,7 @@ use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Contracts\EventContract;
 
 /**
- * Class StartEvent
- * @package CrCms\Server\Server\Events
+ * Class StartEvent.
  */
 class StartEvent extends AbstractEvent implements EventContract
 {

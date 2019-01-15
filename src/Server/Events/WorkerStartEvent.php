@@ -6,8 +6,7 @@ use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Contracts\EventContract;
 
 /**
- * Class WorkerStartEvent
- * @package CrCms\Server\Server\Events
+ * Class WorkerStartEvent.
  */
 class WorkerStartEvent extends AbstractEvent implements EventContract
 {
@@ -18,6 +17,7 @@ class WorkerStartEvent extends AbstractEvent implements EventContract
 
     /**
      * WorkerStartEvent constructor.
+     *
      * @param int $workId
      */
     public function __construct(int $workId)
@@ -35,6 +35,6 @@ class WorkerStartEvent extends AbstractEvent implements EventContract
         parent::setEventProcessName(($this->server->taskworker ?
                 'task_' :
                 'worker_'
-            ) . strval($this->workId));
+            ).strval($this->workId));
     }
 }

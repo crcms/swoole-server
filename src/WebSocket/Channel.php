@@ -9,8 +9,7 @@ use CrCms\Server\WebSocket\Tasks\PushTask;
 use OutOfRangeException;
 
 /**
- * Class Channel
- * @package CrCms\Server\WebSocket
+ * Class Channel.
  */
 class Channel
 {
@@ -46,7 +45,8 @@ class Channel
 
     /**
      * Channel constructor.
-     * @param IO $io
+     *
+     * @param IO     $io
      * @param string $name
      */
     public function __construct(IO $io, string $name)
@@ -60,6 +60,7 @@ class Channel
     /**
      * @param $event
      * @param $listener
+     *
      * @return EventConcern
      */
     public function on($event, $listener): void
@@ -69,6 +70,7 @@ class Channel
 
     /**
      * @param $event
+     *
      * @return bool
      */
     public function eventExists($event): bool
@@ -91,6 +93,7 @@ class Channel
     /**
      * @param Socket $socket
      * @param $room
+     *
      * @return Channel
      */
     public function join(int $fd, $room): self
@@ -161,6 +164,7 @@ class Channel
 
     /**
      * @param int $fd
+     *
      * @return array
      */
     public function rooms(int $fd): array
@@ -182,7 +186,6 @@ class Channel
         $this->to = [];
     }
 
-
     /**
      * @return string
      */
@@ -192,28 +195,30 @@ class Channel
     }
 
     /**
-     * @param int $fd
+     * @param int    $fd
      * @param string $event
-     * @param mixed $data
+     * @param mixed  $data
      */
     protected function push(int $fd, string $event, $data = []): void
     {
-        Dispatcher::dispatch(new PushTask, [$fd, $event, $data]);
+        Dispatcher::dispatch(new PushTask(), [$fd, $event, $data]);
     }
 
     /**
      * @param $room
+     *
      * @return array
      */
     protected function filterGetFds($room): array
     {
-        return array_filter((array)$room, function ($value) {
-            return is_integer($value);
+        return array_filter((array) $room, function ($value) {
+            return is_int($value);
         });
     }
 
     /**
      * @param $room
+     *
      * @return array
      */
     protected function filterGetRooms($room): array
@@ -222,8 +227,8 @@ class Channel
 
         return array_map(function ($room) use ($prefix) {
             return $prefix.$room;
-        }, array_filter((array)$room, function ($value) {
-            return !is_integer($value);
+        }, array_filter((array) $room, function ($value) {
+            return !is_int($value);
         }));
     }
 }

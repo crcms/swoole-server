@@ -3,7 +3,9 @@
 /**
  * @author simon <crcms@crcms.cn>
  * @datetime 2018/6/18 18:13
+ *
  * @link http://crcms.cn/
+ *
  * @copyright Copyright &copy; 2018 Rights Reserved CRCMS
  */
 
@@ -15,6 +17,7 @@ interface ProcessContract
 {
     /**
      * @param Process $process
+     *
      * @return void
      */
     public function childProcess(Process $process): void;

@@ -3,22 +3,21 @@
 namespace CrCms\Server\WebSocket\Events;
 
 use CrCms\Server\Http\Request;
-use CrCms\Server\WebSocket\Channel;
-use CrCms\Server\WebSocket\Facades\IO;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Events\AbstractEvent;
+use CrCms\Server\WebSocket\Channel;
+use CrCms\Server\WebSocket\ConnectionHandled;
+use CrCms\Server\WebSocket\Exceptions\Handler as ExceptionHandler;
+use CrCms\Server\WebSocket\Facades\IO;
 use CrCms\Server\WebSocket\Socket;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Pipeline\Pipeline;
-use CrCms\Server\WebSocket\ConnectionHandled;
-use Swoole\Http\Request as SwooleRequest;
 use Illuminate\Http\Request as IlluminateRequest;
+use Illuminate\Pipeline\Pipeline;
+use Swoole\Http\Request as SwooleRequest;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
-use CrCms\Server\WebSocket\Exceptions\Handler as ExceptionHandler;
 
 /**
- * Class OpenEvent
- * @package CrCms\Server\WebSocket\Events
+ * Class OpenEvent.
  */
 class OpenEvent extends AbstractEvent
 {
@@ -34,6 +33,7 @@ class OpenEvent extends AbstractEvent
 
     /**
      * OpenEvent constructor.
+     *
      * @param SwooleRequest $request
      */
     public function __construct(SwooleRequest $request)
@@ -65,6 +65,7 @@ class OpenEvent extends AbstractEvent
             $app->instance('websocket', (new Socket($app, $channel))->setFd($this->request->fd));
         } catch (\Throwable $e) {
             $server->getServer()->disconnect($this->request->fd, 1003, 'unsupported.');
+
             throw $e;
         }
 
@@ -80,16 +81,18 @@ class OpenEvent extends AbstractEvent
             // dispatch
             if ($channel->eventExists('connection')) {
                 $channel->dispatch('connection', [
-                    'app' => $app,
-                    'request' => $this->illuminateRequest
+                    'app'     => $app,
+                    'request' => $this->illuminateRequest,
                 ]);
             }
         } catch (\Exception $e) {
             $app->make(ExceptionHandler::class)->render($app->make('websocket'), $e);
+
             throw $e;
         } catch (\Throwable $e) {
             $e = new FatalThrowableError($e);
             $app->make(ExceptionHandler::class)->render($app->make('websocket'), $e);
+
             throw $e;
         } finally {
             // dispatch an event

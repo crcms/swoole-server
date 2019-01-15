@@ -7,13 +7,12 @@ use CrCms\Server\Http\Response;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Contracts\EventContract;
 use CrCms\Server\Server\Events\AbstractEvent;
+use Illuminate\Contracts\Http\Kernel;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
-use Illuminate\Contracts\Http\Kernel;
 
 /**
- * Class RequestEvent
- * @package CrCms\Server\Http\Events
+ * Class RequestEvent.
  */
 class RequestEvent extends AbstractEvent implements EventContract
 {
@@ -29,7 +28,8 @@ class RequestEvent extends AbstractEvent implements EventContract
 
     /**
      * Request constructor.
-     * @param SwooleRequest $request
+     *
+     * @param SwooleRequest  $request
      * @param SwooleResponse $response
      */
     public function __construct(SwooleRequest $request, SwooleResponse $response)
@@ -46,7 +46,7 @@ class RequestEvent extends AbstractEvent implements EventContract
         parent::handle($server);
 
         $kernel = $server->getApplication()->make(Kernel::class);
-        
+
         $illuminateRequest = Request::make($this->swooleRequest)->getIlluminateRequest();
         $illuminateResponse = $kernel->handle($illuminateRequest);
 

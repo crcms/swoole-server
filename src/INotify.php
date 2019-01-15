@@ -5,8 +5,7 @@ namespace CrCms\Server;
 use BadFunctionCallException;
 
 /**
- * Class INotify
- * @package CrCms\Foundation\Start\Drivers\Swoole
+ * Class INotify.
  */
 class INotify
 {
@@ -22,6 +21,7 @@ class INotify
 
     /**
      * INotify constructor.
+     *
      * @param array $targets
      */
     public function __construct(array $targets)
@@ -50,13 +50,14 @@ class INotify
     {
         foreach ($this->targets as $target) {
             if (file_exists($target)) {
-                inotify_add_watch($this->resource, $target, IN_ALL_EVENTS);//IN_CREATE | IN_MODIFY | IN_DELETE
+                inotify_add_watch($this->resource, $target, IN_ALL_EVENTS); //IN_CREATE | IN_MODIFY | IN_DELETE
             }
         }
     }
 
     /**
      * @param callable $callback
+     *
      * @return void
      */
     public function monitor(callable $callback): void

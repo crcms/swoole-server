@@ -5,8 +5,7 @@ namespace CrCms\Server\WebSocket\Events\Internal;
 use CrCms\Server\WebSocket\Socket;
 
 /**
- * Class MessageHandleEvent
- * @package CrCms\Server\WebSocket\Events\Internal
+ * Class MessageHandleEvent.
  */
 class MessageHandleEvent
 {
@@ -17,6 +16,7 @@ class MessageHandleEvent
 
     /**
      * MessageHandledEvent constructor.
+     *
      * @param Socket $socket
      */
     public function __construct(Socket $socket)

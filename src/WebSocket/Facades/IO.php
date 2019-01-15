@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\Facade;
  * @method static bool channelExists(string $channel)
  *
  * Class IO
- * @package CrCms\Server\WebSocket\Facades
  */
 class IO extends Facade
 {

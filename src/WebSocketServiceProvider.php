@@ -14,8 +14,7 @@ use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Support\ServiceProvider;
 
 /**
- * Class WebSocketServiceProvider
- * @package CrCms\Server
+ * Class WebSocketServiceProvider.
  */
 class WebSocketServiceProvider extends ServiceProvider
 {
@@ -27,7 +26,7 @@ class WebSocketServiceProvider extends ServiceProvider
     /**
      * @var string
      */
-    protected $packagePath = __DIR__ . '/../';
+    protected $packagePath = __DIR__.'/../';
 
     /**
      * Bootstrap any application services.
@@ -85,11 +84,13 @@ class WebSocketServiceProvider extends ServiceProvider
 
         $this->app->singleton('websocket.parser', function ($app) {
             $parser = $app['config']->get('swoole.websocket_parser');
+
             return new $parser($app);
         });
 
         $this->app->singleton('websocket.data_converter', function ($app) {
             $converter = $app['config']->get('swoole.websocket_data_converter');
+
             return new $converter($app);
         });
 

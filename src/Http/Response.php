@@ -7,8 +7,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response as BaseResponse;
 
 /**
- * Class Response
- * @package CrCms\Server\Http
+ * Class Response.
  */
 class Response
 {
@@ -24,8 +23,9 @@ class Response
 
     /**
      * Response constructor.
+     *
      * @param SwooleResponse $response
-     * @param BaseResponse $illuminateResponse
+     * @param BaseResponse   $illuminateResponse
      */
     public function __construct(SwooleResponse $response, BaseResponse $illuminateResponse)
     {
@@ -35,7 +35,8 @@ class Response
 
     /**
      * @param SwooleResponse $response
-     * @param BaseResponse $illuminateResponse
+     * @param BaseResponse   $illuminateResponse
+     *
      * @return Response
      */
     public static function make(SwooleResponse $response, BaseResponse $illuminateResponse)

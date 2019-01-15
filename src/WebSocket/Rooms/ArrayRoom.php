@@ -5,8 +5,7 @@ namespace CrCms\Server\WebSocket\Rooms;
 use CrCms\Server\WebSocket\Contracts\RoomContract;
 
 /**
- * Class ArrayRoom
- * @package CrCms\Server\WebSocket\Rooms
+ * Class ArrayRoom.
  */
 class ArrayRoom implements RoomContract
 {
@@ -29,18 +28,19 @@ class ArrayRoom implements RoomContract
      */
     public function add(int $fd, $room): void
     {
-        foreach ((array)$room as $value) {
+        foreach ((array) $room as $value) {
             $this->rooms[$value][] = $fd;
         }
     }
 
     /**
      * @param array|string $room
+     *
      * @return array
      */
     public function get($room): array
     {
-        return array_reduce((array)$room, function ($result, $value) {
+        return array_reduce((array) $room, function ($result, $value) {
             return array_merge($result, $this->rooms[$value] ?? []);
         }, []);
     }
@@ -54,12 +54,12 @@ class ArrayRoom implements RoomContract
     }
 
     /**
-     * @param int $fd
+     * @param int   $fd
      * @param array $room
      */
     public function remove(int $fd, $room = []): void
     {
-        $rooms = $room ? (array)$room : array_keys($this->rooms);
+        $rooms = $room ? (array) $room : array_keys($this->rooms);
 
         foreach ($rooms as $roomKey) {
             $this->rooms[$roomKey] = array_diff($this->rooms[$roomKey], [$fd]);
@@ -68,6 +68,7 @@ class ArrayRoom implements RoomContract
 
     /**
      * @param int $fd
+     *
      * @return array
      */
     public function keys(int $fd): array
@@ -99,6 +100,5 @@ class ArrayRoom implements RoomContract
      */
     public function connection()
     {
-        return null;
     }
 }

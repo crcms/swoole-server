@@ -6,8 +6,7 @@ use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Contracts\EventContract;
 
 /**
- * Class CloseEvent
- * @package CrCms\Server\Server\Events
+ * Class CloseEvent.
  */
 class CloseEvent extends AbstractEvent implements EventContract
 {
@@ -23,6 +22,7 @@ class CloseEvent extends AbstractEvent implements EventContract
 
     /**
      * CloseEvent constructor.
+     *
      * @param int $fd
      * @param int $reactorId
      */

@@ -8,8 +8,7 @@ use CrCms\Server\Server\Contracts\TaskContract;
 use Exception;
 
 /**
- * Class TaskEvent
- * @package CrCms\Server\Server\Events
+ * Class TaskEvent.
  */
 class TaskEvent extends AbstractEvent implements EventContract
 {
@@ -30,8 +29,9 @@ class TaskEvent extends AbstractEvent implements EventContract
 
     /**
      * TaskEvent constructor.
-     * @param int $taskId
-     * @param int $workerId
+     *
+     * @param int   $taskId
+     * @param int   $workerId
      * @param mixed $data
      */
     public function __construct(int $taskId, int $workerId, $data)
@@ -43,6 +43,7 @@ class TaskEvent extends AbstractEvent implements EventContract
 
     /**
      * @param AbstractServer $server
+     *
      * @throws Exception
      */
     public function handle(AbstractServer $server): void
