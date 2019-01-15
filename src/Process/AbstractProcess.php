@@ -3,19 +3,20 @@
 /**
  * @author simon <crcms@crcms.cn>
  * @datetime 2018/6/19 21:00
+ *
  * @link http://crcms.cn/
+ *
  * @copyright Copyright &copy; 2018 Rights Reserved CRCMS
  */
 
 namespace CrCms\Server\Process;
 
+use BadMethodCallException;
 use CrCms\Server\Process\Contracts\ProcessContract;
 use Swoole\Process;
-use BadMethodCallException;
 
 /**
- * Class AbstractProcess
- * @package CrCms\Server\Process
+ * Class AbstractProcess.
  */
 abstract class AbstractProcess implements ProcessContract
 {
@@ -25,7 +26,7 @@ abstract class AbstractProcess implements ProcessContract
     protected $process;
 
     /**
-     * 子进程名称
+     * 子进程名称.
      *
      * @var string
      */
@@ -33,8 +34,9 @@ abstract class AbstractProcess implements ProcessContract
 
     /**
      * AbstractProcess constructor.
+     *
      * @param bool $redirectStdinStdout
-     * @param int $createPipe
+     * @param int  $createPipe
      */
     public function __construct(bool $redirectStdinStdout = false, int $createPipe = 0)
     {
@@ -43,6 +45,7 @@ abstract class AbstractProcess implements ProcessContract
 
     /**
      * @param Process $process
+     *
      * @return mixed
      */
     public function initChildProcess(Process $process)
@@ -59,7 +62,7 @@ abstract class AbstractProcess implements ProcessContract
      */
     public function start(): bool
     {
-        return (bool)$this->process->start();
+        return (bool) $this->process->start();
     }
 
     /**
@@ -68,6 +71,7 @@ abstract class AbstractProcess implements ProcessContract
     public function exit(): bool
     {
         $this->process->exit(0);
+
         return true;
     }
 
@@ -97,7 +101,8 @@ abstract class AbstractProcess implements ProcessContract
 
     /**
      * @param string $name
-     * @param array $arguments
+     * @param array  $arguments
+     *
      * @return mixed
      */
     public function __call(string $name, array $arguments)

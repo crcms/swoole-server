@@ -8,13 +8,13 @@ use Illuminate\Contracts\Container\Container;
 use OutOfBoundsException;
 
 /**
- * Class PushTask
- * @package CrCms\Server\WebSocket\Tasks
+ * Class PushTask.
  */
 final class PushTask implements TaskContract
 {
     /**
      * @param mixed ...$params
+     *
      * @return mixed|void
      */
     public function handle(...$params): void
@@ -32,7 +32,8 @@ final class PushTask implements TaskContract
 
         if ($server->getServer()->isEstablished($fd)) {
             $server->getServer()->push($fd, $packData);
-            return ;
+
+            return;
         }
 
         throw new OutOfBoundsException("The fd:[{$fd}] not websocket or websocket close");
@@ -40,6 +41,7 @@ final class PushTask implements TaskContract
 
     /**
      * @param $data
+     *
      * @return mixed|void
      */
     public function finish($data)

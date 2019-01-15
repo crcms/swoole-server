@@ -6,13 +6,12 @@ use CrCms\Server\Process\ProcessManager;
 use Illuminate\Console\Command;
 
 /**
- * Interface ServerStartContract
- * @package CrCms\Server\Server\Contracts
+ * Interface ServerStartContract.
  */
 interface ServerStartContract
 {
     /**
-     * @param Command $command
+     * @param Command        $command
      * @param ServerContract $server
      * @param ProcessManager $process
      */

@@ -9,17 +9,14 @@ use CrCms\Server\WebSocket\Middleware\TestMiddleware;
 use CrCms\Server\WebSocket\Parsers\DefaultParser;
 use CrCms\Server\WebSocket\Rooms\RedisRoom;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Foundation\Application;
 use Illuminate\Redis\Connections\PredisConnection;
 use Illuminate\Redis\Connectors\PredisConnector;
 use PHPUnit\Framework\TestCase;
 use Swoole\Http\Request;
 use Swoole\WebSocket\Frame;
 
-
 /**
- * Class IOListenerTest
- * @package CrCms\Server\Tests\IOListenerTest
+ * Class IOListenerTest.
  */
 class IOListenerTest extends TestCase
 {
@@ -45,9 +42,9 @@ class IOListenerTest extends TestCase
         static::$app->shouldReceive('make')->with('websocket.room')->andReturn(
             new RedisRoom(new PredisConnection(
                 (new PredisConnector())->connect([
-                    'host' => 'redis',
+                    'host'     => 'redis',
                     'password' => null,
-                    'port' => 6379,
+                    'port'     => 6379,
                     'database' => 10,
                 ], [])
             ))
@@ -57,7 +54,6 @@ class IOListenerTest extends TestCase
         static::$app->shouldReceive('make')->with(TestMiddleware::class)->andReturn(
             new TestMiddleware()
         );
-
 
         static::$request = new Request();
         static::$request->fd = 1;
@@ -74,9 +70,8 @@ class IOListenerTest extends TestCase
     {
         static::$listen->connection(static::$io, [
             'request' => static::$request,
-            'app' => static::$app,
+            'app'     => static::$app,
         ]);
-
 
         $channel = static::$io->getCurrentChannel();
 
@@ -85,11 +80,11 @@ class IOListenerTest extends TestCase
 
     public function testMessage()
     {
-        require __DIR__ . '/function.php';
+        require __DIR__.'/function.php';
 
         static::$listen->connection(static::$io, [
             'request' => static::$request,
-            'app' => static::$app,
+            'app'     => static::$app,
         ]);
 
         $frame = new Frame();
@@ -98,7 +93,7 @@ class IOListenerTest extends TestCase
 
         static::$listen->message(static::$io, [
             'request' => static::$request,
-            'app' => static::$app, 'frame' => $frame,
+            'app'     => static::$app, 'frame' => $frame,
         ]);
     }
 

@@ -2,23 +2,21 @@
 
 namespace CrCms\Server\WebSocket\Events;
 
-use CrCms\Server\WebSocket\Channel;
-use CrCms\Server\WebSocket\Events\Internal\MessageHandledEvent;
-use CrCms\Server\WebSocket\Events\Internal\MessageHandleEvent;
-use CrCms\Server\WebSocket\Facades\IO;
-use CrCms\Server\WebSocket\FdChannelTrait;
-use CrCms\Server\WebSocket\Socket;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Contracts\EventContract;
 use CrCms\Server\Server\Events\AbstractEvent;
+use CrCms\Server\WebSocket\Channel;
+use CrCms\Server\WebSocket\Events\Internal\MessageHandledEvent;
+use CrCms\Server\WebSocket\Events\Internal\MessageHandleEvent;
 use CrCms\Server\WebSocket\Exceptions\Handler as ExceptionHandler;
+use CrCms\Server\WebSocket\FdChannelTrait;
+use CrCms\Server\WebSocket\Socket;
 use Illuminate\Contracts\Container\Container;
-use Symfony\Component\Debug\Exception\FatalThrowableError;
 use OutOfBoundsException;
+use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 /**
- * Class MessageEvent
- * @package CrCms\Framework\Http\Events
+ * Class MessageEvent.
  */
 class MessageEvent extends AbstractEvent implements EventContract
 {
@@ -31,6 +29,7 @@ class MessageEvent extends AbstractEvent implements EventContract
 
     /**
      * MessageEvent constructor.
+     *
      * @param $frame
      */
     public function __construct($frame)
@@ -55,6 +54,7 @@ class MessageEvent extends AbstractEvent implements EventContract
             $payload = $app->make('websocket.parser')->unpack($this->frame);
         } catch (\Throwable $e) {
             $server->getServer()->disconnect($this->frame->fd, 1003, 'unsupported.');
+
             throw $e;
         }
 
@@ -78,13 +78,14 @@ class MessageEvent extends AbstractEvent implements EventContract
             } else {
                 throw new OutOfBoundsException("The event[{$payload['event']}] not found");
             }
-
         } catch (\Exception $e) {
             $app->make(ExceptionHandler::class)->render($socket, $e);
+
             throw $e;
         } catch (\Throwable $e) {
             $throwable = new FatalThrowableError($e);
             $app->make(ExceptionHandler::class)->render($socket, $throwable);
+
             throw $e;
         } finally {
             $app->make('events')->dispatch(

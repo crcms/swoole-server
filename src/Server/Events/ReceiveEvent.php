@@ -6,8 +6,7 @@ use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Contracts\EventContract;
 
 /**
- * Class ReceiveEvent
- * @package CrCms\Server\Server\Events
+ * Class ReceiveEvent.
  */
 class ReceiveEvent extends AbstractEvent implements EventContract
 {
@@ -28,8 +27,9 @@ class ReceiveEvent extends AbstractEvent implements EventContract
 
     /**
      * ReceiveEvent constructor.
-     * @param int $fd
-     * @param int $fromId
+     *
+     * @param int    $fd
+     * @param int    $fromId
      * @param string $data
      */
     public function __construct(int $fd, int $fromId, string $data)

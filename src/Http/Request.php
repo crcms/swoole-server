@@ -2,14 +2,13 @@
 
 namespace CrCms\Server\Http;
 
+use Illuminate\Http\Request as IlluminateRequest;
 use Illuminate\Support\Collection;
 use Swoole\Http\Request as SwooleRequest;
-use Illuminate\Http\Request as IlluminateRequest;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
- * Class Request
- * @package CrCms\Server\Http
+ * Class Request.
  */
 class Request
 {
@@ -25,6 +24,7 @@ class Request
 
     /**
      * Request constructor.
+     *
      * @param SwooleRequest $request
      */
     public function __construct(SwooleRequest $request)
@@ -36,6 +36,7 @@ class Request
 
     /**
      * @param SwooleRequest $request
+     *
      * @return Request
      */
     public static function make(SwooleRequest $request)
@@ -62,12 +63,11 @@ class Request
             [],
             $this->swooleRequest->cookie ?? [],
             $this->swooleRequest->files ?? [],
-            $this->mergeServerInfo()
-            , $this->swooleRequest->rawContent()
+            $this->mergeServerInfo(), $this->swooleRequest->rawContent()
         );
 
         if (0 === strpos($request->headers->get('CONTENT_TYPE'), 'application/x-www-form-urlencoded')
-            && in_array(strtoupper($request->server->get('REQUEST_METHOD', 'GET')), array('PUT', 'DELETE', 'PATCH'))
+            && in_array(strtoupper($request->server->get('REQUEST_METHOD', 'GET')), ['PUT', 'DELETE', 'PATCH'])
         ) {
             parse_str($request->getContent(), $data);
             $request->request = new ParameterBag($data);
@@ -100,7 +100,6 @@ class Request
         return $data;
     }
 
-
     /**
      * @return array
      */
@@ -118,9 +117,10 @@ class Request
 
         $requestHeader = Collection::make($this->swooleRequest->header)->mapWithKeys(function ($item, $key) {
             $key = str_replace('-', '_', $key);
+
             return in_array(strtolower($key), ['x_real_ip'], true) ?
                 [$key => $item] :
-                ['http_' . $key => $item];
+                ['http_'.$key => $item];
         })->toArray();
 
         $server = array_merge($server, $this->swooleRequest->server, $requestHeader);

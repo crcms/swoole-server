@@ -3,7 +3,9 @@
 /**
  * @author simon <simon@crcms.cn>
  * @datetime 2018-11-12 20:26
+ *
  * @link http://crcms.cn/
+ *
  * @copyright Copyright &copy; 2018 Rights Reserved CRCMS
  */
 
@@ -18,8 +20,7 @@ use CrCms\Server\Server\Tasks\Dispatcher;
 use Illuminate\Support\ServiceProvider;
 
 /**
- * Class ServerServiceProvider
- * @package CrCms\Server
+ * Class ServerServiceProvider.
  */
 class SwooleServiceProvider extends ServiceProvider
 {
@@ -31,7 +32,7 @@ class SwooleServiceProvider extends ServiceProvider
     /**
      * @var string
      */
-    protected $packagePath = __DIR__ . '/../';
+    protected $packagePath = __DIR__.'/../';
 
     /**
      * @var string
@@ -44,8 +45,8 @@ class SwooleServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes([
-            $this->packagePath . 'config/config.php' => config_path($this->name . '.php'),
-            $this->packagePath . 'routes/websocket.php' => base_path('routes/websocket.php'),
+            $this->packagePath.'config/config.php'    => config_path($this->name.'.php'),
+            $this->packagePath.'routes/websocket.php' => base_path('routes/websocket.php'),
         ]);
 
         $this->registerEventListener();
@@ -57,7 +58,7 @@ class SwooleServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(
-            $this->packagePath . "config/config.php", $this->name
+            $this->packagePath.'config/config.php', $this->name
         );
 
         $this->registerServerAlias();

@@ -6,8 +6,7 @@ use Illuminate\Contracts\Container\Container;
 use Swoole\WebSocket\Frame;
 
 /**
- * Class Socket
- * @package CrCms\Server\WebSocket
+ * Class Socket.
  */
 class Socket
 {
@@ -38,8 +37,9 @@ class Socket
 
     /**
      * Socket constructor.
+     *
      * @param Container $app
-     * @param Channel $channel
+     * @param Channel   $channel
      */
     public function __construct(Container $app, Channel $channel)
     {
@@ -49,6 +49,7 @@ class Socket
 
     /**
      * @param array $data
+     *
      * @return Socket
      */
     public function setData(array $data): self
@@ -68,11 +69,13 @@ class Socket
 
     /**
      * @param int $fd
+     *
      * @return $this
      */
     public function setFd(int $fd)
     {
         $this->fd = $fd;
+
         return $this;
     }
 
@@ -86,11 +89,13 @@ class Socket
 
     /**
      * @param Frame $frame
+     *
      * @return Socket
      */
     public function setFrame(Frame $frame): self
     {
         $this->frame = $frame;
+
         return $this;
     }
 
@@ -104,6 +109,7 @@ class Socket
 
     /**
      * @param $room
+     *
      * @return Socket
      */
     public function join($room): self
@@ -131,7 +137,7 @@ class Socket
 
     /**
      * @param string $event
-     * @param mixed $data
+     * @param mixed  $data
      */
     public function emit(string $event, $data = []): void
     {

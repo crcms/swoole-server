@@ -8,7 +8,7 @@ use Illuminate\Redis\Connectors\PredisConnector;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class RedisRoomTest
+ * Class RedisRoomTest.
  */
 class RedisRoomTest extends TestCase
 {
@@ -28,9 +28,9 @@ class RedisRoomTest extends TestCase
 
         $this->redis = (new PredisConnection(
             (new PredisConnector())->connect([
-                'host' => 'redis',
+                'host'     => 'redis',
                 'password' => null,
-                'port' => 6379,
+                'port'     => 6379,
                 'database' => 10,
             ], [])
         ));
@@ -53,7 +53,6 @@ class RedisRoomTest extends TestCase
         $this->assertEquals(3, intval($result[2]));
 
         $this->room->add(20, ['room2', 'room3']);
-
 
         $result2 = $this->redis->smembers('room2');
         $result3 = $this->redis->smembers('room3');
@@ -98,10 +97,8 @@ class RedisRoomTest extends TestCase
 
         $this->assertEquals(0, count($result));
 
-
         $result = $this->redis->smembers('zroom2');
         $this->assertEquals(1, count($result));
-
 
         $this->room->remove(3, 'zoom3');
         $result = $this->redis->smembers('zoom3');
@@ -111,7 +108,6 @@ class RedisRoomTest extends TestCase
         $result = $this->redis->smembers('zroom2');
         $this->assertEquals(0, count($result));
     }
-
 
     public function testKeys()
     {

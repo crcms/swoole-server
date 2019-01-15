@@ -8,8 +8,7 @@ use CrCms\Server\Server\Events\StartEvent as BaseStartEvent;
 use CrCms\Server\WebSocket\Facades\IO;
 
 /**
- * Class StartEvent
- * @package CrCms\Server\WebSocket\Events
+ * Class StartEvent.
  */
 class StartEvent extends BaseStartEvent implements EventContract
 {

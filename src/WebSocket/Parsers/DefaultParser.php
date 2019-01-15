@@ -7,13 +7,13 @@ use Swoole\WebSocket\Frame;
 use UnexpectedValueException;
 
 /**
- * Class DefaultParse
- * @package CrCms\Server\WebSocket\Parsers
+ * Class DefaultParse.
  */
 class DefaultParser implements ParserContract
 {
     /**
      * @param array $data
+     *
      * @return string
      */
     public function pack(array $data): string
@@ -23,17 +23,18 @@ class DefaultParser implements ParserContract
 
     /**
      * @param Frame $frame
+     *
      * @return array
      */
     public function unpack(Frame $frame): array
     {
         if ($frame->finish !== true) {
-            throw new UnexpectedValueException("The data not full");
+            throw new UnexpectedValueException('The data not full');
         }
 
         $data = json_decode($frame->data, true);
         if (json_last_error() !== 0) {
-            throw new UnexpectedValueException("The data parse error");
+            throw new UnexpectedValueException('The data parse error');
         }
 
         return $data;

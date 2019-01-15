@@ -2,17 +2,16 @@
 
 namespace CrCms\Server\WebSocket;
 
+use CrCms\Server\Http\Events\RequestEvent;
 use CrCms\Server\Http\Server as HttpServer;
 use CrCms\Server\WebSocket\Events\CloseEvent;
 use CrCms\Server\WebSocket\Events\MessageEvent;
 use CrCms\Server\WebSocket\Events\OpenEvent;
 use CrCms\Server\WebSocket\Events\StartEvent;
 use Swoole\WebSocket\Server as WebSocketServer;
-use CrCms\Server\Http\Events\RequestEvent;
 
 /**
- * Class Server
- * @package CrCms\Server\WebSocket
+ * Class Server.
  */
 class Server extends HttpServer
 {
@@ -20,11 +19,11 @@ class Server extends HttpServer
      * @var array
      */
     protected $events = [
-        'start' => StartEvent::class,
+        'start'   => StartEvent::class,
         'request' => RequestEvent::class,
-        'open' => OpenEvent::class,
+        'open'    => OpenEvent::class,
         'message' => MessageEvent::class,
-        'close' => CloseEvent::class,
+        'close'   => CloseEvent::class,
     ];
 
     /**

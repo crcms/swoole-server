@@ -3,7 +3,9 @@
 /**
  * @author simon <crcms@crcms.cn>
  * @datetime 2018/6/16 17:41
+ *
  * @link http://crcms.cn/
+ *
  * @copyright Copyright &copy; 2018 Rights Reserved CRCMS
  */
 
@@ -16,8 +18,7 @@ use Illuminate\Contracts\Http\Kernel;
 use Swoole\Http\Server as HttpServer;
 
 /**
- * Class Server
- * @package CrCms\Server\Http
+ * Class Server.
  */
 class Server extends AbstractServer implements ServerContract
 {
@@ -38,6 +39,7 @@ class Server extends AbstractServer implements ServerContract
 
     /**
      * @param array $config
+     *
      * @return SwooleServer
      */
     public function createServer(): void

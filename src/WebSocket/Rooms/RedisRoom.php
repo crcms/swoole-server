@@ -6,8 +6,7 @@ use CrCms\Server\WebSocket\Contracts\RoomContract;
 use Illuminate\Contracts\Redis\Connection;
 
 /**
- * Class RedisRoom
- * @package CrCms\Server\WebSocket\Rooms
+ * Class RedisRoom.
  */
 class RedisRoom implements RoomContract
 {
@@ -18,6 +17,7 @@ class RedisRoom implements RoomContract
 
     /**
      * RedisRoom constructor.
+     *
      * @param Connection $redis
      */
     public function __construct(Connection $redis)
@@ -31,7 +31,7 @@ class RedisRoom implements RoomContract
      */
     public function add(int $fd, $room): void
     {
-        $room = (array)$room;
+        $room = (array) $room;
 
         $this->redis->pipeline(function ($pipe) use ($fd, $room) {
             foreach ($room as $value) {
@@ -41,14 +41,14 @@ class RedisRoom implements RoomContract
     }
 
     /**
-     * @param int $fd
+     * @param int   $fd
      * @param array $room
      */
     public function remove(int $fd, $room = []): void
     {
         $this->redis->pipeline(function ($pipe) use ($fd, $room) {
             $rooms = empty($room) ?
-                $this->redis->keys('*') : (array)$room;
+                $this->redis->keys('*') : (array) $room;
 
             //merge rooms
             $allRooms = [];
@@ -79,17 +79,19 @@ class RedisRoom implements RoomContract
 
     /**
      * @param array|string $room
+     *
      * @return array
      */
     public function get($room): array
     {
-        return array_reduce((array)$room, function ($result, $value) {
+        return array_reduce((array) $room, function ($result, $value) {
             return array_merge($result, $this->redis->smembers($value));
         }, []);
     }
 
     /**
      * @param int $fd
+     *
      * @return array
      */
     public function keys(int $fd): array
