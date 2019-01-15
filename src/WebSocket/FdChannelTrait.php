@@ -11,9 +11,9 @@ use CrCms\Server\WebSocket\Facades\IO;
 trait FdChannelTrait
 {
     /**
-     * @return string
+     * @return Channel
      */
-    protected function channelName(int $fd): string
+    protected function currentChannel(int $fd): Channel
     {
         $channels = IO::getChannels();
 
@@ -23,21 +23,12 @@ trait FdChannelTrait
         foreach ($channels as $channel) {
             $rooms = $channel->rooms($fd);
             foreach ($rooms as $room) {
-                if ($room === $channel->getName() . '_' . strval($fd)) {
-                    $currentChannel = $channel;
-                    break;
+                if ($room === $channel->channelPrefix().strval($fd)) {
+                    return $channel;
                 }
             }
-
-            if ($currentChannel) {
-                break;
-            }
         }
 
-        if (empty($currentChannel)) {
-            throw new \RangeException("The channel not found");
-        }
-
-        return $currentChannel->getName();
+        throw new \RangeException("The channel not found");
     }
 }

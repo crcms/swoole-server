@@ -50,7 +50,7 @@ class MessageEvent extends AbstractEvent implements EventContract
 
         try {
             /* @var Channel $channel */
-            $channel = IO::of($this->channelName($this->frame->fd));
+            $channel = $this->currentChannel($this->frame->fd);
             /* 解析数据 @var array $payload */
             $payload = $app->make('websocket.parser')->unpack($this->frame);
         } catch (\Throwable $e) {

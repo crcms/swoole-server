@@ -6,11 +6,9 @@ use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Events\AbstractEvent;
 use CrCms\Server\WebSocket\Channel;
 use CrCms\Server\WebSocket\Events\Internal\CloseHandledEvent;
-use CrCms\Server\WebSocket\Facades\IO;
 use CrCms\Server\WebSocket\FdChannelTrait;
 use CrCms\Server\WebSocket\Socket;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class CloseEvent
@@ -68,9 +66,9 @@ class CloseEvent extends AbstractEvent
     {
         /* @var Channel $channel */
         try {
-            $channel = IO::getChannel($this->channelName($this->fd));
+            $channel = $this->currentChannel($this->fd);
         } catch (\Exception $exception) {
-            Log::warning($exception->getMessage(), ['fd' => $this->fd]);
+            echo "closeWebSocket: {$exception->getMessage()}, fd:{$this->fd}".PHP_EOL;
             $channel = null;
         }
 

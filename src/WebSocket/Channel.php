@@ -169,9 +169,26 @@ class Channel
 
         $prefix = $this->channelPrefix();
 
-        return array_filter($rooms, function (string $room) use ($prefix){
+        return array_filter($rooms, function (string $room) use ($prefix) {
             return strpos($room, $prefix) !== false;
         });
+    }
+
+    /**
+     * @return void
+     */
+    public function reset(): void
+    {
+        $this->to = [];
+    }
+
+
+    /**
+     * @return string
+     */
+    public function channelPrefix(): string
+    {
+        return $this->name.'_';
     }
 
     /**
@@ -182,14 +199,6 @@ class Channel
     protected function push(int $fd, string $event, $data = []): void
     {
         Dispatcher::dispatch(new PushTask, [$fd, $event, $data]);
-    }
-
-    /**
-     * @return void
-     */
-    public function reset(): void
-    {
-        $this->to = [];
     }
 
     /**
@@ -212,17 +221,9 @@ class Channel
         $prefix = $this->channelPrefix();
 
         return array_map(function ($room) use ($prefix) {
-            return $prefix . $room;
+            return $prefix.$room;
         }, array_filter((array)$room, function ($value) {
             return !is_integer($value);
         }));
-    }
-
-    /**
-     * @return string
-     */
-    protected function channelPrefix(): string
-    {
-        return $this->name . '_';
     }
 }
