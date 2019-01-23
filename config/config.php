@@ -95,7 +95,7 @@ return [
     |--------------------------------------------------------------------------
     |
     */
-    'enable_websocket' => true,
+    'enable_websocket' => false,
 
     'websocket_rooms' => [
 
