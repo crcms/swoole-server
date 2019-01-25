@@ -116,6 +116,6 @@ return [
 
     'websocket_data_converter' => CrCms\Server\WebSocket\Converters\DefaultConverter::class,
 
-    'websocket_middleware' => [
+    'websocket_request_middleware' => [
     ],
 ];
