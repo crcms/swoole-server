@@ -49,7 +49,8 @@ class CloseEvent extends AbstractEvent
         //close websocket
         try {
             $info = $server->getServer()->getClientInfo($this->fd);
-            if (is_array($info) && isset($info['websocket_status'])) {
+            //当在websocket cliet中使用http访问时，也会带上websocket_status参数，状态为0
+            if (is_array($info) && isset($info['websocket_status']) && $info['websocket_status'] > 0) {
                 $this->closeWebSocket($app);
             }
         } finally {
