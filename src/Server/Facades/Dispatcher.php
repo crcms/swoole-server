@@ -6,7 +6,7 @@ use CrCms\Server\Server\Contracts\TaskContract;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static false|int|string dispatch(TaskContract $task, array $params = [], bool $async = true)
+ * @method static false|int|string dispatch(TaskContract $task, array $params = [], bool $async = true, float $timeout = 1)
  *
  * Class Dispatcher
  */
