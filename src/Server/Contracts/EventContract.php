@@ -9,5 +9,5 @@ interface EventContract
     /**
      * @return void
      */
-    public function handle(AbstractServer $server): void;
+    public function handle(): void;
 }

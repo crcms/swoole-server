@@ -13,9 +13,8 @@ class StartEvent extends AbstractEvent implements EventContract
     /**
      * @param AbstractServer $server
      */
-    public function handle(AbstractServer $server): void
+    public function handle(): void
     {
-        parent::handle($server);
 
         parent::setEventProcessName('master');
     }

@@ -16,11 +16,20 @@ abstract class AbstractEvent implements EventContract
     protected $server;
 
     /**
-     * @param AbstractServer $server
+     * @var array
      */
-    public function handle(AbstractServer $server): void
+    protected $config;
+
+    /**
+     * @param AbstractServer $server
+     * @return void
+     */
+    public function run(AbstractServer $server, array $config)
     {
         $this->server = $server;
+        $this->config = $config;
+
+        $this->handle();
     }
 
     /**

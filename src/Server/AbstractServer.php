@@ -81,34 +81,19 @@ abstract class AbstractServer implements ServerActionContract, ServerContract
     protected $settings = [];
 
     /**
-     * @var Process
-     */
-    protected $process;
-
-    /**
      * @var string
      */
     protected $name;
 
     /**
-     * AbstractServer constructor.
-     *
-     * @param Container   $app
-     * @param array       $config
-     * @param null|string $name
+     * @param string $name
+     * @param array $config
      */
-    public function __construct(Container $app, array $config, string $name)
+    public function __construct(string $name,array $config)
     {
-        $this->app = $app;
         $this->config = $config;
         $this->name = $name;
-        $this->bindInstanceToApplication();
     }
-
-    /**
-     * @return void
-     */
-    abstract public function bootstrap(): void;
 
     /**
      * @param string $name
@@ -133,39 +118,35 @@ abstract class AbstractServer implements ServerActionContract, ServerContract
     /**
      * @return bool
      */
-    public function start(): bool
-    {
-        return $this->server->start();
-    }
-
-    /**
-     * @return bool
-     */
-    public function stop(): bool
-    {
-        $this->server->shutdown();
-
-        return true;
-    }
-
-    /**
-     * @return bool
-     */
-    public function restart(): bool
-    {
-        return $this->server->reload();
-    }
+//    public function start(): bool
+//    {
+//        return $this->server->start();
+//    }
+//
+//    /**
+//     * @return bool
+//     */
+//    public function stop(): bool
+//    {
+//        $this->server->shutdown();
+//
+//        return true;
+//    }
+//
+//    /**
+//     * @return bool
+//     */
+//    public function restart(): bool
+//    {
+//        return $this->server->reload();
+//    }
 
     /**
      * @return string
      */
     public function pidFile(): string
     {
-        if (empty($this->config['settings']['pid_file'])) {
-            $this->config['settings']['pid_file'] = storage_path($this->name.'.pid');
-        }
-
-        return $this->config['settings']['pid_file'];
+        return $this->config['settings']['pid_file'] ?? '';
     }
 
     /**
@@ -182,22 +163,6 @@ abstract class AbstractServer implements ServerActionContract, ServerContract
     public function getConfig(): array
     {
         return $this->config;
-    }
-
-    /**
-     * @return Container
-     */
-    public function getApp(): Container
-    {
-        return $this->app;
-    }
-
-    /**
-     * @return Container
-     */
-    public function getApplication(): Container
-    {
-        return $this->getApp();
     }
 
     /**
@@ -233,11 +198,15 @@ abstract class AbstractServer implements ServerActionContract, ServerContract
         $this->server->on($name, function () use ($name, $event) {
             try {
                 $this->eventObjects[$name] = new $event(...$this->filterServer(func_get_args()));
-                $this->eventObjects[$name]->handle($this);
+                $this->eventObjects[$name]->run($this);
             } catch (\Exception $e) {
-                $this->app->make(ExceptionHandler::class)->report($e);
+                //$this->app->make(ExceptionHandler::class)->report($e);
+                //log
+                throw $e;
             } catch (\Throwable $e) {
-                $this->app->make(ExceptionHandler::class)->report(new FatalThrowableError($e));
+                //$this->app->make(ExceptionHandler::class)->report(new FatalThrowableError($e));
+                //log
+                throw $e;
             }
         });
     }
@@ -252,14 +221,6 @@ abstract class AbstractServer implements ServerActionContract, ServerContract
         return Collection::make($args)->filter(function ($item) {
             return !($item instanceof \Swoole\Server);
         })->toArray();
-    }
-
-    /**
-     * @return void
-     */
-    protected function bindInstanceToApplication(): void
-    {
-        $this->app->instance('server', $this);
     }
 
     /**
