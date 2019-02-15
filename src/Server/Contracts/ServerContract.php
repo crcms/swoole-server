@@ -19,17 +19,23 @@ use Swoole\Server;
 interface ServerContract
 {
     /**
-     * @return void
-     */
-    public function createServer(): void;
-
-    /**
-     * @return Server
-     */
-    public function getServer(): Server;
-
-    /**
+     * A server name
+     *
      * @return string
      */
-    public function pidFile(): string;
+    public function name(): string;
+
+    /**
+     * Create a server
+     *
+     * @return void
+     */
+    public function create(): void;
+
+    /**
+     * Return a swoole server
+     *
+     * @return Server
+     */
+    public function server(): Server;
 }

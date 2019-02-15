@@ -144,10 +144,10 @@ abstract class AbstractServer implements ServerActionContract, ServerContract
     /**
      * @return string
      */
-    public function pidFile(): string
-    {
-        return $this->config['settings']['pid_file'] ?? '';
-    }
+//    public function pidFile(): string
+//    {
+//        return $this->config['settings']['pid_file'] ?? '';
+//    }
 
     /**
      * @return SwooleServer
