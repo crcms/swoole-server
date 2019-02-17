@@ -5,7 +5,12 @@ $server = new \CrCms\Server\Drivers\Base\Server(require_once __DIR__.'/../config
 
 $serverManager = new \CrCms\Server\Server\ServerManager($server);
 
-$serverManager->start();
+if ($argv[1] === 'start') {
+    $serverManager->start();
+} else {
+    $serverManager->reload();
+}
+
 
 //$container = new \Illuminate\Container\Container();
 //

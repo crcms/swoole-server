@@ -3,7 +3,6 @@
 namespace CrCms\Server\Server\Events;
 
 use CrCms\Server\Server\AbstractServer;
-use CrCms\Server\Server\Contracts\EventContract;
 
 /**
  * Class AbstractEvent.
@@ -23,6 +22,11 @@ abstract class AbstractEvent
         $this->server = $server;
     }
 
+    /**
+     * handle kernel
+     *
+     * @return void
+     */
     abstract public function handle(): void;
 
     /**
@@ -41,6 +45,6 @@ abstract class AbstractEvent
      */
     protected function setEventProcessName(string $processName): void
     {
-        set_process_name($this->server->getConfig()['process_prefix'].'_'.$this->server->name());
+        set_process_name($processName.'_'.$this->server->getConfig()['process_prefix'].'_'.$this->server->name());
     }
 }

@@ -4,6 +4,8 @@ namespace CrCms\Server\Drivers\Base;
 
 use CrCms\Server\Drivers\Base\Events\RequestEvent;
 use CrCms\Server\Server\AbstractServer;
+use CrCms\Server\Server\ServerFactory;
+use Swoole\Server as SwooleServer;
 
 class Server extends AbstractServer
 {
@@ -12,8 +14,8 @@ class Server extends AbstractServer
      */
     public function __construct(array $config)
     {
+        $this->events['request'] = RequestEvent::class;
         parent::__construct($config);
-        $this->events['request'] =  RequestEvent::class;
     }
 
     /**
@@ -25,4 +27,11 @@ class Server extends AbstractServer
     {
         return 'base.http';
     }
+
+    public function create(): SwooleServer
+    {
+        return ServerFactory::factory('http', $this->baseConfig);
+    }
+
+
 }

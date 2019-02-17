@@ -12,12 +12,12 @@ class ServerFactory
     /**
      * Create swoole server
      *
+     * @param string $driver
      * @param array $config
-     * @return HttpServer|SwooleServer|WebSocketServer
+     * @return SwooleServer
      */
-    public static function factory(array $config): SwooleServer
+    public static function factory(string $driver, array $config): SwooleServer
     {
-        $driver = $config['driver'] ?? 'http';
         $mode = $config['mode'] ?? SWOOLE_PROCESS;
         $type = $config['type'] ?? SWOOLE_SOCK_TCP;
 

@@ -73,7 +73,6 @@ abstract class AbstractServer
         $this->name = $this->name();
         $this->baseConfig = $this->getBaseConfig();
         $this->mergeSettings();
-        $this->server = $this->create();
     }
 
     /**
@@ -81,32 +80,39 @@ abstract class AbstractServer
      *
      * @return SwooleServer
      */
-    public function create(): SwooleServer
+    public function newServer(): AbstractServer
     {
         //return $server = new HttpServer($config['host'], $config['port'], $mode, $type);
 
-        $serverParams = [
-            $this->baseConfig['host'],
-            $this->baseConfig['port'],
-            $this->baseConfig['mode'] ?? SWOOLE_PROCESS,
-            $this->baseConfig['type'] ?? SWOOLE_SOCK_TCP,
-        ];
+//        $serverParams = [
+//            $this->baseConfig['host'],
+//            $this->baseConfig['port'],
+//            $this->baseConfig['mode'] ?? SWOOLE_PROCESS,
+//            $this->baseConfig['type'] ?? SWOOLE_SOCK_TCP,
+//        ];
+//
+//        $server = new $this->baseConfig['driver'](...$serverParams);
+//        $this->setSettings($server);
+//        $this->eventRegister($server);
+//
+//        return $server;
 
-        $this->server = new HttpServer(...$serverParams);
+        $this->server = $this->create();
         $this->setSettings();
         $this->eventRegister();
 
-        return $this->server;
-
-//        return ServerFactory::factory($this->baseConfig);
+        return $this;
     }
 
 
     abstract public function name(): string;
 
+    abstract public function create(): SwooleServer;
+
 
     public function start()
     {
+        $this->newServer();
         $this->server->start();
     }
 

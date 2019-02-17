@@ -4,9 +4,6 @@ namespace CrCms\Server\Server\Events;
 
 use CrCms\Server\Server\AbstractServer;
 
-/**
- * Class WorkerStartEvent.
- */
 class WorkerStartEvent extends AbstractEvent
 {
     /**
@@ -15,18 +12,19 @@ class WorkerStartEvent extends AbstractEvent
     protected $workId;
 
     /**
-     * WorkerStartEvent constructor.
-     *
+     * @param AbstractServer $server
      * @param int $workId
      */
-    public function __construct(AbstractServer $server,int $workId)
+    public function __construct(AbstractServer $server, int $workId)
     {
         parent::__construct($server);
         $this->workId = $workId;
     }
 
     /**
-     * @param AbstractServer $server
+     * handle kernel
+     *
+     * @return void
      */
     public function handle(): void
     {

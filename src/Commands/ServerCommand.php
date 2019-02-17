@@ -3,6 +3,7 @@
 namespace CrCms\Server\Commands;
 
 use CrCms\Server\AbstractServerCommand;
+use CrCms\Server\Drivers\Laravel\Contracts\ApplicationContract;
 use CrCms\Server\Drivers\Laravel\Http\Server;
 use CrCms\Server\Server\Contracts\ServerContract;
 use CrCms\Server\Server\ServerManager;
@@ -32,7 +33,13 @@ class ServerCommand extends AbstractServerCommand
         dd($this->arguments());
         $action = $this->argument('action');
 
-        $manager = new ServerManager(new Server());
+        $server = new Server(
+            $this->laravel->make('config')->get('swoole',[]),
+            $this->app()
+        );
+//        $server->setApplication($this->laravel);
+
+        $manager = new ServerManager($server);
 
         if (in_array($action, $this->allows, true)) {
             try {
@@ -79,6 +86,11 @@ class ServerCommand extends AbstractServerCommand
         (new Filesystem())->cleanDirectory(
             dirname($this->getLaravel()->getCachedServicesPath())
         );
+    }
+
+    protected function app()
+    {
+        return $this->laravel;
     }
 
     /**

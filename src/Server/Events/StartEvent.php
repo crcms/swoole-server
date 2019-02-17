@@ -2,15 +2,15 @@
 
 namespace CrCms\Server\Server\Events;
 
-use CrCms\Server\Server\AbstractServer;
-
 /**
  * Class StartEvent.
  */
 class StartEvent extends AbstractEvent
 {
     /**
-     * @param AbstractServer $server
+     * handle kernel
+     *
+     * @return void
      */
     public function handle(): void
     {

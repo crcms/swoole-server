@@ -116,12 +116,15 @@ class ServerManager
         return $this->start();
     }
 
-    /**
-     * @return string
-     */
-    protected function getPidFile(): string
+    public function reload()
     {
-        return $this->server->pidFile();
+        if (!$this->checkProcessExists()) {
+            throw new RuntimeException('The process not exists');
+        }
+
+        if (Process::kill($this->getPid(),SIGUSR1)) {
+            return true;
+        }
     }
 
     /**

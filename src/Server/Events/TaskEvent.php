@@ -27,11 +27,10 @@ class TaskEvent extends AbstractEvent
     protected $data;
 
     /**
-     * TaskEvent constructor.
-     *
-     * @param int   $taskId
-     * @param int   $workerId
-     * @param mixed $data
+     * @param AbstractServer $server
+     * @param int $taskId
+     * @param int $workerId
+     * @param $data
      */
     public function __construct(AbstractServer $server,int $taskId, int $workerId, $data)
     {
@@ -42,7 +41,7 @@ class TaskEvent extends AbstractEvent
     }
 
     /**
-     * @param AbstractServer $server
+     * handle kernel
      *
      * @throws Exception
      */
