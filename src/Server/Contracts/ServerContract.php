@@ -19,23 +19,15 @@ use Swoole\Server;
 interface ServerContract
 {
     /**
-     * A server name
-     *
-     * @return string
-     */
-    public function name(): string;
-
-    /**
      * Create a server
      *
      * @return void
      */
-    public function create(): void;
+    //public function create(array $config): Server;
 
-    /**
-     * Return a swoole server
-     *
-     * @return Server
-     */
     public function server(): Server;
+
+    public function start(): void;
+
+    public function stop(): void;
 }

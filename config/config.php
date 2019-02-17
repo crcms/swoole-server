@@ -28,9 +28,14 @@ return [
         ],
 
         'http' => [
-            'driver'   => CrCms\Server\Http\Server::class,
+            'driver'   => 'http',
             'host'     => '0.0.0.0',
             'port'     => 80,
+        ],
+    ],
+
+    'drivers' => [
+        'http' => [
             'mode'     => defined('SWOOLE_PROCESS') ? SWOOLE_PROCESS : 3,
             'type'     => defined('SWOOLE_SOCK_TCP') ? SWOOLE_SOCK_TCP : 1,
             'settings' => [
@@ -39,7 +44,10 @@ return [
                 'log_level' => 4,
                 'log_file'  => storage_path('logs/http.log'),
             ],
-        ],
+            'events' => [
+
+            ],
+        ]
     ],
 
     /*

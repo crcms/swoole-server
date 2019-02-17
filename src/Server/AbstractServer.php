@@ -5,6 +5,7 @@ namespace CrCms\Server\Server;
 use BadMethodCallException;
 use CrCms\Server\Server\Contracts\ServerActionContract;
 use CrCms\Server\Server\Contracts\ServerContract;
+use CrCms\Server\WebSocket\Tasks\PushTask;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Support\Collection;
@@ -12,22 +13,18 @@ use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Swoole\Process;
 use Swoole\Server as SwooleServer;
+use Swoole\Server;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 /**
  * Class AbstractServer.
  */
-abstract class AbstractServer implements ServerActionContract, ServerContract
+abstract class AbstractServer
 {
     /**
      * @var SwooleServer
      */
     protected $server;
-
-    /**
-     * @var Container
-     */
-    protected $app;
 
     /**
      * @var array
@@ -37,23 +34,18 @@ abstract class AbstractServer implements ServerActionContract, ServerContract
     /**
      * @var array
      */
-    protected $defaultEvents = [
-        'start'         => \CrCms\Server\Server\Events\StartEvent::class,
-        'worker_start'  => \CrCms\Server\Server\Events\WorkerStartEvent::class,
-        'worker_stop'   => '',
-        'worker_exit'   => '',
-        'connect'       => '',
-        'receive'       => '',
-        'packet'        => '',
-        'close'         => \CrCms\Server\Server\Events\CloseEvent::class,
-        'buffer_full'   => '',
-        'Buffer_empty'  => '',
-        'task'          => \CrCms\Server\Server\Events\TaskEvent::class,
-        'finish'        => \CrCms\Server\Server\Events\FinishEvent::class,
-        'pipe_message'  => '',
-        'worker_error'  => '',
+    protected $settings = [];
+
+    /**
+     * @var array
+     */
+    protected $events = [
+        'start' => \CrCms\Server\Server\Events\StartEvent::class,
+        'worker_start' => \CrCms\Server\Server\Events\WorkerStartEvent::class,
+        'close' => \CrCms\Server\Server\Events\CloseEvent::class,
+        'task' => \CrCms\Server\Server\Events\TaskEvent::class,
+        'finish' => \CrCms\Server\Server\Events\FinishEvent::class,
         'manager_start' => \CrCms\Server\Server\Events\ManagerStartEvent::class,
-        'manager_stop'  => '',
     ];
 
     /**
@@ -62,57 +54,38 @@ abstract class AbstractServer implements ServerActionContract, ServerContract
     protected $eventObjects = [];
 
     /**
-     * @var array
-     */
-    protected $defaultSettings = [
-        'package_max_length' => 1024 * 1024 * 10,
-        'user'               => 'daemon',
-        'group'              => 'daemon',
-    ];
-
-    /**
-     * @var array
-     */
-    protected $events = [];
-
-    /**
-     * @var array
-     */
-    protected $settings = [];
-
-    /**
-     * @var string
-     */
-    protected $name;
-
-    /**
      * @param string $name
      * @param array $config
      */
-    public function __construct(string $name,array $config)
+    public function __construct(Server $server, array $config)
     {
         $this->config = $config;
-        $this->name = $name;
+        $this->server = $server;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return AbstractServer
-     */
-    public function setName(string $name): self
-    {
-        $this->name = $name;
+    abstract public function name(): string;
 
-        return $this;
+    public function create2()
+    {
+
     }
 
-    /**
-     * @return string
-     */
-    public function getName(): string
+    abstract public function create(): SwooleServer;
+
+    public function start()
     {
-        return $this->name;
+        $this->mergeConfig();
+
+        $this->server->set($this->settings);
+        $this->eventRegister();
+
+        $this->server->start();
+    }
+
+    protected function mergeConfig()
+    {
+        $this->settings = array_merge($this->settings, $this->config['settings'] ?? []);
+        $this->events = array_merge($this->events, $this->config['events'] ?? []);
     }
 
     /**
@@ -175,39 +148,32 @@ abstract class AbstractServer implements ServerActionContract, ServerContract
         $this->server->set(array_merge($this->defaultSettings, $this->settings, $settings));
     }
 
-    /**
-     * @return void
-     */
-    protected function eventDispatcher(array $events): void
+    protected function setSettings(): void
     {
-        Collection::make(array_merge($this->defaultEvents, $this->events, $events))->filter(function (string $event) {
-            return class_exists($event);
-        })->each(function (string $event, string $name) {
-            $this->eventsCallback(Str::camel($name), $event);
-        });
+        $this->server->set($this->settings);
     }
 
     /**
-     * @param string $name
-     * @param string $event
-     *
      * @return void
      */
-    protected function eventsCallback(string $name, string $event): void
+    protected function eventRegister(): void
     {
-        $this->server->on($name, function () use ($name, $event) {
-            try {
-                $this->eventObjects[$name] = new $event(...$this->filterServer(func_get_args()));
-                $this->eventObjects[$name]->run($this);
-            } catch (\Exception $e) {
-                //$this->app->make(ExceptionHandler::class)->report($e);
-                //log
-                throw $e;
-            } catch (\Throwable $e) {
-                //$this->app->make(ExceptionHandler::class)->report(new FatalThrowableError($e));
-                //log
-                throw $e;
-            }
+        Collection::make($this->events)->each(function (string $event, string $name) {
+            $name = Str::camel($name);
+            $this->server->on($name, function () use ($name, $event) {
+                try {
+                    $this->eventObjects[$name] = new $event(...$this->filterServer(func_get_args()));
+                    $this->eventObjects[$name]->run($this);
+                } catch (\Exception $e) {
+                    //$this->app->make(ExceptionHandler::class)->report($e);
+                    //log
+                    throw $e;
+                } catch (\Throwable $e) {
+                    //$this->app->make(ExceptionHandler::class)->report(new FatalThrowableError($e));
+                    //log
+                    throw $e;
+                }
+            });
         });
     }
 
@@ -243,7 +209,7 @@ abstract class AbstractServer implements ServerActionContract, ServerContract
 
     /**
      * @param string $name
-     * @param array  $arguments
+     * @param array $arguments
      *
      * @return mixed
      */
