@@ -1,6 +1,9 @@
 <?php
 
 return [
+
+    'server' => '',//
+
     /*
     |--------------------------------------------------------------------------
     | Swoole servers
@@ -16,39 +19,45 @@ return [
             'driver'   => CrCms\Server\WebSocket\Server::class,
             'host'     => '0.0.0.0',
             'port'     => 28082,
-            'mode'     => defined('SWOOLE_PROCESS') ? SWOOLE_PROCESS : 3,
-            'type'     => defined('SWOOLE_SOCK_TCP') ? SWOOLE_SOCK_TCP : 1,
             'settings' => [
                 'task_worker_num' => 2,
                 'user'            => env('SWOOLE_USER'),
                 'group'           => env('SWOOLE_GROUP'),
                 'log_level'       => 4,
-                'log_file'        => storage_path('logs/websocket.log'),
+                //'log_file'        => storage_path('logs/websocket.log'),
             ],
         ],
 
-        'http' => [
-            'driver'   => 'http',
+        'base.http' => [
+            'driver'   => \CrCms\Server\Drivers\Base\Server::class,
             'host'     => '0.0.0.0',
-            'port'     => 80,
-        ],
-    ],
-
-    'drivers' => [
-        'http' => [
+            'port'     => 28081,
             'mode'     => defined('SWOOLE_PROCESS') ? SWOOLE_PROCESS : 3,
             'type'     => defined('SWOOLE_SOCK_TCP') ? SWOOLE_SOCK_TCP : 1,
             'settings' => [
                 'user'      => env('SWOOLE_USER'),
                 'group'     => env('SWOOLE_GROUP'),
                 'log_level' => 4,
-                'log_file'  => storage_path('logs/http.log'),
+                //'log_file'  => storage_path('logs/http.log'),
             ],
-            'events' => [
-
-            ],
-        ]
+        ],
     ],
+
+//    'drivers' => [
+//        'http' => [
+//            'mode'     => defined('SWOOLE_PROCESS') ? SWOOLE_PROCESS : 3,
+//            'type'     => defined('SWOOLE_SOCK_TCP') ? SWOOLE_SOCK_TCP : 1,
+//            'settings' => [
+//                'user'      => env('SWOOLE_USER'),
+//                'group'     => env('SWOOLE_GROUP'),
+//                'log_level' => 4,
+//                'log_file'  => storage_path('logs/http.log'),
+//            ],
+//            'events' => [
+//
+//            ],
+//        ]
+//    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -84,7 +93,7 @@ return [
     |
     */
 
-    'process_file' => storage_path('process.pid'),
+    'process_file' => '',//storage_path('process.pid'),
 
     /*
     |--------------------------------------------------------------------------

@@ -2,25 +2,18 @@
 
 namespace CrCms\Server\Drivers\Base;
 
-use CrCms\Server\Server\Contracts\ServerContract;
-use CrCms\Server\Server\EventDispatcher;
+use CrCms\Server\Drivers\Base\Events\RequestEvent;
+use CrCms\Server\Server\AbstractServer;
 
-/**
- *
- */
-class Server implements ServerContract
+class Server extends AbstractServer
 {
-    /**
-     * @var array
-     */
-    protected $config;
-
     /**
      * @param array $config
      */
     public function __construct(array $config)
     {
-        $this->config = $config;
+        parent::__construct($config);
+        $this->events['request'] =  RequestEvent::class;
     }
 
     /**
@@ -30,29 +23,6 @@ class Server implements ServerContract
      */
     public function name(): string
     {
-        return 'server';
+        return 'base.http';
     }
-
-    /**
-     * create
-     *
-     * @return void
-     */
-    public function create(): void
-    {
-        $serverParams = [
-            $this->config['host'],
-            $this->config['port'],
-            $this->config['mode'] ?? SWOOLE_PROCESS,
-            $this->config['type'] ?? SWOOLE_SOCK_TCP,
-        ];
-
-        $this->server = new HttpServer(...$serverParams);
-        $this->setPidFile();
-        $this->setSettings($this->config['settings'] ?? []);
-        $this->eventDispatcher($this->config['events'] ?? []);
-        EventDispatcher::dispatch()
-    }
-
-
 }

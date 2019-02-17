@@ -13,7 +13,7 @@ use Throwable;
 /**
  * Class ServerManager.
  */
-class ServerManager implements Server\Contracts\ServerStartContract, Server\Contracts\ServerActionContract
+class ServerManager
 {
     /**
      * @var array
@@ -30,41 +30,40 @@ class ServerManager implements Server\Contracts\ServerStartContract, Server\Cont
      */
     protected $server;
 
-    /**
-     * @var ProcessManager
-     */
-    protected $process;
+    public function __construct(AbstractServer $server)
+    {
+        $this->server = $server;
+    }
 
     /**
      * @param Command        $command
      * @param ServerContract $server
      * @param ProcessManager $process
      */
-    public function run(Command $command, ServerContract $server, ProcessManager $process): void
+    public function run(AbstractServer $server): void
     {
-        $this->command = $command;
-        $this->server = $server;
-        $this->process = $process;
-
-        $action = $command->argument('action');
-
-        if (in_array($action, $this->allows, true)) {
-            try {
-                $result = call_user_func([$this, $action]);
-                if ($action === 'start') {
-                    return;
-                }
-                if ($result === false) {
-                    $command->getOutput()->error("{$action} failed");
-                } else {
-                    $command->getOutput()->success("{$action} successfully");
-                }
-            } catch (Throwable $exception) {
-                $command->getOutput()->error($exception->getMessage());
-            }
-        } else {
-            $command->getOutput()->error('Allow only '.implode($this->allows, ' ').'options');
-        }
+//        $this->command = $command;
+//        $this->server = $server;
+//
+//        $action = $command->argument('action');
+//
+//        if (in_array($action, $this->allows, true)) {
+//            try {
+//                $result = call_user_func([$this, $action]);
+//                if ($action === 'start') {
+//                    return;
+//                }
+//                if ($result === false) {
+//                    $command->getOutput()->error("{$action} failed");
+//                } else {
+//                    $command->getOutput()->success("{$action} successfully");
+//                }
+//            } catch (Throwable $exception) {
+//                $command->getOutput()->error($exception->getMessage());
+//            }
+//        } else {
+//            $command->getOutput()->error('Allow only '.implode($this->allows, ' ').'options');
+//        }
     }
 
     /**
@@ -73,12 +72,12 @@ class ServerManager implements Server\Contracts\ServerStartContract, Server\Cont
     public function start(): bool
     {
         if (!$this->checkProcessExists()) {
-            $this->server->createServer();
-            $this->server->bootstrap();
+//            $this->server->createServer();
+//            $this->server->bootstrap();
 
             // д��ǰ�棬��Ϊswoole �� start֮��Ͳ���ִ�к���Ĵ�����
             // ������쳣Ҳ���׳�����ִ�д˷���
-            $this->command->getOutput()->success('start successfully');
+//            $this->command->getOutput()->success('start successfully');
 
             return $this->server->start();
         }
@@ -130,7 +129,7 @@ class ServerManager implements Server\Contracts\ServerStartContract, Server\Cont
      */
     protected function getPid(): int
     {
-        $pidFile = $this->getPidFile();
+        $pidFile = $this->server->getSettings()['pid_file'];
         if (!file_exists($pidFile)) {
             return -99999;
         }

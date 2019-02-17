@@ -3,9 +3,12 @@
 namespace CrCms\Server\Commands;
 
 use CrCms\Server\AbstractServerCommand;
+use CrCms\Server\Drivers\Laravel\Http\Server;
 use CrCms\Server\Server\Contracts\ServerContract;
+use CrCms\Server\Server\ServerManager;
 use DomainException;
 use Illuminate\Filesystem\Filesystem;
+use Throwable;
 
 /**
  * Class ServerCommand.
@@ -15,12 +18,40 @@ class ServerCommand extends AbstractServerCommand
     /**
      * @var string
      */
-    protected $signature = 'server {server : http or websocket} {action : start or stop or restart}';
+    protected $signature = 'server {server : Configure the key of the `servers` array} {action : start or stop or restart or reload}';
+
+    protected $allows = ['start', 'stop', 'restart']; //, 'reload'
 
     /**
      * @var string
      */
     protected $description = 'Swoole server';
+
+    public function handle(): void
+    {
+        dd($this->arguments());
+        $action = $this->argument('action');
+
+        $manager = new ServerManager(new Server());
+
+        if (in_array($action, $this->allows, true)) {
+            try {
+                $result = call_user_func([$this, $action]);
+                if ($action === 'start') {
+                    return;
+                }
+                if ($result === false) {
+                    $this->getOutput()->error("{$action} failed");
+                } else {
+                    $this->getOutput()->success("{$action} successfully");
+                }
+            } catch (Throwable $exception) {
+                $this->getOutput()->error($exception->getMessage());
+            }
+        } else {
+            $this->getOutput()->error('Allow only '.implode($this->allows, ' ').'options');
+        }
+    }
 
     /**
      * @return ServerContract

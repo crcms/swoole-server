@@ -7,5 +7,5 @@ interface EventContract
     /**
      * @return void
      */
-    public function dispatch(): void;
+    public function handle(): void;
 }

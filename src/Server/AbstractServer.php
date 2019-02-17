@@ -13,8 +13,10 @@ use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Swoole\Process;
 use Swoole\Server as SwooleServer;
+use OutOfRangeException;
 use Swoole\Server;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
+use Swoole\Http\Server as HttpServer;
 
 /**
  * Class AbstractServer.
@@ -34,7 +36,17 @@ abstract class AbstractServer
     /**
      * @var array
      */
+    protected $baseConfig;
+
+    /**
+     * @var array
+     */
     protected $settings = [];
+
+    /**
+     * @var string
+     */
+    protected $name;
 
     /**
      * @var array
@@ -42,9 +54,7 @@ abstract class AbstractServer
     protected $events = [
         'start' => \CrCms\Server\Server\Events\StartEvent::class,
         'worker_start' => \CrCms\Server\Server\Events\WorkerStartEvent::class,
-        'close' => \CrCms\Server\Server\Events\CloseEvent::class,
         'task' => \CrCms\Server\Server\Events\TaskEvent::class,
-        'finish' => \CrCms\Server\Server\Events\FinishEvent::class,
         'manager_start' => \CrCms\Server\Server\Events\ManagerStartEvent::class,
     ];
 
@@ -57,70 +67,80 @@ abstract class AbstractServer
      * @param string $name
      * @param array $config
      */
-    public function __construct(Server $server, array $config)
+    public function __construct(array $config)
     {
         $this->config = $config;
-        $this->server = $server;
+        $this->name = $this->name();
+        $this->baseConfig = $this->getBaseConfig();
+        $this->mergeSettings();
+        $this->server = $this->create();
     }
+
+    /**
+     * create
+     *
+     * @return SwooleServer
+     */
+    public function create(): SwooleServer
+    {
+        //return $server = new HttpServer($config['host'], $config['port'], $mode, $type);
+
+        $serverParams = [
+            $this->baseConfig['host'],
+            $this->baseConfig['port'],
+            $this->baseConfig['mode'] ?? SWOOLE_PROCESS,
+            $this->baseConfig['type'] ?? SWOOLE_SOCK_TCP,
+        ];
+
+        $this->server = new HttpServer(...$serverParams);
+        $this->setSettings();
+        $this->eventRegister();
+
+        return $this->server;
+
+//        return ServerFactory::factory($this->baseConfig);
+    }
+
 
     abstract public function name(): string;
 
-    public function create2()
-    {
-
-    }
-
-    abstract public function create(): SwooleServer;
 
     public function start()
     {
-        $this->mergeConfig();
-
-        $this->server->set($this->settings);
-        $this->eventRegister();
-
         $this->server->start();
     }
 
-    protected function mergeConfig()
+    protected function setSettings(): void
     {
-        $this->settings = array_merge($this->settings, $this->config['settings'] ?? []);
-        $this->events = array_merge($this->events, $this->config['events'] ?? []);
+        $this->server->set($this->settings);
     }
 
-    /**
-     * @return bool
-     */
-//    public function start(): bool
-//    {
-//        return $this->server->start();
-//    }
-//
-//    /**
-//     * @return bool
-//     */
-//    public function stop(): bool
-//    {
-//        $this->server->shutdown();
-//
-//        return true;
-//    }
-//
-//    /**
-//     * @return bool
-//     */
-//    public function restart(): bool
-//    {
-//        return $this->server->reload();
-//    }
+    protected function mergeSettings(): void
+    {
+        $this->settings = array_merge($this->settings, $this->baseConfig['settings'] ?? []);
+        if (empty($this->settings['pid_file'])) {
+            $this->settings['pid_file'] = $this->pidFile();
+        }
+    }
 
-    /**
-     * @return string
-     */
-//    public function pidFile(): string
-//    {
-//        return $this->config['settings']['pid_file'] ?? '';
-//    }
+    public function getSettings(): array
+    {
+        return $this->settings;
+    }
+
+    public function getBaseConfig(): array
+    {
+        if (empty($this->config['servers'][$this->name])) {
+            throw new OutOfRangeException("The server[{$this->name}] not exists");
+        }
+
+        return $this->config['servers'][$this->name];
+    }
+
+    protected function pidFile(): string
+    {
+        return '/var/'.$this->name.'.pid';
+    }
 
     /**
      * @return SwooleServer
@@ -139,21 +159,6 @@ abstract class AbstractServer
     }
 
     /**
-     * @param array $settings
-     *
-     * @return void
-     */
-    protected function setSettings(array $settings): void
-    {
-        $this->server->set(array_merge($this->defaultSettings, $this->settings, $settings));
-    }
-
-    protected function setSettings(): void
-    {
-        $this->server->set($this->settings);
-    }
-
-    /**
      * @return void
      */
     protected function eventRegister(): void
@@ -162,8 +167,8 @@ abstract class AbstractServer
             $name = Str::camel($name);
             $this->server->on($name, function () use ($name, $event) {
                 try {
-                    $this->eventObjects[$name] = new $event(...$this->filterServer(func_get_args()));
-                    $this->eventObjects[$name]->run($this);
+                    $this->eventObjects[$name] = new $event($this,...$this->filterServer(func_get_args()));
+                    $this->eventObjects[$name]->handle();
                 } catch (\Exception $e) {
                     //$this->app->make(ExceptionHandler::class)->report($e);
                     //log
@@ -184,9 +189,9 @@ abstract class AbstractServer
      */
     protected function filterServer(array $args): array
     {
-        return Collection::make($args)->filter(function ($item) {
+        return array_filter($args,function($item){
             return !($item instanceof \Swoole\Server);
-        })->toArray();
+        });
     }
 
     /**

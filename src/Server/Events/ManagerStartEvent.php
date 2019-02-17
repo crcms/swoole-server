@@ -11,21 +11,18 @@
 
 namespace CrCms\Server\Server\Events;
 
-use CrCms\Server\Server\AbstractServer;
-use CrCms\Server\Server\Contracts\EventContract;
-
 /**
  * Class ManagerStartEvent.
  */
-class ManagerStartEvent extends AbstractEvent implements EventContract
+class ManagerStartEvent extends AbstractEvent
 {
     /**
-     * @param AbstractServer $server
+     * handle
+     *
+     * @return void
      */
-    public function handle(AbstractServer $server): void
+    public function handle(): void
     {
-        parent::handle($server);
-
         parent::setEventProcessName('manage');
     }
 }

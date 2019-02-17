@@ -1,7 +1,31 @@
 <?php
 require __DIR__ . '/../vendor/autoload.php';
-$command = new \CrCms\Server\Commands\ServerCommand();
-var_dump($command->run());
+
+$server = new \CrCms\Server\Drivers\Base\Server(require_once __DIR__.'/../config/config.php');
+
+$serverManager = new \CrCms\Server\Server\ServerManager($server);
+
+$serverManager->start();
+
+//$container = new \Illuminate\Container\Container();
+//
+//$event = new \Illuminate\Events\Dispatcher($container);
+//
+//$application = new \Illuminate\Console\Application(
+//    $container,$event,'5.7'
+//
+//);
+//
+////$application = new \Symfony\Component\Console\Application();
+//
+//$command = new \CrCms\Server\Commands\ServerCommand();
+//
+//$application->add($command);
+//
+//$application->run();
+
+//$command->handle();
+//dd($command);
 //$manage = new \CrCms\Server\Server\ServerManager();
 //
 //$manage->run($command,new \CrCms\Server\Http\Server());

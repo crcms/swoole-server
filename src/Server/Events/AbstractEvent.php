@@ -8,7 +8,7 @@ use CrCms\Server\Server\Contracts\EventContract;
 /**
  * Class AbstractEvent.
  */
-abstract class AbstractEvent implements EventContract
+abstract class AbstractEvent
 {
     /**
      * @var AbstractServer
@@ -16,21 +16,14 @@ abstract class AbstractEvent implements EventContract
     protected $server;
 
     /**
-     * @var array
-     */
-    protected $config;
-
-    /**
      * @param AbstractServer $server
-     * @return void
      */
-    public function run(AbstractServer $server, array $config)
+    public function __construct(AbstractServer $server)
     {
         $this->server = $server;
-        $this->config = $config;
-
-        $this->handle();
     }
+
+    abstract public function handle(): void;
 
     /**
      * @return AbstractServer
@@ -41,28 +34,13 @@ abstract class AbstractEvent implements EventContract
     }
 
     /**
-     * @param string $processName
-     */
-    protected function setEventProcessName(string $processName)
-    {
-        $processPrefix = config('swoole.process_prefix', 'swoole').($this->server->getName() ? '_'.$this->server->getName() : '');
-
-        $processName = ($processPrefix ? $processPrefix.'_' : $processPrefix).$processName;
-
-        static::setProcessName($processName);
-    }
-
-    /**
-     * @param string $name
+     * setEventProcessName
      *
-     * @return bool|void
+     * @param string $processName
+     * @return void
      */
-    protected static function setProcessName(string $name)
+    protected function setEventProcessName(string $processName): void
     {
-        if (function_exists('cli_set_process_title')) {
-            return cli_set_process_title($name);
-        } elseif (function_exists('swoole_set_process_name')) {
-            return swoole_set_process_name($name);
-        }
+        set_process_name($this->server->getConfig()['process_prefix'].'_'.$this->server->name());
     }
 }
