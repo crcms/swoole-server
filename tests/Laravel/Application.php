@@ -9,7 +9,7 @@ use Illuminate\Events\EventServiceProvider;
 
 class Application extends \Illuminate\Container\Container implements ApplicationContract
 {
-    public static function app(): Container
+    public static function application(): Container
     {
         $container = new \Illuminate\Container\Container();
         $container = \Mockery::mock($container);
