@@ -4,20 +4,18 @@ namespace CrCms\Server\Drivers\Laravel;
 
 use CrCms\Server\Drivers\Laravel\Contracts\ApplicationContract;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Facade;
 
-/**
- *
- */
 class Laravel
 {
     /**
-     * @var
+     * @var Container
      */
     protected $container;
 
     /**
-     * @var
+     * @var Application
      */
     protected $app;
 
@@ -31,8 +29,18 @@ class Laravel
      */
     public function __construct(ApplicationContract $contract)
     {
-        $this->setBaseContainer($contract::app());
+        $this->setBaseContainer($contract::application());
         $this->initApplication();
+    }
+
+    /**
+     * getBaseContainer
+     *
+     * @return Container
+     */
+    public function getBaseContainer(): Container
+    {
+        return $this->container;
     }
 
     /**
@@ -75,7 +83,6 @@ class Laravel
         $this->resetApplication();
     }
 
-
     /**
      * getResetters
      *
@@ -95,8 +102,20 @@ class Laravel
     {
         $this->app->instance('app', $this->app);
         $this->app->instance(Container::class, $this->app);
-        Container::setInstance($this->app);
+        \Illuminate\Container\Container::setInstance($this->app);
         Facade::setFacadeApplication($this->app);
+    }
+
+    /**
+     * initApplication
+     *
+     * @return void
+     */
+    protected function initApplication(): void
+    {
+        $this->resetApplication();
+
+        $this->prepareResetters();
     }
 
     /**
@@ -117,6 +136,7 @@ class Laravel
     protected function prepareResetters(): void
     {
         $resetters = $this->container['config']->get('swoole.laravel.resetters');
+
         foreach ($resetters as $resetter) {
             $this->resetters[] = $this->container->make($resetter);
         }
@@ -131,18 +151,6 @@ class Laravel
     protected function setBaseContainer(Container $container)
     {
         $this->container = $container;
-    }
-
-    /**
-     * initApplication
-     *
-     * @return void
-     */
-    protected function initApplication(): void
-    {
-        $this->resetApplication();
-
-        $this->resetResetters();
     }
 
     /**

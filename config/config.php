@@ -1,5 +1,7 @@
 <?php
 
+use CrCms\Server\Drivers\Laravel\Resetters;
+
 return [
 
     'server' => '',//
@@ -28,12 +30,22 @@ return [
             ],
         ],
 
+        'laravel_http' => [
+            'driver'   => \CrCms\Server\Drivers\Laravel\Http\Server::class,
+            'host'     => '0.0.0.0',
+            'port'     => 28082,
+            'settings' => [
+                'user'      => env('SWOOLE_USER'),
+                'group'     => env('SWOOLE_GROUP'),
+                'log_level' => 4,
+                //'log_file'  => storage_path('logs/http.log'),
+            ],
+        ],
+
         'base.http' => [
             'driver'   => \CrCms\Server\Drivers\Base\Server::class,
             'host'     => '0.0.0.0',
             'port'     => 28081,
-            'mode'     => defined('SWOOLE_PROCESS') ? SWOOLE_PROCESS : 3,
-            'type'     => defined('SWOOLE_SOCK_TCP') ? SWOOLE_SOCK_TCP : 1,
             'settings' => [
                 'user'      => env('SWOOLE_USER'),
                 'group'     => env('SWOOLE_GROUP'),
@@ -74,7 +86,7 @@ return [
         ],
 
         'resetters' => [
-
+            Resetters\ProviderResetter::class,
         ],
     ],
 

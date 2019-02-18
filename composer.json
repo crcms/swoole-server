@@ -26,6 +26,7 @@
     "ext-json": "*",
     "ext-swoole": "^4.2",
     "illuminate/console": "^5.7",
+    "illuminate/config": "^5.7",
     "illuminate/http": "^5.7",
     "illuminate/events": "^5.7",
     "illuminate/support": "^5.7",

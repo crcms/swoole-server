@@ -90,7 +90,7 @@ class Request
                 $content = $this->swooleRequest->rawContent();
                 if ($content) {
                     $content = json_decode($content, true);
-                    if (json_last_error() === 0) {
+                    if (json_last_error() === JSON_ERROR_NONE) {
                         $data = array_merge($data, $content);
                     }
                 }

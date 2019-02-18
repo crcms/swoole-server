@@ -1,27 +1,30 @@
 <?php
 
-namespace CrCms\Server\Commands;
+namespace CrCms\Server\Drivers\Laravel\Commands;
 
-use CrCms\Server\AbstractServerCommand;
 use CrCms\Server\Drivers\Laravel\Contracts\ApplicationContract;
-use CrCms\Server\Drivers\Laravel\Http\Server;
-use CrCms\Server\Server\Contracts\ServerContract;
+use CrCms\Server\Drivers\Laravel\Laravel;
 use CrCms\Server\Server\ServerManager;
 use DomainException;
+use Illuminate\Console\Command;
+use Illuminate\Container\Container;
 use Illuminate\Filesystem\Filesystem;
 use Throwable;
 
 /**
  * Class ServerCommand.
  */
-class ServerCommand extends AbstractServerCommand
+class ServerCommand  extends Command implements ApplicationContract
 {
     /**
      * @var string
      */
     protected $signature = 'server {server : Configure the key of the `servers` array} {action : start or stop or restart or reload}';
 
-    protected $allows = ['start', 'stop', 'restart']; //, 'reload'
+    /**
+     * @var array
+     */
+    protected $allows = ['start', 'stop', 'restart', 'reload'];
 
     /**
      * @var string
@@ -30,16 +33,23 @@ class ServerCommand extends AbstractServerCommand
 
     public function handle(): void
     {
-        dd($this->arguments());
+        $serverType = $this->aliasConver($this->argument('server'));
+
+        $server = $this->getServer($serverType);
         $action = $this->argument('action');
 
-        $server = new Server(
-            $this->laravel->make('config')->get('swoole',[]),
-            $this->app()
+        $server = new $server(
+            $this->laravel->make('config')->get('swoole', []),
+            //$this->laravel->make(ApplicationContract::class)
+            new Laravel($this)
         );
 //        $server->setApplication($this->laravel);
 
         $manager = new ServerManager($server);
+
+        $manager->start();
+
+
 
         if (in_array($action, $this->allows, true)) {
             try {
@@ -88,9 +98,13 @@ class ServerCommand extends AbstractServerCommand
         );
     }
 
-    protected function app()
+    public static function application(): \Illuminate\Contracts\Container\Container
     {
-        return $this->laravel;
+        $container = Container::getInstance();
+        $container->bind('config',function(){
+            return new \Illuminate\Config\Repository(['swoole' => require __DIR__.'/../../../../config/config.php']);
+        });
+        return $container;
     }
 
     /**
@@ -100,8 +114,10 @@ class ServerCommand extends AbstractServerCommand
      */
     protected function getServer(string $serverType): string
     {
-        if (in_array($serverType, array_keys(config('swoole.servers')), true)) {
-            return config("swoole.servers.{$serverType}.driver");
+        $servers = $this->laravel->make('config')->get('swoole.servers', []);
+
+        if (in_array($serverType, array_keys($servers), true)) {
+            return $this->laravel->make('config')->get("swoole.servers.{$serverType}.driver");
         }
 
         throw new DomainException("The server type: [{$serverType}] not found");

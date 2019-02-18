@@ -82,21 +82,6 @@ abstract class AbstractServer
      */
     public function newServer(): AbstractServer
     {
-        //return $server = new HttpServer($config['host'], $config['port'], $mode, $type);
-
-//        $serverParams = [
-//            $this->baseConfig['host'],
-//            $this->baseConfig['port'],
-//            $this->baseConfig['mode'] ?? SWOOLE_PROCESS,
-//            $this->baseConfig['type'] ?? SWOOLE_SOCK_TCP,
-//        ];
-//
-//        $server = new $this->baseConfig['driver'](...$serverParams);
-//        $this->setSettings($server);
-//        $this->eventRegister($server);
-//
-//        return $server;
-
         $this->server = $this->create();
         $this->setSettings();
         $this->eventRegister();
@@ -104,23 +89,45 @@ abstract class AbstractServer
         return $this;
     }
 
-
+    /**
+     * name
+     *
+     * @return string
+     */
     abstract public function name(): string;
 
+    /**
+     * create
+     *
+     * @return Server
+     */
     abstract public function create(): SwooleServer;
 
-
+    /**
+     * start
+     *
+     * @return void
+     */
     public function start()
     {
-        $this->newServer();
         $this->server->start();
     }
 
+    /**
+     * setSettings
+     *
+     * @return void
+     */
     protected function setSettings(): void
     {
         $this->server->set($this->settings);
     }
 
+    /**
+     * mergeSettings
+     *
+     * @return void
+     */
     protected function mergeSettings(): void
     {
         $this->settings = array_merge($this->settings, $this->baseConfig['settings'] ?? []);
@@ -129,11 +136,21 @@ abstract class AbstractServer
         }
     }
 
+    /**
+     * getSettings
+     *
+     * @return array
+     */
     public function getSettings(): array
     {
         return $this->settings;
     }
 
+    /**
+     * getBaseConfig
+     *
+     * @return array
+     */
     public function getBaseConfig(): array
     {
         if (empty($this->config['servers'][$this->name])) {
@@ -141,11 +158,6 @@ abstract class AbstractServer
         }
 
         return $this->config['servers'][$this->name];
-    }
-
-    protected function pidFile(): string
-    {
-        return '/var/'.$this->name.'.pid';
     }
 
     /**
@@ -162,6 +174,16 @@ abstract class AbstractServer
     public function getConfig(): array
     {
         return $this->config;
+    }
+
+    /**
+     * pidFile
+     *
+     * @return string
+     */
+    protected function pidFile(): string
+    {
+        return '/var/'.$this->name.'.pid';
     }
 
     /**

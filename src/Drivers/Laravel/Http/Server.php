@@ -33,7 +33,7 @@ class Server extends AbstractServer
      * @param array $config
      * @param ApplicationContract $contract
      */
-    public function __construct(array $config,Laravel $laravel)
+    public function __construct(array $config, Laravel $laravel)
     {
         $this->events['request'] = RequestEvent::class;
         parent::__construct($config);
