@@ -59,6 +59,25 @@ return [
 //        ]
 //    ],
 
+    'laravel' => [
+        /*
+        |--------------------------------------------------------------------------
+        | Laravel reload providers
+        |--------------------------------------------------------------------------
+        |
+        | Information file for saving all running processes
+        |
+        */
+
+        'providers' => [
+
+        ],
+
+        'resetters' => [
+
+        ],
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Register reload provider events
@@ -71,18 +90,6 @@ return [
         \Illuminate\Foundation\Http\Events\RequestHandled::class,
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Laravel reload providers
-    |--------------------------------------------------------------------------
-    |
-    | Information file for saving all running processes
-    |
-    */
-
-    'reload_providers' => [
-
-    ],
 
     /*
     |--------------------------------------------------------------------------

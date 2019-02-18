@@ -13,7 +13,9 @@ namespace CrCms\Server\Drivers\Laravel\Http;
 
 use CrCms\Server\Drivers\Laravel\Contracts\ApplicationContract;
 use CrCms\Server\Drivers\Laravel\Http\Events\RequestEvent;
+use CrCms\Server\Drivers\Laravel\Laravel;
 use CrCms\Server\Server\AbstractServer;
+use CrCms\Server\Server\ServerFactory;
 use Illuminate\Contracts\Container\Container;
 use Swoole\Server as SwooleServer;
 
@@ -23,21 +25,19 @@ use Swoole\Server as SwooleServer;
 class Server extends AbstractServer
 {
     /**
-     * @var Container
+     * @var Laravel
      */
-    protected $app;
+    protected $laravel;
 
     /**
-     * @var array
+     * @param array $config
+     * @param ApplicationContract $contract
      */
-    protected $events = [
-        'request' => RequestEvent::class,
-    ];
-
-    public function __construct(array $config, Container $app)
+    public function __construct(array $config,Laravel $laravel)
     {
+        $this->events['request'] = RequestEvent::class;
         parent::__construct($config);
-        $this->app = $app;
+        $this->laravel = $laravel;
     }
 
     /**
@@ -50,15 +50,33 @@ class Server extends AbstractServer
         return 'laravel_http';
     }
 
-    public function getApplication()
-    {
-        return $this->app;
-    }
-
+    /**
+     * create
+     *
+     * @return SwooleServer
+     */
     public function create(): SwooleServer
     {
-        // TODO: Implement create() method.
+        return ServerFactory::factory('http', $this->baseConfig);
     }
 
+    /**
+     * getLaravel
+     *
+     * @return Laravel
+     */
+    public function getLaravel(): Laravel
+    {
+        return $this->laravel;
+    }
 
+    /**
+     * getApplication
+     *
+     * @return Container
+     */
+    public function getApplication(): Container
+    {
+        return $this->laravel->getApplication();
+    }
 }

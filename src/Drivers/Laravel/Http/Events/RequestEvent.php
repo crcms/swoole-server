@@ -45,11 +45,15 @@ class RequestEvent extends AbstractEvent
     {
         $kernel = $this->server->getApplication()->make(Kernel::class);
 
+        $this->server->getLaravel()->open();
+
         $illuminateRequest = Request::make($this->swooleRequest)->getIlluminateRequest();
         $illuminateResponse = $kernel->handle($illuminateRequest);
 
         Response::make($this->swooleResponse, $illuminateResponse)->toResponse();
 
         $kernel->terminate($illuminateRequest, $illuminateResponse);
+
+        $this->server->getLaravel()->close();
     }
 }
