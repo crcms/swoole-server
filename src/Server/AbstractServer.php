@@ -3,20 +3,13 @@
 namespace CrCms\Server\Server;
 
 use BadMethodCallException;
-use CrCms\Server\Server\Contracts\ServerActionContract;
-use CrCms\Server\Server\Contracts\ServerContract;
-use CrCms\Server\WebSocket\Tasks\PushTask;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Debug\ExceptionHandler;
+use CrCms\Server\Server\Events\AbstractEvent;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
-use Swoole\Process;
 use Swoole\Server as SwooleServer;
 use OutOfRangeException;
 use Swoole\Server;
-use Symfony\Component\Debug\Exception\FatalThrowableError;
-use Swoole\Http\Server as HttpServer;
 
 /**
  * Class AbstractServer.
@@ -104,16 +97,6 @@ abstract class AbstractServer
     abstract public function create(): SwooleServer;
 
     /**
-     * start
-     *
-     * @return void
-     */
-    public function start()
-    {
-        $this->server->start();
-    }
-
-    /**
      * setSettings
      *
      * @return void
@@ -144,6 +127,50 @@ abstract class AbstractServer
     public function getSettings(): array
     {
         return $this->settings;
+    }
+
+    /**
+     * Get current server one setting
+     * Throws an exception if the key does not exist
+     *
+     * @param string $key
+     * @return string|int|null
+     */
+    public function getSettingOrException(string $key)
+    {
+        if (!isset($this->settings[$key])) {
+            throw new OutOfRangeException("The setting: {$key} not exists");
+        }
+
+        return $this->settings[$key];
+    }
+
+    /**
+     * Get current server one setting
+     * Allow custom default value
+     *
+     * @param string $key
+     * @param null $default
+     * @return mixed|null
+     */
+    public function getSetting(string $key, $default = null)
+    {
+        return $this->settings[$key] ?? $default;
+    }
+
+    /**
+     * Get current server event object
+     *
+     * @param string $event
+     * @return AbstractEvent
+     */
+    public function getObjectEventOrException(string $event): AbstractEvent
+    {
+        if (!isset($this->eventObjects[$event])) {
+            throw new OutOfRangeException("The event: {$event} not exists");
+        }
+
+        return $this->eventObjects[$event];
     }
 
     /**
@@ -195,7 +222,7 @@ abstract class AbstractServer
             $name = Str::camel($name);
             $this->server->on($name, function () use ($name, $event) {
                 try {
-                    $this->eventObjects[$name] = new $event($this,...$this->filterServer(func_get_args()));
+                    $this->eventObjects[$name] = new $event($this, ...$this->filterServer(func_get_args()));
                     $this->eventObjects[$name]->handle();
                 } catch (\Exception $e) {
                     //$this->app->make(ExceptionHandler::class)->report($e);
@@ -217,7 +244,7 @@ abstract class AbstractServer
      */
     protected function filterServer(array $args): array
     {
-        return array_filter($args,function($item){
+        return array_filter($args, function ($item) {
             return !($item instanceof \Swoole\Server);
         });
     }
