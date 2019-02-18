@@ -9,7 +9,7 @@
  * @copyright Copyright &copy; 2018 Rights Reserved CRCMS
  */
 
-namespace CrCms\Server;
+namespace CrCms\Server\Drivers\Laravel;
 
 use CrCms\Server\Commands\ServerCommand;
 use CrCms\Server\Http\Listeners\RequestHandledListener;

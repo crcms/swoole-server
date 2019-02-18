@@ -1,6 +1,6 @@
 <?php
 
-namespace CrCms\Server\WebSocket\Facades;
+namespace CrCms\Server\Drivers\Laravel\WebSocket\Facades;
 
 use CrCms\Server\WebSocket\Channel;
 use CrCms\Server\WebSocket\Contracts\RoomContract;

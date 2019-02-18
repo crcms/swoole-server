@@ -1,6 +1,6 @@
 <?php
 
-namespace CrCms\Server\WebSocket\Tasks;
+namespace CrCms\Server\Drivers\Laravel\WebSocket\Tasks;
 
 use CrCms\Server\Server\Contracts\TaskContract;
 use CrCms\Server\WebSocket\Server;

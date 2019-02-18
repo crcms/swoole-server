@@ -1,6 +1,6 @@
 <?php
 
-namespace CrCms\Server;
+namespace CrCms\Server\Drivers\Laravel;
 
 use CrCms\Server\WebSocket\Channel;
 use CrCms\Server\WebSocket\Contracts\ConverterContract;
