@@ -13,7 +13,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 
 $container = new \Illuminate\Container\Container();
-$container->bind('config',function(){
+$container->singleton('config',function(){
     return new \Illuminate\Config\Repository(['swoole' => require __DIR__.'/../config/config.php']);
 });
 

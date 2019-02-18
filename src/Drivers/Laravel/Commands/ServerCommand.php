@@ -4,22 +4,26 @@ namespace CrCms\Server\Drivers\Laravel\Commands;
 
 use CrCms\Server\Drivers\Laravel\Contracts\ApplicationContract;
 use CrCms\Server\Drivers\Laravel\Laravel;
+use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\ServerManager;
-use DomainException;
 use Illuminate\Console\Command;
 use Illuminate\Container\Container;
 use Illuminate\Filesystem\Filesystem;
+use OutOfBoundsException;
+use Swoole\Server as SwooleServer;
+use Swoole\Http\Server as HttpServer;
+use Swoole\WebSocket\Server as WebSocketServer;
 use Throwable;
 
 /**
  * Class ServerCommand.
  */
-class ServerCommand  extends Command implements ApplicationContract
+class ServerCommand extends Command implements ApplicationContract
 {
     /**
      * @var string
      */
-    protected $signature = 'server {server : Configure the key of the `servers` array} {action : start or stop or restart or reload}';
+    protected $signature = 'server {name : Configure the key of the `servers` array} {action : start or stop or restart or reload} {--daemon}';
 
     /**
      * @var array
@@ -29,63 +33,140 @@ class ServerCommand  extends Command implements ApplicationContract
     /**
      * @var string
      */
-    protected $description = 'Swoole server';
+    protected $description = 'Swoole server command';
+
 
     public function handle(): void
     {
-        $serverType = $this->aliasConver($this->argument('server'));
+        $this->info('
+                                    ____               
+                                  ,\'  , `.             
+           __  ,-.             ,-+-,.\' _ |             
+         ,\' ,\'/ /|          ,-+-. ;   , ||  .--.--.    
+   ,---. \'  | |\' | ,---.   ,--.\'|\'   |  || /  /    \'   
+  /     \|  |   ,\'/     \ |   |  ,\', |  |,|  :  /`./   
+ /    / \'\'  :  / /    / \' |   | /  | |--\' |  :  ;_     
+.    \' / |  | \' .    \' /  |   : |  | ,     \  \    `.  
+\'   ; :__;  : | \'   ; :__ |   : |  |/       `----.   \ 
+\'   | \'.\'|  , ; \'   | \'.\'||   | |`-\'       /  /`--\'  / 
+|   :    :---\'  |   :    :|   ;/          \'--\'.     /  
+ \   \  /        \   \  / \'---\'             `--\'---\'   
+  `----\'          `----\'                               
+        
+        ');
 
-        $server = $this->getServer($serverType);
-        $action = $this->argument('action');
+        try {
+            $action = $this->argument('action');
 
-        $server = new $server(
-            $this->laravel->make('config')->get('swoole', []),
-            //$this->laravel->make(ApplicationContract::class)
-            new Laravel($this)
-        );
-//        $server->setApplication($this->laravel);
+            $name = $this->argument('name');
 
-        $manager = new ServerManager($server);
+            $driver = $this->getServerDriver($name);
 
-        $manager->start();
+            $server = new $driver(
+                $this->getServerConfig($name),
+                new Laravel($this)
+            );
 
-
-
-        if (in_array($action, $this->allows, true)) {
-            try {
-                $result = call_user_func([$this, $action]);
-                if ($action === 'start') {
-                    return;
-                }
-                if ($result === false) {
-                    $this->getOutput()->error("{$action} failed");
-                } else {
-                    $this->getOutput()->success("{$action} successfully");
-                }
-            } catch (Throwable $exception) {
-                $this->getOutput()->error($exception->getMessage());
+            if ($action === 'info') {
+                $action = 'serverInfo';
             }
-        } else {
-            $this->getOutput()->error('Allow only '.implode($this->allows, ' ').'options');
+            call_user_func([$this, $action], new ServerManager($server));
+        } catch (\Exception $e) {
+            $this->info($e->getMessage());
+            $this->info($e->getTraceAsString());
         }
     }
 
     /**
-     * @return ServerContract
+     * Start a server
+     *
+     * @param ServerManager $manager
+     * @return void
      */
-    public function server(): ServerContract
+    protected function start(ServerManager $manager)
     {
-        $serverType = $this->aliasConver($this->argument('server'));
+        $baseConfig = $manager->getServer()->getBaseConfig();
 
-        //$this->cleanRunCache();
+        $phpversion = phpversion();
+        $swooleversion = swoole_version();
+        $string = <<<str
+Host:   {$baseConfig['host']}
+Port:   {$baseConfig['port']}
+Server: {$baseConfig['driver']}
+Swoole: {$swooleversion}
+PHP:    {$phpversion}
+str;
+        $this->table(['Name', 'Info'], [
+            ['Host', $baseConfig['host']],
+            ['Port', $baseConfig['port']],
+            ['Server', $baseConfig['driver']],
+            ['Laravel', '5.7 [<info>'.env('APP_ENV').'</info>]'],//$this->laravel->version().
+            ['Swoole', swoole_version()],
+            ['PHP', phpversion()],
+        ]);
 
-        $server = $this->getServer($serverType);
+        if ($this->option('daemon')) {
+            $this->comment('Server runs as a daemon, please use ps aux | grep swoole to view the process'.PHP_EOL);
+        }
 
-        return new $server(
-            $this->getLaravel(),
-            config("swoole.servers.{$serverType}"),
-            'crcms.'.$serverType
-        );
+        //$this->info($string);
+
+        $manager->start();
+    }
+
+    protected function serverInfo(ServerManager $manager)
+    {
+        $baseConfig = $manager->getServer()->getBaseConfig();
+
+        $this->table(['Name', 'Info'], [
+            ['Host', $baseConfig['host']],
+            ['Port', $baseConfig['port']],
+            ['Pid', $manager->getPid()],
+            ['PidFile', $manager->getServer()->getSetting('pid_file')],
+            ['Status', $manager->processExists() ? 'Running' : 'Stopping'],
+            ['Server', $baseConfig['driver']],
+            ['Laravel', '5.7 [<info>'.env('APP_ENV').'</info>]'],//$this->laravel->version().
+            ['Swoole', swoole_version()],
+            ['PHP', phpversion()],
+        ]);
+    }
+
+    /**
+     * Get current swoole server type
+     *
+     * @param AbstractServer $server
+     * @return string
+     */
+    protected function getServerType(AbstractServer $server): string
+    {
+        $swoole = $server->getServer();
+
+        if ($swoole instanceof WebSocketServer) {
+            return 'websocket';
+        } elseif ($swoole instanceof HttpServer) {
+            return 'http';
+        } elseif ($swoole instanceof SwooleServer) {
+            return 'tcp|udp';
+        } else {
+            return 'unknown';
+        }
+    }
+
+    /**
+     * Get current server settings
+     *
+     * @param string $name
+     * @return array
+     */
+    protected function getServerConfig(string $name): array
+    {
+        $config = $this->laravel->make('config')->get('swoole', []);
+
+        if ($this->option('daemon')) {
+            $config["swoole.servers.{$name}.settings.daemonize"] = true;
+        }
+
+        return $config;
     }
 
     /**
@@ -101,40 +182,25 @@ class ServerCommand  extends Command implements ApplicationContract
     public static function application(): \Illuminate\Contracts\Container\Container
     {
         $container = Container::getInstance();
-        $container->bind('config',function(){
+        $container->bind('config', function () {
             return new \Illuminate\Config\Repository(['swoole' => require __DIR__.'/../../../../config/config.php']);
         });
         return $container;
     }
 
     /**
-     * @param string $server
+     * @param string $name
      *
      * @return string
      */
-    protected function getServer(string $serverType): string
+    protected function getServerDriver(string $name): string
     {
         $servers = $this->laravel->make('config')->get('swoole.servers', []);
 
-        if (in_array($serverType, array_keys($servers), true)) {
-            return $this->laravel->make('config')->get("swoole.servers.{$serverType}.driver");
+        if (in_array($name, array_keys($servers), true)) {
+            return $this->laravel->make('config')->get("swoole.servers.{$name}.driver");
         }
 
-        throw new DomainException("The server type: [{$serverType}] not found");
-    }
-
-    /**
-     * @param string $serverType
-     *
-     * @return string
-     */
-    protected function aliasConver(string $serverType): string
-    {
-        switch ($serverType) {
-            case 'ws':
-                return 'websocket';
-            default:
-                return $serverType;
-        }
+        throw new OutOfBoundsException("The server type: [{$name}] not found");
     }
 }
