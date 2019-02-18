@@ -24,11 +24,21 @@ class ServerManager
     }
 
     /**
+     * Return current server
+     *
+     * @return AbstractServer
+     */
+    public function getServer(): AbstractServer
+    {
+        return $this->server;
+    }
+
+    /**
      * @return bool
      */
     public function start(): bool
     {
-        if (!$this->checkProcessExists()) {
+        if (!$this->processExists()) {
             return $this->server->newServer()->start();
         }
 
@@ -40,7 +50,7 @@ class ServerManager
      */
     public function stop(): bool
     {
-        if (!$this->checkProcessExists()) {
+        if (!$this->processExists()) {
             throw new RuntimeException('The process not exists');
         }
 
@@ -58,7 +68,7 @@ class ServerManager
      */
     public function restart(): bool
     {
-        if ($this->checkProcessExists()) {
+        if ($this->processExists()) {
             $this->stop();
             sleep(2);
         }
@@ -66,21 +76,24 @@ class ServerManager
         return $this->start();
     }
 
-    public function reload()
+    /**
+     * Reload server
+     *
+     * @return bool
+     */
+    public function reload(): bool
     {
-        if (!$this->checkProcessExists()) {
+        if (!$this->processExists()) {
             throw new RuntimeException('The process not exists');
         }
 
-        if (Process::kill($this->getPid(),SIGUSR1)) {
-            return true;
-        }
+        return Process::kill($this->getPid(),SIGUSR1);
     }
 
     /**
      * @return int
      */
-    protected function getPid(): int
+    public function getPid(): int
     {
         $pidFile = $this->server->getSettings()['pid_file'];
         if (!file_exists($pidFile)) {
@@ -93,7 +106,7 @@ class ServerManager
     /**
      * @return bool
      */
-    protected function checkProcessExists(): bool
+    public function processExists(): bool
     {
         return Process::kill($this->getPid(), 0);
     }
