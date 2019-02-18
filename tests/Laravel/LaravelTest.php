@@ -26,11 +26,28 @@ class LaravelTest extends TestCase
     {
         $restters = static::$laravel->getResetters();
 
-        $resttersNames = array_map(function($obj){
+        $resttersNames = array_map(function ($obj) {
             return get_class($obj);
-        },$restters);
+        }, $restters);
 
-        $this->assertEquals(true,in_array(ProviderResetter::class,$resttersNames));
+        $this->assertEquals(true, in_array(ProviderResetter::class, $resttersNames));
+    }
+
+    public function testPreload()
+    {
+        $app = static::$laravel->getApplication();
+
+        $app->singleton('test', function () {
+            return new \stdClass();
+        });
+
+        static::$laravel->getBaseContainer()->make('config')->set(['swoole.laravel.preload' => ['test']]);
+
+        $this->assertEquals(false, $app->resolved('test'));
+
+        static::$laravel->preload();
+
+        $this->assertEquals(true, $app->resolved('test'));
     }
 
     public function testAbc()
@@ -41,12 +58,12 @@ class LaravelTest extends TestCase
 
         static::$laravel->open();
 
-        $this->assertEquals(spl_object_hash($app),spl_object_hash(static::$laravel->getApplication()));
+        $this->assertEquals(spl_object_hash($app), spl_object_hash(static::$laravel->getApplication()));
         static::$laravel->close();
 
         $app2 = static::$laravel->getApplication();
 
-        $this->assertNotEquals(spl_object_hash($app),spl_object_hash($app2));
+        $this->assertNotEquals(spl_object_hash($app), spl_object_hash($app2));
     }
 
 }

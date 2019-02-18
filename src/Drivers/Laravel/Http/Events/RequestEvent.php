@@ -4,6 +4,7 @@ namespace CrCms\Server\Drivers\Laravel\Http\Events;
 
 use CrCms\Server\Drivers\Laravel\Http\Request;
 use CrCms\Server\Drivers\Laravel\Http\Response;
+use CrCms\Server\Drivers\Laravel\Http\Server;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Events\AbstractEvent;
 use Illuminate\Contracts\Http\Kernel;
@@ -15,6 +16,11 @@ use Swoole\Http\Response as SwooleResponse;
  */
 class RequestEvent extends AbstractEvent
 {
+    /**
+     * @var Server
+     */
+    protected $server;
+
     /**
      * @var SwooleRequest
      */
@@ -43,17 +49,26 @@ class RequestEvent extends AbstractEvent
      */
     public function handle(): void
     {
-        $kernel = $this->server->getApplication()->make(Kernel::class);
+        try {
+            //preload instance
+            $this->server->getLaravel()->preload();
 
-        $this->server->getLaravel()->open();
+            $kernel = $this->server->getApplication()->make(Kernel::class);
 
-        $illuminateRequest = Request::make($this->swooleRequest)->getIlluminateRequest();
-        $illuminateResponse = $kernel->handle($illuminateRequest);
+            $this->server->getLaravel()->open();
 
-        Response::make($this->swooleResponse, $illuminateResponse)->toResponse();
+            $illuminateRequest = Request::make($this->swooleRequest)->getIlluminateRequest();
+            $illuminateResponse = $kernel->handle($illuminateRequest);
 
-        $kernel->terminate($illuminateRequest, $illuminateResponse);
+            Response::make($this->swooleResponse, $illuminateResponse)->toResponse();
 
-        $this->server->getLaravel()->close();
+            $kernel->terminate($illuminateRequest, $illuminateResponse);
+
+        } catch (\Throwable $e) {
+            throw $e;
+        } finally {
+            // reset application
+            $this->server->getLaravel()->close();
+        }
     }
 }

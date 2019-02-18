@@ -83,6 +83,21 @@ class Laravel
         $this->resetApplication();
     }
 
+
+    /**
+     * Preload instance
+     *
+     * @return void
+     */
+    public function preload(): void
+    {
+        $preload = $this->container['config']->get('swoole.laravel.preload', []);
+
+        foreach ($preload as $reload) {
+            $this->app->make($reload);
+        }
+    }
+
     /**
      * getResetters
      *
@@ -102,7 +117,8 @@ class Laravel
     {
         $this->app->instance('app', $this->app);
         $this->app->instance(Container::class, $this->app);
-        \Illuminate\Container\Container::setInstance($this->app);
+        $this->app::setInstance($this->app);
+        //\Illuminate\Container\Container::setInstance($this->app);
         Facade::setFacadeApplication($this->app);
     }
 
