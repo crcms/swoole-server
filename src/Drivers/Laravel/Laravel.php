@@ -20,11 +20,11 @@ class Laravel
     protected $resetters = [];
 
     /**
-     * @param ApplicationContract $contract
+     * @param Container $container
      */
-    public function __construct(ApplicationContract $contract)
+    public function __construct(Container $container)
     {
-        $this->setBaseContainer($contract::app());
+        $this->setBaseContainer($container);
         $this->initialize();
     }
 

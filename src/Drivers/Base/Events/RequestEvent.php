@@ -2,7 +2,6 @@
 
 namespace CrCms\Server\Drivers\Base\Events;
 
-
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Events\AbstractEvent;
 use Swoole\Http\Request;
@@ -20,16 +19,24 @@ class RequestEvent extends AbstractEvent
      */
     protected $swooleResponse;
 
-    public function __construct(AbstractServer $server,Request $request,Response $response)
+    /**
+     * @param AbstractServer $server
+     * @param Request $request
+     * @param Response $response
+     */
+    public function __construct(AbstractServer $server, Request $request, Response $response)
     {
         parent::__construct($server);
         $this->swooleRequest = $request;
         $this->swooleResponse = $response;
     }
 
+    /**
+     * handle
+     *
+     * @return void
+     */
     public function handle(): void
     {
-        dump($this->swooleRequest);
-        $this->swooleResponse->end('abc');
     }
 }

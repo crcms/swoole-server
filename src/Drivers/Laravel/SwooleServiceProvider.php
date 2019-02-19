@@ -11,11 +11,9 @@
 
 namespace CrCms\Server\Drivers\Laravel;
 
-use CrCms\Server\Commands\ServerCommand;
-use CrCms\Server\Http\Listeners\RequestHandledListener;
+use CrCms\Server\Drivers\Laravel\Commands\ServerCommand;
+use CrCms\Server\Drivers\Laravel\Contracts\ApplicationContract;
 use CrCms\Server\Server\AbstractServer;
-use CrCms\Server\Server\Contracts\ServerActionContract;
-use CrCms\Server\Server\Contracts\ServerContract;
 use CrCms\Server\Server\Tasks\Dispatcher;
 use Illuminate\Support\ServiceProvider;
 
@@ -89,14 +87,8 @@ class SwooleServiceProvider extends ServiceProvider
      */
     protected function registerServerAlias(): void
     {
-        foreach ([
-                     AbstractServer::class,
-                     ServerActionContract::class,
-                     ServerContract::class,
-                 ] as $alias) {
-            $this->app->alias('server', $alias);
-        }
-
+        $this->app->alias('server', AbstractServer::class);
+        $this->app->alias('server.laravel', Laravel::class);
         $this->app->alias('server.task.dispatcher', Dispatcher::class);
     }
 
@@ -108,6 +100,10 @@ class SwooleServiceProvider extends ServiceProvider
         $this->app->singleton('server.task.dispatcher', function ($app) {
             return new Dispatcher($app['server']->getServer());
         });
+
+        $this->app->singleton('server.laravel', function ($app) {
+            return new Laravel($app->make(ApplicationContract::class));
+        });
     }
 
     /**
@@ -115,9 +111,6 @@ class SwooleServiceProvider extends ServiceProvider
      */
     protected function registerEventListener(): void
     {
-        foreach ($this->app['config']->get('swoole.reload_provider_events', []) as $event) {
-            $this->app['events']->listen($event, RequestHandledListener::class);
-        }
     }
 
     /**
@@ -127,6 +120,7 @@ class SwooleServiceProvider extends ServiceProvider
     {
         return [
             'server',
+            'server.laravel',
             'server.task.dispatcher',
             ServerCommand::class,
         ];

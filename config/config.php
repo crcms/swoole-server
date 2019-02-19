@@ -56,6 +56,17 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Laravel initialize application
+        |--------------------------------------------------------------------------
+        |
+        | Must be realized CrCms\Server\Drivers\Laravel\Contracts\ApplicationContract
+        |
+        */
+
+        'app' => \CrCms\Server\Drivers\Laravel\Application::class,
+
+        /*
+        |--------------------------------------------------------------------------
         | Laravel preload instance
         |--------------------------------------------------------------------------
         |

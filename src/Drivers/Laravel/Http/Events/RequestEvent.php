@@ -50,12 +50,9 @@ class RequestEvent extends AbstractEvent
     public function handle(): void
     {
         try {
-            //preload instance
-            $this->server->getLaravel()->preload();
+            $this->server->getLaravel()->open();
 
             $kernel = $this->server->getApplication()->make(Kernel::class);
-
-            $this->server->getLaravel()->open();
 
             $illuminateRequest = Request::make($this->swooleRequest)->getIlluminateRequest();
             $illuminateResponse = $kernel->handle($illuminateRequest);

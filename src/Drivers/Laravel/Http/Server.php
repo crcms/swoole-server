@@ -41,6 +41,19 @@ class Server extends AbstractServer
     }
 
     /**
+     * setLaravel
+     *
+     * @param Laravel $laravel
+     * @return $this
+     */
+    public function setLaravel(Laravel $laravel)
+    {
+        $this->laravel = $laravel;
+
+        return $this;
+    }
+
+    /**
      * name
      *
      * @return string
