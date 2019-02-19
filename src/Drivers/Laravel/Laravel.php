@@ -2,6 +2,7 @@
 
 namespace CrCms\Server\Drivers\Laravel;
 
+use CrCms\Server\Coroutine\Context;
 use CrCms\Server\Drivers\Laravel\Contracts\ApplicationContract;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Foundation\Application;
@@ -50,6 +51,7 @@ class Laravel
      */
     public function getApplication(): Container
     {
+        $this->app = Context::get('app');
         if (is_null($this->app)) {
             $this->resetApplication();
         }
@@ -142,6 +144,7 @@ class Laravel
     protected function resetApplication(): void
     {
         $this->app = clone $this->container;
+        Context::put('app', $this->app);
     }
 
     /**
