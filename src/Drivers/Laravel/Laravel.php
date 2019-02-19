@@ -5,7 +5,6 @@ namespace CrCms\Server\Drivers\Laravel;
 use CrCms\Server\Coroutine\Context;
 use CrCms\Server\Drivers\Laravel\Contracts\ApplicationContract;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Facade;
 
 class Laravel
@@ -14,11 +13,6 @@ class Laravel
      * @var Container
      */
     protected $container;
-
-    /**
-     * @var Application
-     */
-    protected $app;
 
     /**
      * @var array
@@ -30,8 +24,8 @@ class Laravel
      */
     public function __construct(ApplicationContract $contract)
     {
-        $this->setBaseContainer($contract::application());
-        $this->initApplication();
+        $this->setBaseContainer($contract::app());
+        $this->initialize();
     }
 
     /**
@@ -51,12 +45,12 @@ class Laravel
      */
     public function getApplication(): Container
     {
-        $this->app = Context::get('app');
-        if (is_null($this->app)) {
-            $this->resetApplication();
+        $app = Context::get('app');
+        if (is_null($app)) {
+            return $this->createNewApplication();
         }
 
-        return $this->app;
+        return $app;
     }
 
     /**
@@ -66,11 +60,11 @@ class Laravel
      */
     public function open(): void
     {
-        $this->getApplication();
+        $app = $this->getApplication();
 
-        $this->bindApplication();
+        $this->bindApplication($app);
 
-        $this->resetResetters();
+        $this->resetResetters($app);
 
         Facade::clearResolvedInstances();
     }
@@ -82,9 +76,8 @@ class Laravel
      */
     public function close(): void
     {
-        $this->resetApplication();
+        Context::delete('app');
     }
-
 
     /**
      * Preload instance
@@ -95,8 +88,10 @@ class Laravel
     {
         $preload = $this->container['config']->get('swoole.laravel.preload', []);
 
+        $app = $this->getApplication();
+
         foreach ($preload as $reload) {
-            $this->app->make($reload);
+            $app->make($reload);
         }
     }
 
@@ -113,38 +108,40 @@ class Laravel
     /**
      * bindApplication
      *
+     * @param Container $app
      * @return void
      */
-    protected function bindApplication(): void
+    protected function bindApplication(Container $app): void
     {
-        $this->app->instance('app', $this->app);
-        $this->app->instance(Container::class, $this->app);
-        $this->app::setInstance($this->app);
-        //\Illuminate\Container\Container::setInstance($this->app);
-        Facade::setFacadeApplication($this->app);
+        $app->instance('app', $app);
+        $app->instance(Container::class, $app);
+        $app::setInstance($app);
+        Facade::setFacadeApplication($app);
     }
 
     /**
-     * initApplication
+     * initialize
      *
      * @return void
      */
-    protected function initApplication(): void
+    protected function initialize(): void
     {
-        $this->resetApplication();
-
         $this->prepareResetters();
+
+        $this->createNewApplication();
     }
 
     /**
-     * resetApplication
+     * createNewApplication
      *
-     * @return void
+     * @return Container
      */
-    protected function resetApplication(): void
+    protected function createNewApplication(): Container
     {
-        $this->app = clone $this->container;
-        Context::put('app', $this->app);
+        $app = clone $this->container;
+        Context::put('app', $app);
+
+        return $app;
     }
 
     /**
@@ -175,12 +172,11 @@ class Laravel
     /**
      * resetResetters
      *
+     * @param Container $app
      * @return void
      */
-    protected function resetResetters(): void
+    protected function resetResetters(Container $app): void
     {
-        $app = $this->getApplication();
-
         foreach ($this->resetters as $resetter) {
             $resetter->handle($app, $this);
         }

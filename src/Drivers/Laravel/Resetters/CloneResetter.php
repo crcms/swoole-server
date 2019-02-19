@@ -6,7 +6,7 @@ use CrCms\Server\Drivers\Laravel\Contracts\ResetterContract;
 use CrCms\Server\Drivers\Laravel\Laravel;
 use Illuminate\Contracts\Container\Container;
 
-class ProviderResetter implements ResetterContract
+class CloneResetter implements ResetterContract
 {
     /**
      * handle
@@ -17,14 +17,11 @@ class ProviderResetter implements ResetterContract
      */
     public function handle(Container $app, Laravel $laravel): void
     {
-        $providers = $laravel->getBaseContainer()['config']->get('swoole.laravel.providers');
+        $baseContainer = $laravel->getBaseContainer();
+        $clones = $baseContainer['config']->get('swoole.laravel.clones');
 
-        foreach ($providers as $provider) {
-            $app->register($provider, true);
-            $provider = $app->getProvider($provider);
-            if (method_exists($provider, 'boot')) {
-                $provider->boot();
-            }
+        foreach ($clones as $clone) {
+            $app->instance($clone, clone $baseContainer->make($clone));
         }
     }
 }

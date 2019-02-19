@@ -3,9 +3,6 @@
 use CrCms\Server\Drivers\Laravel\Resetters;
 
 return [
-
-    'server' => '',//
-
     /*
     |--------------------------------------------------------------------------
     | Swoole servers
@@ -17,7 +14,7 @@ return [
     */
 
     'servers' => [
-        'websocket' => [
+        /*'websocket' => [
             'driver'   => CrCms\Server\WebSocket\Server::class,
             'host'     => '0.0.0.0',
             'port'     => 28082,
@@ -28,7 +25,7 @@ return [
                 'log_level'       => 4,
                 //'log_file'        => storage_path('logs/websocket.log'),
             ],
-        ],
+        ],*/
 
         'laravel_http' => [
             'driver'   => \CrCms\Server\Drivers\Laravel\Http\Server::class,
@@ -38,11 +35,11 @@ return [
                 'user'      => env('SWOOLE_USER'),
                 'group'     => env('SWOOLE_GROUP'),
                 'log_level' => 4,
-                //'log_file'  => storage_path('logs/http.log'),
+                'log_file'  => '/var/logs/laravel_http.log',
             ],
         ],
 
-        'base.http' => [
+        'base_http' => [
             'driver'   => \CrCms\Server\Drivers\Base\Server::class,
             'host'     => '0.0.0.0',
             'port'     => 28081,
@@ -50,30 +47,38 @@ return [
                 'user'      => env('SWOOLE_USER'),
                 'group'     => env('SWOOLE_GROUP'),
                 'log_level' => 4,
-                //'log_file'  => storage_path('logs/http.log'),
+                'log_file'  => '/var/logs/base_http.log',
             ],
         ],
     ],
 
-//    'drivers' => [
-//        'http' => [
-//            'mode'     => defined('SWOOLE_PROCESS') ? SWOOLE_PROCESS : 3,
-//            'type'     => defined('SWOOLE_SOCK_TCP') ? SWOOLE_SOCK_TCP : 1,
-//            'settings' => [
-//                'user'      => env('SWOOLE_USER'),
-//                'group'     => env('SWOOLE_GROUP'),
-//                'log_level' => 4,
-//                'log_file'  => storage_path('logs/http.log'),
-//            ],
-//            'events' => [
-//
-//            ],
-//        ]
-//    ],
-
     'laravel' => [
 
+        /*
+        |--------------------------------------------------------------------------
+        | Laravel preload instance
+        |--------------------------------------------------------------------------
+        |
+        | Load the parsed instance ahead of time
+        |
+        */
+
         'preload' => [
+
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Laravel clone
+        |--------------------------------------------------------------------------
+        |
+        | Object that needs to be re-clone from the base app
+        | If there is no __clone in the class, its object property will still be the same object,
+        | so you need to manually clone the child object.
+        |
+        */
+
+        'clones' => [
 
         ],
 
@@ -90,23 +95,21 @@ return [
 
         ],
 
+        /*
+        |--------------------------------------------------------------------------
+        | Laravel resetters
+        |--------------------------------------------------------------------------
+        |
+        | Every time you need to load an object that needs to be reset
+        | Please note the order of execution of the load
+        |
+        */
+
         'resetters' => [
+            Resetters\ConfigResetter::class,
             Resetters\ProviderResetter::class,
         ],
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Register reload provider events
-    |--------------------------------------------------------------------------
-    |
-    | Information file for saving all running processes
-    |
-    */
-    'reload_provider_events' => [
-        \Illuminate\Foundation\Http\Events\RequestHandled::class,
-    ],
-
 
     /*
     |--------------------------------------------------------------------------
@@ -117,7 +120,7 @@ return [
     |
     */
 
-    'process_file' => '',//storage_path('process.pid'),
+    'process_file' => '/var/process.pid',
 
     /*
     |--------------------------------------------------------------------------

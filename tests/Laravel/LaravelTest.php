@@ -2,7 +2,6 @@
 
 namespace CrCms\Server\Tests\Laravel;
 
-use CrCms\Server\Drivers\Laravel\Contracts\ApplicationContract;
 use CrCms\Server\Drivers\Laravel\Laravel;
 use CrCms\Server\Drivers\Laravel\Resetters\ProviderResetter;
 use PHPUnit\Framework\TestCase;
@@ -50,7 +49,7 @@ class LaravelTest extends TestCase
         $this->assertEquals(true, $app->resolved('test'));
     }
 
-    public function testAbc()
+    public function testApp()
     {
         $container = static::$laravel->getBaseContainer();
 
@@ -66,4 +65,27 @@ class LaravelTest extends TestCase
         $this->assertNotEquals(spl_object_hash($app), spl_object_hash($app2));
     }
 
+    /**
+     * testAppConfig
+     *
+     * @return void
+     */
+    public function testAppConfig()
+    {
+        $app = static::$laravel->getApplication();
+
+        static::$laravel->open();
+
+        $testInstance = spl_object_hash($app->get('config'));
+
+        static::$laravel->close();
+
+        static::$laravel->open();
+        $app2 = static::$laravel->getApplication();
+
+        $test2Instance = spl_object_hash($app2->get('config'));
+        static::$laravel->close();
+
+        $this->assertNotEquals($testInstance, $test2Instance);
+    }
 }

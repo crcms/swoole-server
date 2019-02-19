@@ -6,5 +6,5 @@ use Illuminate\Contracts\Container\Container;
 
 interface ApplicationContract
 {
-    public static function application(): Container;
+    public static function app(): Container;
 }
