@@ -4,6 +4,7 @@ namespace CrCms\Server\Server\Events;
 
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Contracts\TaskContract;
+use Swoole\Server\Task;
 use Exception;
 
 /**
@@ -28,16 +29,14 @@ class TaskEvent extends AbstractEvent
 
     /**
      * @param AbstractServer $server
-     * @param int $taskId
+     * @param int|Task $taskId
      * @param int $workerId
      * @param $data
      */
-    public function __construct(AbstractServer $server,int $taskId, int $workerId, $data)
+    public function __construct(AbstractServer $server, $taskId, $workerId = -1, $data = null)
     {
         parent::__construct($server);
-        $this->taskId = $taskId;
-        $this->workId = $workerId;
-        $this->data = $data;
+        $this->parseCoroutineTask($taskId, $workerId, $data);
     }
 
     /**
@@ -55,13 +54,34 @@ class TaskEvent extends AbstractEvent
         try {
             $result = $object->handle($this->server, ...$params);
 
-            $this->server->getServer()->finish($result);
+            $this->server->finish($result);
         } catch (\Throwable $exception) {
             if (method_exists($object, 'failed')) {
                 $object->failed($exception);
             }
 
             throw $exception;
+        }
+    }
+
+    /**
+     * parseCoroutineTask
+     *
+     * @param int|Task $task
+     * @param int $workerId
+     * @param null $data
+     * @return void
+     */
+    protected function parseCoroutineTask($task, $workerId = -1, $data = null)
+    {
+        if ($task instanceof Task) {
+            $this->taskId = $task->id;
+            $this->workId = $task->workerId;
+            $this->data = $task->data;
+        } else {
+            $this->taskId = $task;
+            $this->workId = $workerId;
+            $this->data = $data;
         }
     }
 }
