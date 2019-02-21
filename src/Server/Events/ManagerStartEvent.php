@@ -23,6 +23,6 @@ class ManagerStartEvent extends AbstractEvent
      */
     public function handle(): void
     {
-        parent::setEventProcessName('manage');
+        parent::setEventProcessName('manager');
     }
 }

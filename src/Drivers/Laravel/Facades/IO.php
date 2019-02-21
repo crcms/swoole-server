@@ -1,8 +1,8 @@
 <?php
 
-namespace CrCms\Server\Drivers\Laravel\WebSocket\Facades;
+namespace CrCms\Server\Drivers\Laravel\Facades;
 
-use CrCms\Server\WebSocket\Channel;
+use CrCms\Server\WebSocket\AbstractChannel;
 use CrCms\Server\WebSocket\Contracts\RoomContract;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Facades\Facade;
@@ -10,10 +10,10 @@ use Illuminate\Support\Facades\Facade;
 /**
  * @method static Container getApplication()
  * @method static RoomContract getRoom()
- * @method static IO addChannel(Channel $channel)
- * @method static IO setChannel(Channel $channel)
- * @method static Channel of(string $channel)
- * @method static Channel getChannel(string $channel)
+ * @method static IO addChannel(AbstractChannel $channel)
+ * @method static IO setChannel(AbstractChannel $channel)
+ * @method static AbstractChannel of(string $channel)
+ * @method static AbstractChannel getChannel(string $channel)
  * @method static array getChannels()
  * @method static bool channelExists(string $channel)
  *

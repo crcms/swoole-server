@@ -2,8 +2,10 @@
 
 namespace CrCms\Server\Drivers\Laravel\Http\Events;
 
+use function CrCms\Server\clear_opcache;
 use CrCms\Server\Drivers\Laravel\Http\Server;
 use CrCms\Server\Server\Events\WorkerStartEvent as BaseWorkerStartEvent;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Http\Kernel;
 
 class WorkerStartEvent extends BaseWorkerStartEvent
@@ -22,30 +24,26 @@ class WorkerStartEvent extends BaseWorkerStartEvent
     {
         parent::handle();
 
-        $this->clearOpcache();
+        clear_opcache();
 
         $app = $this->server->getApplication();
-
-        $kernel = $app->make(Kernel::class);
-        $kernel->bootstrap();
-
-        //preload sharing instance
-        $this->server->getLaravel()->preload();
+//
+//        $this->bootstrap($app);
+//
+//        //preload sharing instance
+//        $this->server->getLaravel()->preload();
 
         $this->server->getContainer()->make('events')->dispatch('worker_start', [$this->server, $app]);
     }
 
     /**
-     * Clear APC or OPCache.
+     * bootstrap
+     *
+     * @param Container $app
+     * @return void
      */
-    protected function clearOpcache()
+    protected function bootstrap(Container $app): void
     {
-        if (extension_loaded('apc')) {
-            apc_clear_cache();
-        }
-
-        if (extension_loaded('Zend OPcache')) {
-            opcache_reset();
-        }
+        $app->make(Kernel::class)->bootstrap();
     }
 }

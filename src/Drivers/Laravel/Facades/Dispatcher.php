@@ -1,6 +1,6 @@
 <?php
 
-namespace CrCms\Server\Server\Facades;
+namespace CrCms\Server\Drivers\Laravel\Facades;
 
 use CrCms\Server\Server\Contracts\TaskContract;
 use Illuminate\Support\Facades\Facade;

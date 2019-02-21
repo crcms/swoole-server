@@ -26,6 +26,7 @@ class Laravel
 
     /**
      * @param Container $container
+     * @param Repository $config
      */
     public function __construct(Container $container, Repository $config)
     {
@@ -53,14 +54,14 @@ class Laravel
     {
         $app = Context::get('app');
         if (is_null($app)) {
-            return $this->createNewApplication();
+            return $this->createApplication();
         }
 
         return $app;
     }
 
     /**
-     * open
+     * open laravel run env
      *
      * @return void
      */
@@ -68,11 +69,11 @@ class Laravel
     {
         $app = $this->getApplication();
 
+        Facade::clearResolvedInstances();
+
         $this->bindApplication($app);
 
         $this->resetResetters($app);
-
-        Facade::clearResolvedInstances();
     }
 
     /**
@@ -88,13 +89,12 @@ class Laravel
     /**
      * Preload instance
      *
+     * @param Container $app
      * @return void
      */
-    public function preload(): void
+    public function preload(Container $app): void
     {
         $preload = $this->config->get('swoole.laravel.preload', []);
-
-        $app = $this->getApplication();
 
         foreach ($preload as $reload) {
             if ($app->has($reload) && !$app->resolved($reload)) {
@@ -146,7 +146,7 @@ class Laravel
     {
         $this->prepareResetters();
 
-        $this->createNewApplication();
+        $this->createApplication();
     }
 
     /**
@@ -154,9 +154,10 @@ class Laravel
      *
      * @return Container
      */
-    protected function createNewApplication(): Container
+    protected function createApplication(): Container
     {
         $app = clone $this->container;
+
         Context::put('app', $app);
 
         return $app;

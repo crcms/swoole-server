@@ -38,3 +38,25 @@ function get_framework_version(Container $app): string
         return 'Unknown';
     }
 }
+
+/**
+ * is_laravel
+ *
+ * @param Container $app
+ * @return bool
+ */
+function is_laravel(Container $app): bool
+{
+    return get_framework_type($app) === 'Laravel';
+}
+
+/**
+ * is_lumen
+ *
+ * @param Container $app
+ * @return bool
+ */
+function is_lumen(Container $app): bool
+{
+    return get_framework_type($app) === 'Lumen';
+}

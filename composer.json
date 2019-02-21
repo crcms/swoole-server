@@ -23,17 +23,10 @@
   "require": {
     "php": "^7.2.4",
     "ext-json": "*",
-    "ext-swoole": "^4.2",
-    "illuminate/config": "^5.7",
-    "illuminate/console": "^5.7",
-    "illuminate/container": "^5.7",
-    "illuminate/events": "^5.7",
-    "illuminate/http": "^5.7",
-    "illuminate/pipeline": "^5.7",
-    "illuminate/redis": "^5.7",
-    "illuminate/support": "^5.7"
+    "ext-swoole": "^4.2"
   },
   "require-dev": {
+    "laravel/framework": "^5.7",
     "phpunit/phpunit": "^7.5",
     "codedungeon/phpunit-result-printer": "^0.26.0",
     "mockery/mockery": "^1.0",
@@ -55,7 +48,10 @@
   "autoload-dev": {
     "psr-4": {
       "CrCms\\Server\\Tests\\": "tests/"
-    }
+    },
+    "files": [
+      "tests/Laravel/bootstrap.php"
+    ]
   },
   "config": {
     "sort-packages": true

@@ -1,5 +1,15 @@
 <?php
 
+namespace CrCms\Server;
+
+use BadFunctionCallException;
+
+/**
+ * set_process_name
+ *
+ * @param string $name
+ * @return bool
+ */
 function set_process_name(string $name): bool
 {
     if (function_exists('cli_set_process_title')) {
@@ -9,5 +19,21 @@ function set_process_name(string $name): bool
         return true;
     } else {
         throw new BadFunctionCallException("No available functions found");
+    }
+}
+
+/**
+ * clearOpcache
+ *
+ * @return void
+ */
+function clear_opcache(): void
+{
+    if (extension_loaded('apc')) {
+        apc_clear_cache();
+    }
+
+    if (extension_loaded('Zend OPcache')) {
+        opcache_reset();
     }
 }

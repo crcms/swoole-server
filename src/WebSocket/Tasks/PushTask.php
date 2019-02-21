@@ -2,9 +2,8 @@
 
 namespace CrCms\Server\Drivers\Laravel\WebSocket\Tasks;
 
+use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Contracts\TaskContract;
-use CrCms\Server\WebSocket\Server;
-use Illuminate\Contracts\Container\Container;
 use OutOfBoundsException;
 
 /**
@@ -19,19 +18,15 @@ final class PushTask implements TaskContract
      */
     public function handle(...$params): void
     {
-        /* @var Server $server */
+        /* @var AbstractServer $server */
         $server = array_shift($params);
         /* @var int $fd */
         $fd = array_shift($params);
-        /* @var Container $app */
-        $app = $server->getApplication();
-
-        $packData = $app->make('websocket.parser')->pack(
-            $app->make('websocket.data_converter')->conversion($params)
-        );
+        /* @var array $data */
+        $data = $params;
 
         if ($server->getServer()->isEstablished($fd)) {
-            $server->getServer()->push($fd, $packData);
+            $server->getServer()->push($fd, $data);
 
             return;
         }

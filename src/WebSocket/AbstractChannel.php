@@ -2,7 +2,7 @@
 
 namespace CrCms\Server\WebSocket;
 
-use CrCms\Server\WebSocket\Concerns\EventConcern;
+use CrCms\Server\Drivers\Laravel\WebSocket\Tasks\PushTask;
 use CrCms\Server\WebSocket\Contracts\RoomContract;
 use OutOfRangeException;
 
@@ -47,10 +47,11 @@ abstract class AbstractChannel
     }
 
     /**
+     * register event
+     *
      * @param $event
      * @param $listener
-     *
-     * @return EventConcern
+     * @return void
      */
     public function on($event, $listener): void
     {
@@ -184,14 +185,15 @@ abstract class AbstractChannel
     }
 
     /**
-     * push emit
+     * emit data
      *
+     * @param PushTask $task
      * @param int $fd
      * @param string $event
      * @param array $data
      * @return void
      */
-    abstract protected function push(int $fd, string $event, $data = []): void;
+    abstract protected function push(PushTask $task, int $fd, string $event, array $data = []): void;
 
     /**
      * call event
@@ -200,7 +202,7 @@ abstract class AbstractChannel
      * @param array $data
      * @return mixed
      */
-    abstract protected function call($call, $data = []);
+    abstract protected function call($call, array $data = []): void;
 
     /**
      * @param $room

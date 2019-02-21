@@ -6,5 +6,10 @@ use Illuminate\Contracts\Container\Container;
 
 interface ApplicationContract
 {
-    public static function app(): Container;
+    /**
+     * A laravel or lumen application
+     *
+     * @return Container
+     */
+    public function app(): Container;
 }

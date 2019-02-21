@@ -3,10 +3,8 @@
 namespace CrCms\Server\Server\Events;
 
 use CrCms\Server\Server\AbstractServer;
+use function CrCms\Server\set_process_name;
 
-/**
- * Class AbstractEvent.
- */
 abstract class AbstractEvent
 {
     /**

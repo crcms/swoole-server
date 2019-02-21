@@ -38,6 +38,7 @@ class Dispatcher
     {
         $data = ['object' => $task, 'params' => $params];
 
+        // @todo 这块得改，协程下参数不对
         return $async ? $this->server->task($data, -1, function (Server $server, int $taskId, $data) use ($task) {
             $task->finish($data);
         }) : $this->server->taskwait($data, $timeout);
