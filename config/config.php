@@ -81,21 +81,6 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | Laravel clone
-        |--------------------------------------------------------------------------
-        |
-        | Object that needs to be re-clone from the base app
-        | If there is no __clone in the class, its object property will still be the same object,
-        | so you need to manually clone the child object.
-        |
-        */
-
-        'clones' => [
-
-        ],
-
-        /*
-        |--------------------------------------------------------------------------
         | Laravel reload providers
         |--------------------------------------------------------------------------
         |
@@ -119,7 +104,6 @@ return [
 
         'resetters' => [
             Resetters\ConfigResetter::class,
-            Resetters\CloneResetter::class,
             Resetters\ProviderResetter::class,
         ],
 
