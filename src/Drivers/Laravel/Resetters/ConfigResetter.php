@@ -20,6 +20,6 @@ class ConfigResetter implements ResetterContract
      */
     public function handle(Container $app, Laravel $laravel): void
     {
-        $app->instance('config', clone $laravel->getBaseContainer()->make('config'));
+        $app->instance('config', clone $laravel->getConfig());
     }
 }

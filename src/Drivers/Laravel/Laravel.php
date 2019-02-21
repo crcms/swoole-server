@@ -3,6 +3,7 @@
 namespace CrCms\Server\Drivers\Laravel;
 
 use CrCms\Server\Coroutine\Context;
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Facades\Facade;
 
@@ -19,10 +20,16 @@ class Laravel
     protected $resetters = [];
 
     /**
+     * @var Repository
+     */
+    protected $config;
+
+    /**
      * @param Container $container
      */
-    public function __construct(Container $container)
+    public function __construct(Container $container, Repository $config)
     {
+        $this->setConfig($config);
         $this->setBaseContainer($container);
         $this->initialize();
     }
@@ -85,7 +92,7 @@ class Laravel
      */
     public function preload(): void
     {
-        $preload = $this->container['config']->get('swoole.laravel.preload', []);
+        $preload = $this->config->get('swoole.laravel.preload', []);
 
         $app = $this->getApplication();
 
@@ -104,6 +111,16 @@ class Laravel
     public function getResetters(): array
     {
         return $this->resetters;
+    }
+
+    /**
+     * getConfig
+     *
+     * @return Repository
+     */
+    public function getConfig(): Repository
+    {
+        return $this->config;
     }
 
     /**
@@ -152,11 +169,22 @@ class Laravel
      */
     protected function prepareResetters(): void
     {
-        $resetters = $this->container['config']->get('swoole.laravel.resetters');
+        $resetters = $this->config->get('swoole.laravel.resetters');
 
         foreach ($resetters as $resetter) {
             $this->resetters[] = $this->container->make($resetter);
         }
+    }
+
+    /**
+     * setConfig
+     *
+     * @param Repository $config
+     * @return void
+     */
+    protected function setConfig(Repository $config)
+    {
+        $this->config = $config;
     }
 
     /**

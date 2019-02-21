@@ -98,7 +98,7 @@ class SwooleServiceProvider extends ServiceProvider
     {
         $this->app->singleton('server.laravel', function ($app) {
             $appClass = $app['config']['swoole']['laravel']['app'];
-            return new Laravel($appClass::app());
+            return new Laravel($appClass::app(), $app['config']);
         });
 
         $this->app->singleton('server.task.dispatcher', function ($app) {
