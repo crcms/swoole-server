@@ -35,7 +35,7 @@ class WebSocketServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->registerEventListener();
+        $this->eventListener();
 
         $this->loadRoute();
     }
@@ -112,8 +112,9 @@ class WebSocketServiceProvider extends ServiceProvider
     /**
      * @return void
      */
-    protected function registerEventListener(): void
+    protected function eventListener(): void
     {
+
     }
 
     /**

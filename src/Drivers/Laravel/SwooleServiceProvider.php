@@ -49,7 +49,7 @@ class SwooleServiceProvider extends ServiceProvider
         }
         $this->publishes($publishs);
 
-        $this->registerEventListener();
+        $this->eventListener();
     }
 
     /**
@@ -109,7 +109,7 @@ class SwooleServiceProvider extends ServiceProvider
     /**
      * @return void
      */
-    protected function registerEventListener(): void
+    protected function eventListener(): void
     {
     }
 
