@@ -2,23 +2,21 @@
 
 namespace CrCms\Server\Drivers\Laravel\Commands;
 
-use CrCms\Server\Drivers\Laravel\Contracts\ApplicationContract;
-use CrCms\Server\Drivers\Laravel\Laravel;
+use function CrCms\Server\Drivers\Laravel\get_framework_type;
+use function CrCms\Server\Drivers\Laravel\get_framework_version;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\ServerManager;
 use Illuminate\Console\Command;
-use Illuminate\Container\Container;
 use Illuminate\Filesystem\Filesystem;
 use OutOfBoundsException;
 use Swoole\Server as SwooleServer;
 use Swoole\Http\Server as HttpServer;
 use Swoole\WebSocket\Server as WebSocketServer;
-use Throwable;
 
 /**
  * Class ServerCommand.
  */
-class ServerCommand extends Command implements ApplicationContract
+class ServerCommand extends Command
 {
     /**
      * @var string
@@ -35,26 +33,13 @@ class ServerCommand extends Command implements ApplicationContract
      */
     protected $description = 'Swoole server command';
 
-
+    /**
+     * handle
+     *
+     * @return void
+     */
     public function handle(): void
     {
-        $this->info('
-                                    ____               
-                                  ,\'  , `.             
-           __  ,-.             ,-+-,.\' _ |             
-         ,\' ,\'/ /|          ,-+-. ;   , ||  .--.--.    
-   ,---. \'  | |\' | ,---.   ,--.\'|\'   |  || /  /    \'   
-  /     \|  |   ,\'/     \ |   |  ,\', |  |,|  :  /`./   
- /    / \'\'  :  / /    / \' |   | /  | |--\' |  :  ;_     
-.    \' / |  | \' .    \' /  |   : |  | ,     \  \    `.  
-\'   ; :__;  : | \'   ; :__ |   : |  |/       `----.   \ 
-\'   | \'.\'|  , ; \'   | \'.\'||   | |`-\'       /  /`--\'  / 
-|   :    :---\'  |   :    :|   ;/          \'--\'.     /  
- \   \  /        \   \  / \'---\'             `--\'---\'   
-  `----\'          `----\'                               
-        
-        ');
-
         try {
             $action = $this->argument('action');
 
@@ -64,7 +49,8 @@ class ServerCommand extends Command implements ApplicationContract
 
             $server = new $driver(
                 $this->getServerConfig($name),
-                new Laravel($this)
+                $this->laravel,
+                $this->laravel->make('server.laravel')
             );
 
             if ($action === 'info') {
@@ -85,37 +71,37 @@ class ServerCommand extends Command implements ApplicationContract
      */
     protected function start(ServerManager $manager)
     {
+        $this->info($this->logo());
+
         $baseConfig = $manager->getServer()->getBaseConfig();
 
-        $phpversion = phpversion();
-        $swooleversion = swoole_version();
-        $string = <<<str
-Host:   {$baseConfig['host']}
-Port:   {$baseConfig['port']}
-Server: {$baseConfig['driver']}
-Swoole: {$swooleversion}
-PHP:    {$phpversion}
-str;
         $this->table(['Name', 'Info'], [
             ['Host', $baseConfig['host']],
             ['Port', $baseConfig['port']],
             ['Server', $baseConfig['driver']],
-            ['Laravel', '5.7 [<info>'.env('APP_ENV').'</info>]'],//$this->laravel->version().
+            ['Framework', get_framework_type($this->laravel).' ['.get_framework_version($this->laravel).']'],
             ['Swoole', swoole_version()],
             ['PHP', phpversion()],
+            ['System Load', implode(',', sys_getloadavg())],
         ]);
 
         if ($this->option('daemon')) {
             $this->comment('Server runs as a daemon, please use ps aux | grep swoole to view the process'.PHP_EOL);
         }
 
-        //$this->info($string);
-
         $manager->start();
     }
 
-    protected function serverInfo(ServerManager $manager)
+    /**
+     * serverInfo
+     *
+     * @param ServerManager $manager
+     * @return void
+     */
+    protected function serverInfo(ServerManager $manager): void
     {
+        $this->info($this->logo());
+
         $baseConfig = $manager->getServer()->getBaseConfig();
 
         $this->table(['Name', 'Info'], [
@@ -125,10 +111,50 @@ str;
             ['PidFile', $manager->getServer()->getSetting('pid_file')],
             ['Status', $manager->processExists() ? 'Running' : 'Stopping'],
             ['Server', $baseConfig['driver']],
-            ['Laravel', '5.7 [<info>'.env('APP_ENV').'</info>]'],//$this->laravel->version().
+            ['Framework', get_framework_type($this->laravel).' ['.get_framework_version($this->laravel).']'],
             ['Swoole', swoole_version()],
             ['PHP', phpversion()],
+            ['System Load', implode(',', sys_getloadavg())],
         ]);
+    }
+
+    /**
+     * restart
+     *
+     * @param ServerManager $manager
+     * @return void
+     */
+    public function restart(ServerManager $manager): void
+    {
+        $this->comment("The server restarted");
+
+        $manager->restart();
+    }
+
+    /**
+     * stop
+     *
+     * @param ServerManager $manager
+     * @return void
+     */
+    protected function stop(ServerManager $manager): void
+    {
+        $manager->stop();
+
+        $this->comment("The server stopped");
+    }
+
+    /**
+     * reload
+     *
+     * @param ServerManager $manager
+     * @return void
+     */
+    protected function reload(ServerManager $manager): void
+    {
+        $manager->reload();
+
+        $this->comment("The server has been reloaded");
     }
 
     /**
@@ -163,29 +189,10 @@ str;
         $config = $this->laravel->make('config')->get('swoole', []);
 
         if ($this->option('daemon')) {
-            $config["swoole.servers.{$name}.settings.daemonize"] = true;
+            $config['servers'][$name]['settings']['daemonize'] = true;
         }
 
         return $config;
-    }
-
-    /**
-     * @return void
-     */
-    protected function cleanRunCache(): void
-    {
-        (new Filesystem())->cleanDirectory(
-            dirname($this->getLaravel()->getCachedServicesPath())
-        );
-    }
-
-    public static function application(): \Illuminate\Contracts\Container\Container
-    {
-        $container = Container::getInstance();
-        $container->bind('config', function () {
-            return new \Illuminate\Config\Repository(['swoole' => require __DIR__.'/../../../../config/config.php']);
-        });
-        return $container;
     }
 
     /**
@@ -202,5 +209,32 @@ str;
         }
 
         throw new OutOfBoundsException("The server type: [{$name}] not found");
+    }
+
+    /**
+     * logo
+     *
+     * @return string
+     */
+    protected function logo(): string
+    {
+        return <<<str
+        
+                                    ____                                                                                  
+                                  ,'  , `.                                                                                
+           __  ,-.             ,-+-,.' _ |                ,---,.                       __  ,-.                    __  ,-. 
+         ,' ,'/ /|          ,-+-. ;   , ||  .--.--.     ,'  .' | .--.--.             ,' ,'/ /|    .---.         ,' ,'/ /| 
+   ,---. '  | |' | ,---.   ,--.'|'   |  || /  /    '  ,---.'   ,/  /    '     ,---.  '  | |' |  /.  ./|  ,---.  '  | |' | 
+  /     \|  |   ,'/     \ |   |  ,', |  |,|  :  /`./  |   |    |  :  /`./    /     \ |  |   ,'.-' . ' | /     \ |  |   ,' 
+ /    / ''  :  / /    / ' |   | /  | |--' |  :  ;_    :   :  .'|  :  ;_     /    /  |'  :  / /___/ \: |/    /  |'  :  /   
+.    ' / |  | ' .    ' /  |   : |  | ,     \  \    `. :   |.'   \  \    `. .    ' / ||  | '  .   \  ' .    ' / ||  | '    
+'   ; :__;  : | '   ; :__ |   : |  |/       `----.   \`---'      `----.   \'   ;   /|;  : |   \   \   '   ;   /|;  : |    
+'   | '.'|  , ; '   | '.'||   | |`-'       /  /`--'  /          /  /`--'  /'   |  / ||  , ;    \   \  '   |  / ||  , ;    
+|   :    :---'  |   :    :|   ;/          '--'.     /          '--'.     / |   :    | ---'      \   \ |   :    | ---'     
+ \   \  /        \   \  / '---'             `--'---'             `--'---'   \   \  /             '---" \   \  /           
+  `----'          `----'                                                     `----'                     `----'            
+
+
+str;
     }
 }

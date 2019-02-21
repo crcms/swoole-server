@@ -25,19 +25,36 @@ use Swoole\Server as SwooleServer;
 class Server extends AbstractServer
 {
     /**
+     * @var Container
+     */
+    protected $container;
+
+    /**
      * @var Laravel
      */
     protected $laravel;
 
     /**
      * @param array $config
-     * @param ApplicationContract $contract
+     * @param Container $container
+     * @param Laravel $laravel
      */
-    public function __construct(array $config, Laravel $laravel)
+    public function __construct(array $config, Container $container, Laravel $laravel)
     {
         $this->events['request'] = RequestEvent::class;
         parent::__construct($config);
+        $this->container = $container;
         $this->laravel = $laravel;
+    }
+
+    /**
+     * getContainer
+     *
+     * @return Container
+     */
+    public function getContainer(): Container
+    {
+        return $this->container;
     }
 
     /**

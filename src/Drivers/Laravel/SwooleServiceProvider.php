@@ -12,7 +12,6 @@
 namespace CrCms\Server\Drivers\Laravel;
 
 use CrCms\Server\Drivers\Laravel\Commands\ServerCommand;
-use CrCms\Server\Drivers\Laravel\Contracts\ApplicationContract;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Tasks\Dispatcher;
 use Illuminate\Support\ServiceProvider;
@@ -30,7 +29,7 @@ class SwooleServiceProvider extends ServiceProvider
     /**
      * @var string
      */
-    protected $packagePath = __DIR__.'/../';
+    protected $packagePath = __DIR__.'/../../../';
 
     /**
      * @var string
@@ -97,12 +96,13 @@ class SwooleServiceProvider extends ServiceProvider
      */
     protected function registerServices(): void
     {
-        $this->app->singleton('server.task.dispatcher', function ($app) {
-            return new Dispatcher($app['server']->getServer());
+        $this->app->singleton('server.laravel', function ($app) {
+            $appClass = $app['config']['swoole']['laravel']['app'];
+            return new Laravel($appClass::app());
         });
 
-        $this->app->singleton('server.laravel', function ($app) {
-            return new Laravel($app->make(ApplicationContract::class));
+        $this->app->singleton('server.task.dispatcher', function ($app) {
+            return new Dispatcher($app['server']->getServer());
         });
     }
 
