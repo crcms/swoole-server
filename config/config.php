@@ -35,7 +35,7 @@ return [
                 'user'      => env('SWOOLE_USER'),
                 'group'     => env('SWOOLE_GROUP'),
                 'log_level' => 4,
-                'log_file'  => '/var/logs/laravel_http.log',
+                'log_file'  => '/var/log/laravel_http.log',
             ],
         ],
 
@@ -47,7 +47,7 @@ return [
                 'user'      => env('SWOOLE_USER'),
                 'group'     => env('SWOOLE_GROUP'),
                 'log_level' => 4,
-                'log_file'  => '/var/logs/base_http.log',
+                'log_file'  => '/var/log/base_http.log',
             ],
         ],
     ],
@@ -71,6 +71,7 @@ return [
         |--------------------------------------------------------------------------
         |
         | Load the parsed instance ahead of time
+        | This parsing will be an instance of all request sharing for the current worker.
         |
         */
 
@@ -118,6 +119,7 @@ return [
 
         'resetters' => [
             Resetters\ConfigResetter::class,
+            Resetters\CloneResetter::class,
             Resetters\ProviderResetter::class,
         ],
     ],
