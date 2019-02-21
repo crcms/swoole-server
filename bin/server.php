@@ -17,12 +17,28 @@ $container->singleton('config',function(){
     return new \Illuminate\Config\Repository(['swoole' => require __DIR__.'/../config/config.php']);
 });
 
+$container->make('config')->set(['swoole.laravel.app' => \CrCms\Server\Tests\Laravel\Application::class]);
+
 $event = new \Illuminate\Events\Dispatcher($container);
 
 $application = new \Illuminate\Console\Application(
     $container,$event,'5.7'
 
 );
+
+
+$providers = [
+    \CrCms\Server\Drivers\Laravel\SwooleServiceProvider::class,
+];
+$providerObjects = [];
+foreach ($providers as $provider) {
+    $providerObject = new $provider($container);
+    $providerObject->register();
+}
+foreach ($providerObjects as $providerObject) {
+    $providerObject->boot();
+}
+
 //
 //$application = new \Symfony\Component\Console\Application();
 ////

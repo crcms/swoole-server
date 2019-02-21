@@ -73,7 +73,7 @@ class WebSocketServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton('websocket.io', function ($app) {
-            $io = new IO($app, $app['websocket.room']);
+            $io = new IO($app['websocket.room']);
             $channels = $app['config']->get('swoole.websocket_channels', ['/']);
             foreach ($channels as $channel) {
                 $io->addChannel(new Channel($io, $channel));

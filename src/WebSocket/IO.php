@@ -3,8 +3,8 @@
 namespace CrCms\Server\WebSocket;
 
 use CrCms\Server\WebSocket\Contracts\RoomContract;
-use Illuminate\Contracts\Container\Container;
 use OutOfRangeException;
+use RangeException;
 
 /**
  * Class IO.
@@ -17,11 +17,6 @@ class IO
     protected $channels = [];
 
     /**
-     * @var Container
-     */
-    protected $app;
-
-    /**
      * @var RoomContract
      */
     protected $room;
@@ -29,21 +24,11 @@ class IO
     /**
      * IO constructor.
      *
-     * @param Container    $app
      * @param RoomContract $room
      */
-    public function __construct(Container $app, RoomContract $room)
+    public function __construct(RoomContract $room)
     {
-        $this->app = $app;
         $this->room = $room;
-    }
-
-    /**
-     * @return Container
-     */
-    public function getApplication(): Container
-    {
-        return $this->app;
     }
 
     /**
@@ -55,11 +40,11 @@ class IO
     }
 
     /**
-     * @param Channel $channel
+     * @param AbstractChannel $channel
      *
      * @return IO
      */
-    public function addChannel(Channel $channel): self
+    public function addChannel(AbstractChannel $channel): self
     {
         $channelName = $channel->getName();
 
@@ -71,11 +56,11 @@ class IO
     }
 
     /**
-     * @param Channel $channel
+     * @param AbstractChannel $channel
      *
      * @return $this
      */
-    public function setChannel(Channel $channel)
+    public function setChannel(AbstractChannel $channel)
     {
         $this->channels[$channel->getName()] = $channel;
 
@@ -85,9 +70,9 @@ class IO
     /**
      * @param string $channel
      *
-     * @return Channel
+     * @return AbstractChannel
      */
-    public function of(string $channel): Channel
+    public function of(string $channel): AbstractChannel
     {
         return $this->getChannel($channel);
     }
@@ -95,15 +80,58 @@ class IO
     /**
      * @param string $channel
      *
-     * @return Channel
+     * @return AbstractChannel
      */
-    public function getChannel(string $channel): Channel
+    public function getChannel(string $channel): AbstractChannel
     {
         if (!$this->channelExists($channel)) {
             throw new OutOfRangeException("The channel[{$channel}] not found");
         }
 
         return $this->channels[$channel];
+    }
+
+    /**
+     * Get channel by fd
+     *
+     * @param int $fd
+     * @return AbstractChannel|null
+     */
+    public function getFdChannel(int $fd)
+    {
+        $channels = $this->getChannels();
+
+        $currentChannel = null;
+
+        /* @var AbstractChannel $channel */
+        foreach ($channels as $channel) {
+            $rooms = $channel->rooms($fd);
+            foreach ($rooms as $room) {
+                if ($room === $channel->channelPrefix().strval($fd)) {
+                    return $channel;
+                }
+            }
+        }
+
+        return $currentChannel;
+    }
+
+    /**
+     * Get channel by fd
+     * If not found throw
+     *
+     * @param int $fd
+     * @return AbstractChannel
+     */
+    public function getFdChannelOrFail(int $fd): AbstractChannel
+    {
+        $channel = $this->getFdChannel($fd);
+
+        if (is_null($channel)) {
+            throw new RangeException('The channel not found');
+        }
+
+        return $channel;
     }
 
     /**

@@ -2,8 +2,6 @@
 
 namespace CrCms\Server\WebSocket;
 
-use CrCms\Server\WebSocket\Facades\IO;
-
 /**
  * Trait FdChannelTrait.
  */
@@ -12,9 +10,9 @@ trait FdChannelTrait
     /**
      * @return Channel
      */
-    protected function currentChannel(int $fd): Channel
+    protected function currentChannel(IO $io, int $fd): Channel
     {
-        $channels = IO::getChannels();
+        $channels = $io->getChannels();
 
         $currentChannel = null;
 

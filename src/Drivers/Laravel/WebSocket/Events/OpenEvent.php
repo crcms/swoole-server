@@ -7,8 +7,8 @@ use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Events\AbstractEvent;
 use CrCms\Server\WebSocket\Channel;
 use CrCms\Server\WebSocket\ConnectionHandled;
-use CrCms\Server\WebSocket\Contracts\BindingIOContract;
 use CrCms\Server\WebSocket\Exceptions\Handler as ExceptionHandler;
+use CrCms\Server\WebSocket\Facades\IO;
 use CrCms\Server\WebSocket\Socket;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Request as IlluminateRequest;
@@ -22,19 +22,9 @@ use Symfony\Component\Debug\Exception\FatalThrowableError;
 class OpenEvent extends AbstractEvent
 {
     /**
-     * @var AbstractServer|BindingIOContract
-     */
-    protected $server;
-
-    /**
      * @var SwooleRequest
      */
     protected $request;
-
-    /**
-     * @var IlluminateRequest
-     */
-    protected $illuminateRequest;
 
     /**
      * OpenEvent constructor.
@@ -43,17 +33,14 @@ class OpenEvent extends AbstractEvent
      */
     public function __construct(AbstractServer $server, SwooleRequest $request)
     {
-        $this->request = $request;
         parent::__construct($server);
+        $this->request = $request;
     }
 
     /**
-     * @param AbstractServer $server
      */
     public function handle(): void
     {
-
-
         /* @var Container $app */
         $app = $this->server->getApplication();
 
@@ -113,15 +100,5 @@ class OpenEvent extends AbstractEvent
     protected function channelName(): string
     {
         return $this->request->server['request_uri'] ?? '/';
-    }
-
-    /**
-     * joinChannel
-     *
-     * @return void
-     */
-    protected function joinChannel(): void
-    {
-        $this->server->getIO()->getChannel($this->channelName())->join($this->request->fd, strval($this->request->fd));
     }
 }

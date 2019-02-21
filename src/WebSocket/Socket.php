@@ -2,7 +2,6 @@
 
 namespace CrCms\Server\WebSocket;
 
-use Illuminate\Contracts\Container\Container;
 use Swoole\WebSocket\Frame;
 
 /**
@@ -11,12 +10,7 @@ use Swoole\WebSocket\Frame;
 class Socket
 {
     /**
-     * @var Container
-     */
-    protected $app;
-
-    /**
-     * @var Channel
+     * @var AbstractChannel
      */
     public $channel;
 
@@ -36,15 +30,13 @@ class Socket
     protected $data = [];
 
     /**
-     * Socket constructor.
-     *
-     * @param Container $app
-     * @param Channel   $channel
+     * @param AbstractChannel $channel
+     * @param int $fd
      */
-    public function __construct(Container $app, Channel $channel)
+    public function __construct(AbstractChannel $channel, int $fd)
     {
-        $this->app = $app;
         $this->channel = $channel;
+        $this->fd = $fd;
     }
 
     /**
@@ -120,24 +112,24 @@ class Socket
     }
 
     /**
-     * @return Channel
+     * @return AbstractChannel
      */
-    public function broadcast(): Channel
+    public function broadcast(): AbstractChannel
     {
         return $this->channel;
     }
 
     /**
-     * @return Channel
+     * @return AbstractChannel
      */
-    public function getChannel(): Channel
+    public function getChannel(): AbstractChannel
     {
         return $this->channel;
     }
 
     /**
      * @param string $event
-     * @param mixed  $data
+     * @param mixed $data
      */
     public function emit(string $event, $data = []): void
     {
