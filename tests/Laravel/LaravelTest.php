@@ -73,6 +73,8 @@ class LaravelTest extends TestCase
      */
     public function testAppConfig()
     {
+        $baseConfig = spl_object_hash(static::$laravel->getBaseContainer()->make('config'));
+
         $app = static::$laravel->getApplication();
 
         static::$laravel->open();
@@ -87,7 +89,11 @@ class LaravelTest extends TestCase
         $test2Instance = spl_object_hash($app2->get('config'));
         static::$laravel->close();
 
+
+
         $this->assertNotEquals($testInstance, $test2Instance);
+        $this->assertNotEquals($baseConfig, $test2Instance);
+        $this->assertNotEquals($baseConfig, $testInstance);
     }
 
     public function testShareInstance()

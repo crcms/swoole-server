@@ -26,12 +26,11 @@ class Laravel
 
     /**
      * @param Container $container
-     * @param Repository $config
      */
-    public function __construct(Container $container, Repository $config)
+    public function __construct(Container $container)
     {
-        $this->setConfig($config);
         $this->setBaseContainer($container);
+        $this->setConfig($container->make('config'));
         $this->initialize();
     }
 
