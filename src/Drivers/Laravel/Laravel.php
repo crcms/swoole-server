@@ -86,23 +86,6 @@ class Laravel
     }
 
     /**
-     * Preload instance
-     *
-     * @param Container $app
-     * @return void
-     */
-    public function preload(Container $app): void
-    {
-        $preload = $this->config->get('swoole.laravel.preload', []);
-
-        foreach ($preload as $reload) {
-            if ($app->has($reload) && !$app->resolved($reload)) {
-                $app->make($reload);
-            }
-        }
-    }
-
-    /**
      * getResetters
      *
      * @return array
