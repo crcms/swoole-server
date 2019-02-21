@@ -122,6 +122,21 @@ return [
             Resetters\CloneResetter::class,
             Resetters\ProviderResetter::class,
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Laravel events
+        |--------------------------------------------------------------------------
+        |
+        | Available events
+        | start: onStart
+        | worker_start: onWorkerStart
+        | request: onRequest
+        |
+        */
+
+        'events' => [
+        ],
     ],
 
     /*

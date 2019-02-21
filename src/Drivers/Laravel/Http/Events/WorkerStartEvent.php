@@ -24,11 +24,15 @@ class WorkerStartEvent extends BaseWorkerStartEvent
 
         $this->clearOpcache();
 
-        $kernel = $this->server->getApplication()->make(Kernel::class);
+        $app = $this->server->getApplication();
+
+        $kernel = $app->make(Kernel::class);
         $kernel->bootstrap();
 
         //preload sharing instance
         $this->server->getLaravel()->preload();
+
+        $this->server->getContainer()->make('events')->dispatch('worker_start', [$this->server, $app]);
     }
 
     /**
