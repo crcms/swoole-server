@@ -3,7 +3,6 @@
 namespace CrCms\Server\Drivers\Laravel;
 
 use CrCms\Server\Coroutine\Context;
-use CrCms\Server\Drivers\Laravel\Contracts\ApplicationContract;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Facades\Facade;
 
@@ -91,7 +90,9 @@ class Laravel
         $app = $this->getApplication();
 
         foreach ($preload as $reload) {
-            $app->make($reload);
+            if ($app->has($reload) && !$app->resolved($reload)) {
+                $app->make($reload);
+            }
         }
     }
 
