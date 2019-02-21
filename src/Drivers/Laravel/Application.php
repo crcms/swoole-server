@@ -65,7 +65,17 @@ class Application implements ApplicationContract
     protected function bootstrap($app): void
     {
         if (is_laravel($app)) {
-            $app->make(Kernel::class)->bootstrap();
+            if (!$app->hasBeenBootstrapped()) {
+                $app->bootstrapWith([
+                    \Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables::class,
+                    \Illuminate\Foundation\Bootstrap\LoadConfiguration::class,
+                    \Illuminate\Foundation\Bootstrap\HandleExceptions::class,
+                    \Illuminate\Foundation\Bootstrap\RegisterFacades::class,
+                    \Illuminate\Foundation\Bootstrap\SetRequestForConsole::class,
+                    \Illuminate\Foundation\Bootstrap\RegisterProviders::class,
+                    \Illuminate\Foundation\Bootstrap\BootProviders::class,
+                ]);
+            }
         } elseif (is_lumen($app)) {
             if (method_exists($app, 'boot')) {
                 $app->boot();
