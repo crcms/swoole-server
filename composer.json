@@ -65,7 +65,7 @@
   "extra": {
     "laravel": {
       "providers": [
-        "CrCms\\Server\\SwooleServiceProvider"
+        "CrCms\\Server\\Drivers\\Laravel\\SwooleServiceProvider"
       ],
       "aliases": {
       }
