@@ -97,7 +97,8 @@ class SwooleServiceProvider extends ServiceProvider
     protected function registerServices(): void
     {
         $this->app->singleton('server.initialize.app', function ($app) {
-            return new Application($app['config']->get('swoole'));
+            $appClass = $app['config']->get('swoole.laravel.app');
+            return new $appClass($app['config']->get('swoole'));
         });
 
         $this->app->singleton('server.laravel', function ($app) {
