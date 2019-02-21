@@ -2,7 +2,7 @@
 
 namespace CrCms\Server\Drivers\Laravel;
 
-use CrCms\Server\WebSocket\Channel;
+use CrCms\Server\Drivers\Laravel\WebSocket\Channel;
 use CrCms\Server\WebSocket\Contracts\ConverterContract;
 use CrCms\Server\WebSocket\Contracts\ParserContract;
 use CrCms\Server\WebSocket\Contracts\RoomContract;
@@ -76,7 +76,7 @@ class WebSocketServiceProvider extends ServiceProvider
             $io = new IO($app['websocket.room']);
             $channels = $app['config']->get('swoole.websocket_channels', ['/']);
             foreach ($channels as $channel) {
-                $io->addChannel(new Channel($io, $channel));
+                $io->addChannel(new Channel($app, $io, $channel));
             }
 
             return $io;

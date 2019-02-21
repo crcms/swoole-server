@@ -2,13 +2,14 @@
 
 namespace CrCms\Server\WebSocket\Events;
 
-use CrCms\Server\Http\Request;
+use CrCms\Server\Drivers\Laravel\Http\Request;
+use CrCms\Server\Drivers\Laravel\WebSocket\Server;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Events\AbstractEvent;
-use CrCms\Server\WebSocket\Channel;
+use CrCms\Server\Drivers\Laravel\WebSocket\Channel;
 use CrCms\Server\WebSocket\ConnectionHandled;
 use CrCms\Server\WebSocket\Exceptions\Handler as ExceptionHandler;
-use CrCms\Server\WebSocket\Facades\IO;
+use CrCms\Server\Drivers\Laravel\Facades\IO;
 use CrCms\Server\WebSocket\Socket;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Request as IlluminateRequest;
@@ -22,9 +23,19 @@ use Symfony\Component\Debug\Exception\FatalThrowableError;
 class OpenEvent extends AbstractEvent
 {
     /**
+     * @var Server
+     */
+    protected $server;
+
+    /**
      * @var SwooleRequest
      */
     protected $request;
+
+    /**
+     * @var IlluminateRequest
+     */
+    protected $illuminateRequest;
 
     /**
      * OpenEvent constructor.
@@ -35,6 +46,7 @@ class OpenEvent extends AbstractEvent
     {
         parent::__construct($server);
         $this->request = $request;
+        $this->illuminateRequest = (new Request($this->request))->getIlluminateRequest();
     }
 
     /**
@@ -45,18 +57,16 @@ class OpenEvent extends AbstractEvent
         $app = $this->server->getApplication();
 
         try {
-            /* @var string $channelName */
-            $channelName = $this->channelName();
             /* @var Channel $channel */
-            $channel = IO::getChannel($channelName);
+            $channel = IO::getChannel($this->channelName());
 
             //join room
             $channel->join($this->request->fd, strval($this->request->fd));
 
             // bind websocket instance
-            $app->instance('websocket', (new Socket($app, $channel))->setFd($this->request->fd));
+            $app->instance('websocket', new Socket($channel, $this->request->fd));
         } catch (\Throwable $e) {
-            $server->getServer()->disconnect($this->request->fd, 1003, 'unsupported.');
+            $this->server->getServer()->disconnect($this->request->fd, 1003, 'unsupported.');
 
             throw $e;
         }
@@ -78,11 +88,13 @@ class OpenEvent extends AbstractEvent
                 ]);
             }
         } catch (\Exception $e) {
+            $app->make(ExceptionHandler::class)->report($e);
             $app->make(ExceptionHandler::class)->render($app->make('websocket'), $e);
 
             throw $e;
         } catch (\Throwable $e) {
             $e = new FatalThrowableError($e);
+            $app->make(ExceptionHandler::class)->report(new FatalThrowableError($e));
             $app->make(ExceptionHandler::class)->render($app->make('websocket'), $e);
 
             throw $e;

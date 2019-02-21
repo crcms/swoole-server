@@ -2,10 +2,11 @@
 
 namespace CrCms\Server\WebSocket\Events;
 
+use CrCms\Server\Drivers\Laravel\Facades\IO;
+use CrCms\Server\Drivers\Laravel\WebSocket\Server;
 use CrCms\Server\Server\AbstractServer;
-use CrCms\Server\Server\Contracts\EventContract;
 use CrCms\Server\Server\Events\AbstractEvent;
-use CrCms\Server\WebSocket\Channel;
+use CrCms\Server\Drivers\Laravel\WebSocket\Channel;
 use CrCms\Server\WebSocket\Events\Internal\MessageHandledEvent;
 use CrCms\Server\WebSocket\Events\Internal\MessageHandleEvent;
 use CrCms\Server\WebSocket\Exceptions\Handler as ExceptionHandler;
@@ -13,14 +14,20 @@ use CrCms\Server\WebSocket\FdChannelTrait;
 use CrCms\Server\WebSocket\Socket;
 use Illuminate\Contracts\Container\Container;
 use OutOfBoundsException;
+use Swoole\WebSocket\Frame;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 /**
  * Class MessageEvent.
  */
-class MessageEvent extends AbstractEvent implements EventContract
+class MessageEvent extends AbstractEvent
 {
     use FdChannelTrait;
+
+    /**
+     * @var Server
+     */
+    protected $server;
 
     /**
      * @var object
@@ -32,24 +39,22 @@ class MessageEvent extends AbstractEvent implements EventContract
      *
      * @param $frame
      */
-    public function __construct($frame)
+    public function __construct(AbstractServer $server, Frame $frame)
     {
+        parent::__construct($server);
         $this->frame = $frame;
     }
 
-    /**
-     * @param AbstractServer $server
-     */
-    public function handle(AbstractServer $server): void
+    public function handle(): void
     {
-        parent::handle($server);
-
         /* @var Container $app */
-        $app = $server->getApplication();
+        $app = $this->server->getApplication();
+
+        $this->server->getLaravel()->open();
 
         try {
             /* @var Channel $channel */
-            $channel = $this->currentChannel($this->frame->fd);
+            $channel = IO::getFdChannelOrFail($this->frame->fd);
             /* 解析数据 @var array $payload */
             $payload = $app->make('websocket.parser')->unpack($this->frame);
         } catch (\Throwable $e) {

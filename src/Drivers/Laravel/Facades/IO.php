@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Facade;
  * @method static AbstractChannel getChannel(string $channel)
  * @method static array getChannels()
  * @method static bool channelExists(string $channel)
+ * @method static mixed getFdChannel(int $fd)
+ * @method static AbstractChannel getFdChannelOrFail(int $fd)
  *
  * Class IO
  */
