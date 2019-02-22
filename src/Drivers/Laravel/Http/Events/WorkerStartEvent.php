@@ -21,6 +21,6 @@ class WorkerStartEvent extends BaseWorkerStartEvent
     {
         parent::handle();
 
-        $this->server->getLaravel()->getBaseContainer()->make('events')->dispatch('worker_start', [$this->server, $app]);
+        $this->server->getLaravel()->getBaseContainer()->make('events')->dispatch('worker_start', [$this->server, $this->server->getApplication()]);
     }
 }
