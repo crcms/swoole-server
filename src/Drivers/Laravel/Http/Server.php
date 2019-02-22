@@ -12,6 +12,7 @@
 namespace CrCms\Server\Drivers\Laravel\Http;
 
 use CrCms\Server\Drivers\Laravel\Http\Events\RequestEvent;
+use CrCms\Server\Drivers\Laravel\Http\Events\WorkerStartEvent;
 use CrCms\Server\Drivers\Laravel\Laravel;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\ServerFactory;
@@ -39,6 +40,7 @@ class Server extends AbstractServer
      */
     public function __construct(array $config, Laravel $laravel)
     {
+        $this->events['worker_start'] = WorkerStartEvent::class;
         $this->events['request'] = RequestEvent::class;
         parent::__construct($config);
         $this->laravel = $laravel;
