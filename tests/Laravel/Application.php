@@ -21,8 +21,13 @@ class Application extends BaseApplication implements ApplicationContract
      */
     protected function initialization(string $basePath): void
     {
-        mkdir($basePath.'/bootstrap/cache', 0777, true);
-        mkdir($basePath.'/config', 0777, true);
+        if (!file_exists($basePath.'/bootstrap/cache')) {
+            mkdir($basePath.'/bootstrap/cache', 0777, true);
+        }
+
+        if (!file_exists($basePath.'/config')) {
+            mkdir($basePath.'/config', 0777,  true);
+        }
         file_put_contents($basePath.'/config/app.php', '<?php'.PHP_EOL.var_export([], true).';');
     }
 
