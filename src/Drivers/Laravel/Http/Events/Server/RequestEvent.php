@@ -63,14 +63,26 @@ class RequestEvent extends AbstractEvent
 
             $kernel->terminate($illuminateRequest, $illuminateResponse);
 
-            $this->server->getLaravel()->getBaseContainer()->make('events')->dispatch(
-                new RequestHandledEvent($this->server, $this->server->getApplication(), $illuminateRequest, $illuminateResponse)
-            );
+            $this->dispatchRequestEvent($illuminateRequest, $illuminateResponse);
         } catch (\Throwable $e) {
             throw $e;
         } finally {
             // reset application
             $this->server->getLaravel()->close();
         }
+    }
+
+    /**
+     * dispatchRequestEvent
+     *
+     * @param \Illuminate\Http\Request $illuminateRequest
+     * @param \Symfony\Component\HttpFoundation\Response $illuminateResponse
+     * @return void
+     */
+    protected function dispatchRequestEvent(\Illuminate\Http\Request $illuminateRequest, \Symfony\Component\HttpFoundation\Response $illuminateResponse): void
+    {
+        $this->server->getLaravel()->getBaseContainer()->make('events')->dispatch(
+            new RequestHandledEvent($this->server, $this->server->getApplication(), $illuminateRequest, $illuminateResponse)
+        );
     }
 }
