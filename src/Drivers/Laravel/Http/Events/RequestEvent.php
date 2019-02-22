@@ -61,7 +61,7 @@ class RequestEvent extends AbstractEvent
 
             $kernel->terminate($illuminateRequest, $illuminateResponse);
 
-            $this->server->getContainer()->make('events')->dispatch('request', [$this->server, $this->server->getApplication(), $illuminateRequest, $illuminateResponse]);
+            $this->server->getLaravel()->getBaseContainer()->make('events')->dispatch('request', [$this->server, $this->server->getApplication(), $illuminateRequest, $illuminateResponse]);
 
         } catch (\Throwable $e) {
             throw $e;

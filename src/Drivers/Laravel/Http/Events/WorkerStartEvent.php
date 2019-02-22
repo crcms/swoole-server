@@ -24,6 +24,6 @@ class WorkerStartEvent extends BaseWorkerStartEvent
 
         clear_opcache();
 
-        $this->server->getContainer()->make('events')->dispatch('worker_start', [$this->server, $app]);
+        $this->server->getLaravel()->getBaseContainer()->make('events')->dispatch('worker_start', [$this->server, $app]);
     }
 }

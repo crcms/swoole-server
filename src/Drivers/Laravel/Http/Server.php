@@ -11,7 +11,6 @@
 
 namespace CrCms\Server\Drivers\Laravel\Http;
 
-use CrCms\Server\Drivers\Laravel\Contracts\ApplicationContract;
 use CrCms\Server\Drivers\Laravel\Http\Events\RequestEvent;
 use CrCms\Server\Drivers\Laravel\Laravel;
 use CrCms\Server\Server\AbstractServer;
@@ -36,25 +35,13 @@ class Server extends AbstractServer
 
     /**
      * @param array $config
-     * @param Container $container
      * @param Laravel $laravel
      */
-    public function __construct(array $config, Container $container, Laravel $laravel)
+    public function __construct(array $config, Laravel $laravel)
     {
         $this->events['request'] = RequestEvent::class;
         parent::__construct($config);
-        $this->container = $container;
         $this->laravel = $laravel;
-    }
-
-    /**
-     * getContainer
-     *
-     * @return Container
-     */
-    public function getContainer(): Container
-    {
-        return $this->container;
     }
 
     /**

@@ -48,7 +48,6 @@ class ServerCommand extends Command
 
             $server = new $driver(
                 $this->getServerConfig($name),
-                $this->laravel,
                 $this->laravel->make('server.laravel')
             );
 
