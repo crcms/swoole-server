@@ -1,9 +1,11 @@
 <?php
 
-namespace CrCms\Server\Tests\Room;
+namespace CrCms\Server\Tests\Laravel\WebSocket\Room;
 
-use CrCms\Server\WebSocket\Rooms\RedisRoom;
+use CrCms\Server\Drivers\Laravel\WebSocket\Rooms\RedisRoom;
+use Illuminate\Redis\Connections\PhpRedisConnection;
 use Illuminate\Redis\Connections\PredisConnection;
+use Illuminate\Redis\Connectors\PhpRedisConnector;
 use Illuminate\Redis\Connectors\PredisConnector;
 use PHPUnit\Framework\TestCase;
 
@@ -26,14 +28,26 @@ class RedisRoomTest extends TestCase
     {
         parent::setup();
 
-        $this->redis = (new PredisConnection(
+        $rediss = [];
+        $rediss[] = new PhpRedisConnection(
+            (new PhpRedisConnector())->connect([
+                'host'     => env('REDIS_HOST','redis'),
+                'password' => env('REDIS_PASSWORD',null),
+                'port'     => env('REDIS_PORT',6379),
+                'database' => env('REDIS_DB',10),
+            ],[])
+        );
+
+        $rediss[] = (new PredisConnection(
             (new PredisConnector())->connect([
-                'host'     => 'redis',
-                'password' => null,
-                'port'     => 6379,
-                'database' => 10,
+                'host'     => env('REDIS_HOST','redis'),
+                'password' => env('REDIS_PASSWORD',null),
+                'port'     => env('REDIS_PORT',6379),
+                'database' => env('REDIS_DB',10),
             ], [])
         ));
+
+        $this->redis = array_random($rediss);
 
         $this->room = new RedisRoom(
             $this->redis
@@ -89,12 +103,16 @@ class RedisRoomTest extends TestCase
         $this->room->add(2, 'zroom2');
         $this->room->add(3, ['zroom2', 'zoom3']);
 
+
         $this->room->remove(1);
         $this->room->remove(2);
 
-        $result = $this->redis->smembers('zroom1');
-        $this->assertEquals(false, $this->redis->exists('zroom1'));
+//        dd($this->room->get('zroom1'));
 
+        $result = $this->redis->smembers('zroom1');
+//        dd($result,$this->redis->exists('zroom1'));
+        $this->assertEquals(false, $this->redis->exists('zroom1'));
+//        dd($result);
         $this->assertEquals(0, count($result));
 
         $result = $this->redis->smembers('zroom2');
@@ -102,6 +120,7 @@ class RedisRoomTest extends TestCase
 
         $this->room->remove(3, 'zoom3');
         $result = $this->redis->smembers('zoom3');
+//        dd($result);
         $this->assertEquals(0, count($result));
 
         $this->room->remove(3, 'zroom2');

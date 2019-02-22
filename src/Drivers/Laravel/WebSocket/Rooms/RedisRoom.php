@@ -46,15 +46,15 @@ class RedisRoom implements RoomContract
      */
     public function remove(int $fd, $room = []): void
     {
-        $this->redis->pipeline(function ($pipe) use ($fd, $room) {
-            $rooms = empty($room) ?
-                $this->redis->keys('*') : (array) $room;
+        $rooms = empty($room) ?
+            $this->redis->keys('*') : (array) $room;
 
+        $this->redis->pipeline(function ($pipe) use ($fd, $rooms) {
             //merge rooms
             $allRooms = [];
             foreach ($rooms as $ifRoom) {
                 if (strpos($ifRoom, '*') !== false) {
-                    $allRooms = array_merge($allRooms, $this->redis->keys($ifRoom));
+                    $allRooms = array_merge($allRooms, $pipe->keys($ifRoom));
                 } else {
                     $allRooms[] = $ifRoom;
                 }
@@ -99,6 +99,7 @@ class RedisRoom implements RoomContract
         $existsKeys = [];
 
         $keys = $this->redis->keys('*');
+
         foreach ($keys as $key) {
             if ($this->redis->sismember($key, $fd)) {
                 $existsKeys[] = $key;
