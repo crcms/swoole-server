@@ -36,7 +36,7 @@ class Channel extends AbstractChannel
      * @return void
      */
     protected function push(int $fd, string $event, array $data = []): void
-    {//[$fd, $event, $data]
+    {
         Dispatcher::dispatch($this->task, [$fd, $event, $data]);
     }
 
