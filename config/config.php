@@ -28,26 +28,26 @@ return [
         ],*/
 
         'laravel_http' => [
-            'driver'   => \CrCms\Server\Drivers\Laravel\Http\Server::class,
-            'host'     => '0.0.0.0',
-            'port'     => 28082,
+            'driver' => \CrCms\Server\Drivers\Laravel\Http\Server::class,
+            'host' => '0.0.0.0',
+            'port' => 28082,
             'settings' => [
-                'user'      => env('SWOOLE_USER'),
-                'group'     => env('SWOOLE_GROUP'),
+                'user' => env('SWOOLE_USER'),
+                'group' => env('SWOOLE_GROUP'),
                 'log_level' => 4,
-                'log_file'  => '/var/log/laravel_http.log',
+                'log_file' => '/var/log/laravel_http.log',
             ],
         ],
 
         'base_http' => [
-            'driver'   => \CrCms\Server\Drivers\Base\Server::class,
-            'host'     => '0.0.0.0',
-            'port'     => 28081,
+            'driver' => \CrCms\Server\Drivers\Base\Server::class,
+            'host' => '0.0.0.0',
+            'port' => 28081,
             'settings' => [
-                'user'      => env('SWOOLE_USER'),
-                'group'     => env('SWOOLE_GROUP'),
+                'user' => env('SWOOLE_USER'),
+                'group' => env('SWOOLE_GROUP'),
                 'log_level' => 4,
-                'log_file'  => '/var/log/base_http.log',
+                'log_file' => '/var/log/base_http.log',
             ],
         ],
     ],
@@ -89,7 +89,7 @@ return [
         */
 
         'providers' => [
-
+            'cache', 'cache.store', 'encrypter', 'db', 'files', 'filesystem', 'hash', 'translator', 'log', 'validator', 'queue',
         ],
 
         /*
