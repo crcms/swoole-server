@@ -12,6 +12,7 @@
 namespace CrCms\Server\Drivers\Laravel;
 
 use CrCms\Server\Drivers\Laravel\Commands\ServerCommand;
+use CrCms\Server\Drivers\Laravel\Contracts\ApplicationContract;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Tasks\Dispatcher;
 use Illuminate\Support\ServiceProvider;
@@ -88,6 +89,7 @@ class SwooleServiceProvider extends ServiceProvider
     {
         $this->app->alias('server', AbstractServer::class);
         $this->app->alias('server.laravel', Laravel::class);
+        $this->app->alias('server.initialize.app', ApplicationContract::class);
         $this->app->alias('server.task.dispatcher', Dispatcher::class);
     }
 
