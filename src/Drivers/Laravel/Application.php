@@ -4,7 +4,6 @@ namespace CrCms\Server\Drivers\Laravel;
 
 use CrCms\Server\Drivers\Laravel\Contracts\ApplicationContract;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Facade;
 
 class Application implements ApplicationContract
