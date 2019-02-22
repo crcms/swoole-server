@@ -11,8 +11,8 @@
 
 namespace CrCms\Server\Drivers\Laravel\Http;
 
-use CrCms\Server\Drivers\Laravel\Http\Events\RequestEvent;
-use CrCms\Server\Drivers\Laravel\Http\Events\WorkerStartEvent;
+use CrCms\Server\Drivers\Laravel\Http\Events\Server\RequestEvent;
+use CrCms\Server\Drivers\Laravel\Http\Events\Server\WorkerStartEvent;
 use CrCms\Server\Drivers\Laravel\Laravel;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\ServerFactory;

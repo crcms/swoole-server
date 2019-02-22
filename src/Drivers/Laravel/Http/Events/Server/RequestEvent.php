@@ -1,7 +1,8 @@
 <?php
 
-namespace CrCms\Server\Drivers\Laravel\Http\Events;
+namespace CrCms\Server\Drivers\Laravel\Http\Events\Server;
 
+use CrCms\Server\Drivers\Laravel\Http\Events\RequestHandledEvent;
 use CrCms\Server\Drivers\Laravel\Http\Request;
 use CrCms\Server\Drivers\Laravel\Http\Response;
 use CrCms\Server\Drivers\Laravel\Http\Server;
@@ -55,14 +56,16 @@ class RequestEvent extends AbstractEvent
             $kernel = $this->server->getApplication()->make(Kernel::class);
 
             $illuminateRequest = Request::make($this->swooleRequest)->getIlluminateRequest();
+
             $illuminateResponse = $kernel->handle($illuminateRequest);
 
             Response::make($this->swooleResponse, $illuminateResponse)->toResponse();
 
             $kernel->terminate($illuminateRequest, $illuminateResponse);
 
-            $this->server->getLaravel()->getBaseContainer()->make('events')->dispatch('request', [$this->server, $this->server->getApplication(), $illuminateRequest, $illuminateResponse]);
-
+            $this->server->getLaravel()->getBaseContainer()->make('events')->dispatch(
+                new RequestHandledEvent($this->server, $this->server->getApplication(), $illuminateRequest, $illuminateResponse)
+            );
         } catch (\Throwable $e) {
             throw $e;
         } finally {
