@@ -3,6 +3,7 @@
 namespace CrCms\Server\Drivers\Laravel;
 
 use CrCms\Server\Drivers\Laravel\WebSocket\Channel;
+use CrCms\Server\Drivers\Laravel\WebSocket\Tasks\PushTask;
 use CrCms\Server\WebSocket\Contracts\ConverterContract;
 use CrCms\Server\WebSocket\Contracts\ParserContract;
 use CrCms\Server\WebSocket\Contracts\RoomContract;
@@ -76,7 +77,7 @@ class WebSocketServiceProvider extends ServiceProvider
             $io = new IO($app['websocket.room']);
             $channels = $app['config']->get('swoole.websocket_channels', ['/']);
             foreach ($channels as $channel) {
-                $io->addChannel(new Channel($app, $io, $channel));
+                $io->addChannel(new Channel($channel, $app, $io, $app['websocket.push']));
             }
 
             return $io;
@@ -94,6 +95,11 @@ class WebSocketServiceProvider extends ServiceProvider
             return new $converter($app);
         });
 
+        $this->app->singleton('websocket.push', function ($app) {
+            return new PushTask($app['websocket.parser'], $app['websocket.data_converter']);
+        });
+
+
         //$this->app->singleton(ExceptionHandler::class, Handler::class);
     }
 
@@ -105,6 +111,7 @@ class WebSocketServiceProvider extends ServiceProvider
         $this->app->alias('websocket', Socket::class);
         $this->app->alias('websocket.io', IO::class);
         $this->app->alias('websocket.room', RoomContract::class);
+        $this->app->alias('websocket.push', PushTask::class);
         $this->app->alias('websocket.parser', ParserContract::class);
         $this->app->alias('websocket.data_converter', ConverterContract::class);
     }

@@ -4,6 +4,8 @@ namespace CrCms\Server\Drivers\Laravel\WebSocket\Tasks;
 
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Contracts\TaskContract;
+use CrCms\Server\WebSocket\Contracts\ConverterContract;
+use CrCms\Server\WebSocket\Contracts\ParserContract;
 use OutOfBoundsException;
 
 /**
@@ -11,6 +13,26 @@ use OutOfBoundsException;
  */
 final class PushTask implements TaskContract
 {
+    /**
+     * @var ParserContract
+     */
+    protected $parser;
+
+    /**
+     * @var ConverterContract
+     */
+    protected $converter;
+
+    /**
+     * @param ParserContract $parser
+     * @param ConverterContract $converter
+     */
+    public function __construct(ParserContract $parser, ConverterContract $converter)
+    {
+        $this->parser = $parser;
+        $this->converter = $converter;
+    }
+
     /**
      * @param mixed ...$params
      *
@@ -23,7 +45,9 @@ final class PushTask implements TaskContract
         /* @var int $fd */
         $fd = array_shift($params);
         /* @var array $data */
-        $data = $params;
+        $data = $this->parser->pack(
+            $this->converter->conversion($params)
+        );
 
         if ($server->getServer()->isEstablished($fd)) {
             $server->getServer()->push($fd, $data);

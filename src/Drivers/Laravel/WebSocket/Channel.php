@@ -16,14 +16,15 @@ class Channel extends AbstractChannel
     protected $app;
 
     /**
-     * @param Container $app
-     * @param IO $io
      * @param string $name
+     * @param Container $container
+     * @param IO $io
+     * @param PushTask $task
      */
-    public function __construct(Container $app, IO $io, string $name)
+    public function __construct(string $name, Container $container, IO $io, PushTask $task)
     {
-        $this->app = $app;
-        parent::__construct($io, $name);
+        $this->app = $container;
+        parent::__construct($name, $io, $task);
     }
 
     /**
@@ -34,9 +35,9 @@ class Channel extends AbstractChannel
      * @param array $data
      * @return void
      */
-    protected function push(PushTask $task, int $fd, string $event, array $data = []): void
+    protected function push(int $fd, string $event, array $data = []): void
     {//[$fd, $event, $data]
-        Dispatcher::dispatch($task, [$fd, $event, $data]);
+        Dispatcher::dispatch($this->task, [$fd, $event, $data]);
     }
 
     /**

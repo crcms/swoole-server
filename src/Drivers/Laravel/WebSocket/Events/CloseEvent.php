@@ -2,11 +2,12 @@
 
 namespace CrCms\Server\WebSocket\Events;
 
+use CrCms\Server\Drivers\Laravel\Facades\IO;
+use CrCms\Server\Drivers\Laravel\WebSocket\Server;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Events\AbstractEvent;
-use CrCms\Server\WebSocket\Channel;
+use CrCms\Server\Drivers\Laravel\WebSocket\Channel;
 use CrCms\Server\WebSocket\Events\Internal\CloseHandledEvent;
-use CrCms\Server\WebSocket\FdChannelTrait;
 use CrCms\Server\WebSocket\Socket;
 use Illuminate\Contracts\Container\Container;
 
@@ -15,7 +16,11 @@ use Illuminate\Contracts\Container\Container;
  */
 class CloseEvent extends AbstractEvent
 {
-    use FdChannelTrait;
+
+    /**
+     * @var Server
+     */
+    protected $server;
 
     /**
      * @var int
@@ -27,8 +32,9 @@ class CloseEvent extends AbstractEvent
      *
      * @param $fd
      */
-    public function __construct($fd)
+    public function __construct(AbstractServer $server,int $fd)
     {
+        parent::__construct($server);
         $this->fd = $fd;
     }
 
@@ -39,16 +45,14 @@ class CloseEvent extends AbstractEvent
      *
      * @return void
      */
-    public function handle(AbstractServer $server): void
+    public function handle(): void
     {
-        parent::handle($server);
-
         /* @var Container $app */
-        $app = $server->getApplication();
+        $app = $this->server->getApplication();
 
         //close websocket
         try {
-            $info = $server->getServer()->getClientInfo($this->fd);
+            $info = $this->server->getServer()->getClientInfo($this->fd);
             //当在websocket cliet中使用http访问时，也会带上websocket_status参数，状态为0
             if (is_array($info) && isset($info['websocket_status']) && $info['websocket_status'] > 0) {
                 $this->closeWebSocket($app);
@@ -70,18 +74,19 @@ class CloseEvent extends AbstractEvent
     protected function closeWebSocket(Container $app): void
     {
         /* @var Channel $channel */
-        try {
-            $channel = $this->currentChannel($this->fd);
-        } catch (\Exception $exception) {
-            echo "closeWebSocket: {$exception->getMessage()}, fd:{$this->fd}".PHP_EOL;
-            $channel = null;
-        }
+//        try {
+//            $channel = IO::getFdChannel($this->fd);
+//        } catch (\Exception $exception) {
+//            echo "closeWebSocket: {$exception->getMessage()}, fd:{$this->fd}".PHP_EOL;
+//            $channel = null;
+//        }
 
+        $channel = IO::getFdChannel($this->fd);
         if (is_null($channel)) {
             return;
         }
 
-        $websocket = (new Socket($app, $channel))->setFd($this->fd);
+        $websocket = (new Socket($channel, $this->fd));
 
         $app->instance('websocket', $websocket);
 

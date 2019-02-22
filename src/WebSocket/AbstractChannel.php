@@ -34,15 +34,20 @@ abstract class AbstractChannel
     protected $events = [];
 
     /**
-     * Channel constructor.
-     *
-     * @param IO $io
-     * @param string $name
+     * @var PushTask
      */
-    public function __construct(IO $io, string $name)
+    protected $task;
+
+    /**
+     * @param string $name
+     * @param IO $io
+     * @param PushTask $task
+     */
+    public function __construct(string $name, IO $io, PushTask $task)
     {
-        $this->io = $io;
         $this->name = $name;
+        $this->task = $task;
+        $this->io = $io;
         $this->room = $io->getRoom();
     }
 
@@ -193,7 +198,7 @@ abstract class AbstractChannel
      * @param array $data
      * @return void
      */
-    abstract protected function push(PushTask $task, int $fd, string $event, array $data = []): void;
+    abstract protected function push(int $fd, string $event, array $data = []): void;
 
     /**
      * call event

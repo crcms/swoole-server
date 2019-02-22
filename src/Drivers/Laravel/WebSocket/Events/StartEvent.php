@@ -2,22 +2,17 @@
 
 namespace CrCms\Server\WebSocket\Events;
 
-use CrCms\Server\Server\AbstractServer;
-use CrCms\Server\Server\Contracts\EventContract;
+use CrCms\Server\Drivers\Laravel\Facades\IO;
 use CrCms\Server\Server\Events\StartEvent as BaseStartEvent;
-use CrCms\Server\WebSocket\Facades\IO;
 
 /**
  * Class StartEvent.
  */
-class StartEvent extends BaseStartEvent implements EventContract
+class StartEvent extends BaseStartEvent
 {
-    /**
-     * @param AbstractServer $server
-     */
-    public function handle(AbstractServer $server): void
+    public function handle(): void
     {
-        parent::handle($server);
+        parent::handle();
 
         // reset db
         IO::getRoom()->reset();
