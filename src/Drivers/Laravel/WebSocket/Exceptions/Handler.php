@@ -1,6 +1,6 @@
 <?php
 
-namespace CrCms\Server\WebSocket\Exceptions;
+namespace CrCms\Server\Drivers\Laravel\WebSocket\Exceptions;
 
 use Exception;
 use Illuminate\Contracts\Container\Container;

@@ -1,6 +1,6 @@
 <?php
 
-namespace CrCms\Server\WebSocket\Events\Internal;
+namespace CrCms\Server\Drivers\Laravel\WebSocket\Events\Internal;
 
 /**
  * Class CloseHandledEvent.

@@ -121,6 +121,22 @@ return [
 
         'events' => [
         ],
+
+
+        /*'websocket_rooms' => [
+
+            'default' => 'redis',
+
+            'connections' => [
+                'redis' => [
+                    'connection' => 'websocket',
+                ],
+            ],
+        ],*/
+
+        'websocket_channels' => [
+            '/',
+        ],
     ],
 
     /*
@@ -153,20 +169,6 @@ return [
     */
     'enable_websocket' => false,
 
-    'websocket_rooms' => [
-
-        'default' => 'redis',
-
-        'connections' => [
-            'redis' => [
-                'connection' => 'websocket',
-            ],
-        ],
-    ],
-
-    'websocket_channels' => [
-        '/',
-    ],
 
     'websocket_parser' => CrCms\Server\WebSocket\Parsers\DefaultParser::class,
 

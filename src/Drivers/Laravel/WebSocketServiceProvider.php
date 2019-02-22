@@ -3,15 +3,13 @@
 namespace CrCms\Server\Drivers\Laravel;
 
 use CrCms\Server\Drivers\Laravel\WebSocket\Channel;
+use CrCms\Server\Drivers\Laravel\WebSocket\Rooms\RedisRoom;
 use CrCms\Server\Drivers\Laravel\WebSocket\Tasks\PushTask;
 use CrCms\Server\WebSocket\Contracts\ConverterContract;
 use CrCms\Server\WebSocket\Contracts\ParserContract;
 use CrCms\Server\WebSocket\Contracts\RoomContract;
-use CrCms\Server\WebSocket\Exceptions\Handler;
 use CrCms\Server\WebSocket\IO;
-use CrCms\Server\WebSocket\Rooms\RedisRoom;
 use CrCms\Server\WebSocket\Socket;
-use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -75,7 +73,7 @@ class WebSocketServiceProvider extends ServiceProvider
 
         $this->app->singleton('websocket.io', function ($app) {
             $io = new IO($app['websocket.room']);
-            $channels = $app['config']->get('swoole.websocket_channels', ['/']);
+            $channels = $app['config']->get('swoole.laravel.websocket_channels', ['/']);
             foreach ($channels as $channel) {
                 $io->addChannel(new Channel($channel, $app, $io, $app['websocket.push']));
             }
@@ -98,9 +96,6 @@ class WebSocketServiceProvider extends ServiceProvider
         $this->app->singleton('websocket.push', function ($app) {
             return new PushTask($app['websocket.parser'], $app['websocket.data_converter']);
         });
-
-
-        //$this->app->singleton(ExceptionHandler::class, Handler::class);
     }
 
     /**
@@ -111,6 +106,7 @@ class WebSocketServiceProvider extends ServiceProvider
         $this->app->alias('websocket', Socket::class);
         $this->app->alias('websocket.io', IO::class);
         $this->app->alias('websocket.room', RoomContract::class);
+        $this->app->alias('websocket.room', RedisRoom::class);
         $this->app->alias('websocket.push', PushTask::class);
         $this->app->alias('websocket.parser', ParserContract::class);
         $this->app->alias('websocket.data_converter', ConverterContract::class);

@@ -1,6 +1,6 @@
 <?php
 
-namespace CrCms\Server\WebSocket\Rooms;
+namespace CrCms\Server\Drivers\Laravel\WebSocket\Rooms;
 
 use CrCms\Server\WebSocket\Contracts\RoomContract;
 use Illuminate\Contracts\Redis\Connection;

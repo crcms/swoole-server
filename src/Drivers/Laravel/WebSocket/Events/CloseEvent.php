@@ -3,11 +3,11 @@
 namespace CrCms\Server\WebSocket\Events;
 
 use CrCms\Server\Drivers\Laravel\Facades\IO;
+use CrCms\Server\Drivers\Laravel\WebSocket\Events\Internal\CloseHandledEvent;
 use CrCms\Server\Drivers\Laravel\WebSocket\Server;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Events\AbstractEvent;
 use CrCms\Server\Drivers\Laravel\WebSocket\Channel;
-use CrCms\Server\WebSocket\Events\Internal\CloseHandledEvent;
 use CrCms\Server\WebSocket\Socket;
 use Illuminate\Contracts\Container\Container;
 
@@ -50,6 +50,8 @@ class CloseEvent extends AbstractEvent
         /* @var Container $app */
         $app = $this->server->getApplication();
 
+        $this->server->getLaravel()->open();
+
         //close websocket
         try {
             $info = $this->server->getServer()->getClientInfo($this->fd);
@@ -58,9 +60,7 @@ class CloseEvent extends AbstractEvent
                 $this->closeWebSocket($app);
             }
         } finally {
-            $app->make('events')->dispatch(
-                new CloseHandledEvent($this->fd)
-            );
+            $this->server->getLaravel()->close();
         }
     }
 

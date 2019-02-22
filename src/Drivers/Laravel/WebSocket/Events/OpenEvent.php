@@ -4,6 +4,7 @@ namespace CrCms\Server\WebSocket\Events;
 
 use CrCms\Server\Drivers\Laravel\Http\Request;
 use CrCms\Server\Drivers\Laravel\WebSocket\Server;
+use function CrCms\Server\Drivers\Laravel\websocket_exception_report_render;
 use CrCms\Server\Server\AbstractServer;
 use CrCms\Server\Server\Events\AbstractEvent;
 use CrCms\Server\Drivers\Laravel\WebSocket\Channel;
@@ -38,8 +39,7 @@ class OpenEvent extends AbstractEvent
     protected $illuminateRequest;
 
     /**
-     * OpenEvent constructor.
-     *
+     * @param AbstractServer $server
      * @param SwooleRequest $request
      */
     public function __construct(AbstractServer $server, SwooleRequest $request)
@@ -50,11 +50,19 @@ class OpenEvent extends AbstractEvent
     }
 
     /**
+     * handle
+     *
+     * @return void
+     *
+     * @throws FatalThrowableError
+     * @throws \Throwable
      */
     public function handle(): void
     {
         /* @var Container $app */
         $app = $this->server->getApplication();
+
+        $this->server->getLaravel()->open();
 
         try {
             /* @var Channel $channel */
@@ -67,6 +75,10 @@ class OpenEvent extends AbstractEvent
             $app->instance('websocket', new Socket($channel, $this->request->fd));
         } catch (\Throwable $e) {
             $this->server->getServer()->disconnect($this->request->fd, 1003, 'unsupported.');
+
+            websocket_exception_report_render($app, $e);
+
+            $this->server->getLaravel()->close();
 
             throw $e;
         }
@@ -87,22 +99,12 @@ class OpenEvent extends AbstractEvent
                     'request' => $this->illuminateRequest,
                 ]);
             }
-        } catch (\Exception $e) {
-            $app->make(ExceptionHandler::class)->report($e);
-            $app->make(ExceptionHandler::class)->render($app->make('websocket'), $e);
-
-            throw $e;
         } catch (\Throwable $e) {
-            $e = new FatalThrowableError($e);
-            $app->make(ExceptionHandler::class)->report(new FatalThrowableError($e));
-            $app->make(ExceptionHandler::class)->render($app->make('websocket'), $e);
+            websocket_exception_report_render($app, $e, $app->make('websocket'));
 
             throw $e;
         } finally {
-            // dispatch an event
-            $app->make('events')->dispatch(
-                new ConnectionHandled($this->illuminateRequest)
-            );
+            $this->server->getLaravel()->close();
         }
     }
 

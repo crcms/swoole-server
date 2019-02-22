@@ -2,9 +2,12 @@
 
 namespace CrCms\Server\Drivers\Laravel;
 
+use CrCms\Server\Drivers\Laravel\WebSocket\Exceptions\Handler;
+use CrCms\Server\WebSocket\Socket;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Foundation\Application;
 use Laravel\Lumen\Application as LumenApplication;
+use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 /**
  * get_framework_type
@@ -59,4 +62,25 @@ function is_laravel(Container $app): bool
 function is_lumen(Container $app): bool
 {
     return get_framework_type($app) === 'Lumen';
+}
+
+/**
+ * websocket_exception_report_render
+ *
+ * @param Container $app
+ * @param \Throwable $e
+ * @param Socket|null $socket
+ * @return void
+ */
+function websocket_exception_report_render(Container $app, \Throwable $e, Socket $socket = null): void
+{
+    if (!$e instanceof \Exception) {
+        $e = new FatalThrowableError($e);
+    }
+
+    $app->make(Handler::class)->report($e);
+
+    if (!is_null($socket)) {
+        $app->make(Handler::class)->render($socket, $e);
+    }
 }
