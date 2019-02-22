@@ -14,11 +14,6 @@ $app->alias('events', \Illuminate\Events\Dispatcher::class);
 $swooleConfig = require __DIR__.'/../../config/config.php';
 
 
-//$application = new \CrCms\Server\Tests\Laravel\Application($swooleConfig);
-//
-//$app = $application->app();
-
-
 $app->singleton('config', function () use ($swooleConfig) {
     $swooleConfig['laravel']['app'] = \CrCms\Server\Tests\Laravel\Application::class;
     return new \Illuminate\Config\Repository(['swoole' => $swooleConfig]);
@@ -26,39 +21,12 @@ $app->singleton('config', function () use ($swooleConfig) {
 
 $app->instance('path.config',__DIR__.'/../../config');
 
-
-//function config_path($path = null)
-//{
-//    return is_null($path) ? __DIR__ : __DIR__.'/'.$path;
-//}
-//function app_path($path = null)
-//{
-//    return is_null($path) ? __DIR__ : __DIR__.'/'.$path;
-//}
-//function resource_path($path = null)
-//{
-//    return is_null($path) ? __DIR__ : __DIR__.'/'.$path;
-//}
-//function app() {
-//    return \Illuminate\Container\Container::getInstance();
-//}
-//function config($key,$default = null)
-//{
-//    \Illuminate\Container\Container::getInstance()->make('config')->get($key,$default);
-//}
-//function trans($key = null, $replace = [], $locale = null)
-//{
-//
-//    return \Illuminate\Container\Container::getInstance()->make('translator')->trans($key, $replace, $locale);
-//}
-//$request = Mockery::mock('request');
-//$request->shouldReceive('all')->andReturn([]);
-//$app->instance('request',$request);
 //service providers
 $providers = [
     \Illuminate\Events\EventServiceProvider::class,
     \CrCms\Server\Drivers\Laravel\SwooleServiceProvider::class,
 ];
+
 //
 $providers = array_map(function ($provider) use ($app) {
     return new $provider($app);

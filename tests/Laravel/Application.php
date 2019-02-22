@@ -24,6 +24,9 @@ class Application extends BaseApplication implements ApplicationContract
         if (!file_exists($basePath.'/bootstrap/cache')) {
             mkdir($basePath.'/bootstrap/cache', 0777, true);
         }
+        if (!file_exists($basePath.'/views')) {
+            mkdir($basePath.'/views', 0777, true);
+        }
 
         if (!file_exists($basePath.'/config')) {
             mkdir($basePath.'/config', 0777,  true);
@@ -55,7 +58,52 @@ class Application extends BaseApplication implements ApplicationContract
         );
 
         $this->bootstrap($app);
-        $app->register(SwooleServiceProvider::class);
+
+        $providers = [
+//            \Illuminate\Auth\AuthServiceProvider::class,
+            //Illuminate\Broadcasting\BroadcastServiceProvider::class,
+//            \Illuminate\Cache\CacheServiceProvider::class,
+//            \Illuminate\Foundation\Providers\ConsoleSupportServiceProvider::class,
+//            \Illuminate\Cookie\CookieServiceProvider::class,
+//            \Illuminate\Database\DatabaseServiceProvider::class,
+//            \Illuminate\Encryption\EncryptionServiceProvider::class,
+            \Illuminate\Filesystem\FilesystemServiceProvider::class,
+            \Illuminate\Foundation\Providers\FoundationServiceProvider::class,
+//            Illuminate\Hashing\HashServiceProvider::class,
+//            Illuminate\Mail\MailServiceProvider::class,
+//            \Illuminate\Notifications\NotificationServiceProvider::class,
+            \Illuminate\Pagination\PaginationServiceProvider::class,
+            \Illuminate\Pipeline\PipelineServiceProvider::class,
+            \Illuminate\Queue\QueueServiceProvider::class,
+            \Illuminate\Redis\RedisServiceProvider::class,
+//            \Illuminate\Auth\Passwords\PasswordResetServiceProvider::class,
+//            \Illuminate\Session\SessionServiceProvider::class,
+//            \Illuminate\Translation\TranslationServiceProvider::class,
+//            \Illuminate\Validation\ValidationServiceProvider::class,
+            \Illuminate\View\ViewServiceProvider::class,
+            SwooleServiceProvider::class,
+        ];
+
+        $app->make('config')->set(['view.paths' => [$basePath.'/views'] ]);
+        $app->make('config')->set(['view.compiled' => [$basePath.'/views'] ]);
+
+//
+        $providers = array_map(function ($provider) use ($app) {
+            return new $provider($app);
+        }, $providers);
+
+// register
+        foreach ($providers as $provider) {
+            $provider->register();
+        }
+
+// boot
+        foreach ($providers as $provider) {
+            if (method_exists($provider, 'boot')) {
+                $provider->boot();
+            }
+        }
+//        $app->make('config')->set(['swoole' => require __DIR__.'/../../config/config.php' ]);
 
         return $app;
 
