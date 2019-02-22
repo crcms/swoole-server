@@ -130,6 +130,26 @@ abstract class AbstractServer
     }
 
     /**
+     * getEvents
+     *
+     * @return array
+     */
+    public function getEvents(): array
+    {
+        return $this->events;
+    }
+
+    /**
+     * getObjectEvents
+     *
+     * @return array
+     */
+    public function getObjectEvents(): array
+    {
+        return $this->eventObjects;
+    }
+
+    /**
      * Get current server one setting
      * Throws an exception if the key does not exist
      *
