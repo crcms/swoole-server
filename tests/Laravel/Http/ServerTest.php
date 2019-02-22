@@ -2,8 +2,8 @@
 
 namespace CrCms\Server\Tests\Laravel\Http;
 
-use CrCms\Server\Drivers\Laravel\Http\Events\RequestEvent;
-use CrCms\Server\Drivers\Laravel\Http\Events\WorkerStartEvent;
+use CrCms\Server\Drivers\Laravel\Http\Events\Server\RequestEvent;
+use CrCms\Server\Drivers\Laravel\Http\Events\Server\WorkerStartEvent;
 use CrCms\Server\Drivers\Laravel\Http\Server;
 use CrCms\Server\Server\Events\ManagerStartEvent;
 use CrCms\Server\Server\Events\StartEvent;
