@@ -2,6 +2,7 @@
 
 namespace CrCms\Server\Server\Events;
 
+use function CrCms\Server\clear_opcache;
 use CrCms\Server\Server\AbstractServer;
 
 class WorkerStartEvent extends AbstractEvent
@@ -32,5 +33,8 @@ class WorkerStartEvent extends AbstractEvent
                 'task_' :
                 'worker_'
             ).strval($this->workId));
+
+
+        clear_opcache();
     }
 }
