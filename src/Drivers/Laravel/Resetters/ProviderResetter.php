@@ -17,7 +17,7 @@ class ProviderResetter implements ResetterContract
      */
     public function handle(Container $app, Laravel $laravel): void
     {
-        $providers = $laravel->getBaseContainer()['config']->get('swoole.laravel.providers');
+        $providers = $laravel->getConfig()->get('swoole.laravel.providers');
 
         foreach ($providers as $provider) {
             $app->register($provider, true);

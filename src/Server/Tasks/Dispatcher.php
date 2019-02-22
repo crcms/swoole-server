@@ -38,8 +38,6 @@ class Dispatcher
     {
         $data = ['object' => $task, 'params' => $params];
 
-        return $async ? $this->server->task($data, -1, function (Server $server, int $taskId, $data) use ($task) {
-            $task->finish($data);
-        }) : $this->server->taskwait($data, $timeout);
+        return $async ? $this->server->task($data, -1) : $this->server->taskwait($data, $timeout);
     }
 }

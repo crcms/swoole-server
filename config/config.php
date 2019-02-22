@@ -76,7 +76,7 @@ return [
         */
 
         'preload' => [
-
+            'cache', 'cache.store', 'encrypter', 'db', 'files', 'filesystem', 'hash', 'translator', 'log', 'validator', 'queue',
         ],
 
         /*
@@ -89,7 +89,7 @@ return [
         */
 
         'providers' => [
-            'cache', 'cache.store', 'encrypter', 'db', 'files', 'filesystem', 'hash', 'translator', 'log', 'validator', 'queue',
+
         ],
 
         /*

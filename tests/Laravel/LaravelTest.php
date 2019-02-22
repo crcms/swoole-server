@@ -33,23 +33,6 @@ class LaravelTest extends TestCase
         $this->assertEquals(true, in_array(ProviderResetter::class, $resttersNames));
     }
 
-//    public function testPreload()
-//    {
-//        $app = static::$laravel->getApplication();
-//
-//        $app->singleton('test', function () {
-//            return new \stdClass();
-//        });
-//
-//        static::$laravel->getBaseContainer()->make('config')->set(['swoole.laravel.preload' => ['test']]);
-//
-//        $this->assertEquals(false, $app->resolved('test'));
-//
-//        static::$laravel->preload();
-//
-//        $this->assertEquals(true, $app->resolved('test'));
-//    }
-
     public function testApp()
     {
         $container = static::$laravel->getBaseContainer();
