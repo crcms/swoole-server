@@ -66,6 +66,7 @@ abstract class AbstractServer
         $this->name = $this->name();
         $this->baseConfig = $this->getBaseConfig();
         $this->mergeSettings();
+        $this->events = $this->events();
     }
 
     /**
@@ -95,6 +96,16 @@ abstract class AbstractServer
      * @return Server
      */
     abstract public function create(): SwooleServer;
+
+    /**
+     * set server events
+     *
+     * @return array
+     */
+    protected function events(): array
+    {
+        return $this->events;
+    }
 
     /**
      * setSettings

@@ -40,8 +40,6 @@ class Server extends AbstractServer
      */
     public function __construct(array $config, Laravel $laravel)
     {
-        $this->events['worker_start'] = WorkerStartEvent::class;
-        $this->events['request'] = RequestEvent::class;
         parent::__construct($config);
         $this->laravel = $laravel;
     }
@@ -97,5 +95,19 @@ class Server extends AbstractServer
     public function getApplication(): Container
     {
         return $this->laravel->getApplication();
+    }
+
+    /**
+     * set server events
+     *
+     * @return array
+     */
+    protected function events(): array
+    {
+        $events = parent::events();
+        $events['worker_start'] = WorkerStartEvent::class;
+        $events['request'] = RequestEvent::class;
+
+        return $events;
     }
 }
