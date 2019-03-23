@@ -76,8 +76,6 @@ class ServerManager implements Server\Contracts\ServerStartContract, Server\Cont
             $this->server->createServer();
             $this->server->bootstrap();
 
-            // д��ǰ�棬��Ϊswoole �� start֮��Ͳ���ִ�к���Ĵ�����
-            // ������쳣Ҳ���׳�����ִ�д˷���
             $this->command->getOutput()->success('start successfully');
 
             return $this->server->start();
@@ -132,7 +130,7 @@ class ServerManager implements Server\Contracts\ServerStartContract, Server\Cont
     {
         $pidFile = $this->getPidFile();
         if (!file_exists($pidFile)) {
-            return -99999;
+            return 1000000;
         }
 
         return (int) file_get_contents($pidFile);
