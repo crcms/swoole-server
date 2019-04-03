@@ -97,7 +97,7 @@ class ServerManager
     {
         $pidFile = $this->server->getSettings()['pid_file'];
         if (!file_exists($pidFile)) {
-            return -99999;
+            return 1000000;
         }
 
         return (int) file_get_contents($pidFile);
